@@ -2,6 +2,7 @@
 <project name="AkeebaLoginGuard" description="Akeeba LoginGuard" default="git" >
 	<import file="${phing.dir}/../../buildfiles/phing/common.xml" />
 
+	<!-- Fileset for building the component ZIP -->
 	<fileset dir="${dirs.component}" id="component">
 		<include name="backend/**" />
 		<include name="frontend/**" />
@@ -10,10 +11,14 @@
 
 		<include name="*" />
 
-		<exclude name="LICENSE.txt" />
+		<!-- Exclude uncompressed CSS and JS -->
+		<exclude name="media/uncompressed/**" />
+
+		<!-- Exclude the script used by the package -->
 		<exclude name="script.loginguard.php" />
 	</fileset>
 
+	<!-- Fileset for building the package ZIP -->
 	<fileset dir="${dirs.release}" id="package">
 		<include name="com_*.zip" />
 		<include name="mod_*.zip" />
