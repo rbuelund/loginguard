@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project name="AkeebaLoginGuard" description="Akeeba LoginGuard" default="git" >
+	<import file="${phing.dir}/../../buildfiles/phing/common.xml" />
+
+	<fileset dir="${dirs.component}" id="component">
+		<include name="backend/**" />
+		<include name="frontend/**" />
+		<include name="language/**" />
+		<include name="media/**" />
+
+		<include name="*" />
+
+		<exclude name="LICENSE.txt" />
+		<exclude name="script.loginguard.php" />
+	</fileset>
+
+	<fileset dir="${dirs.release}" id="package">
+		<include name="com_*.zip" />
+		<include name="mod_*.zip" />
+		<include name="plg_*.zip" />
+		<include name="lib_*.zip" />
+		<include name="pkg_*.xml" />
+		<include name="*.txt" />
+		<include name="script.loginguard.php" />
+	</fileset>
+
+	<!--
+	====================================================================================================
+	Tasks - Documentation
+	====================================================================================================
+	-->
+
+	<target name="documentation" description="The documentation"
+			depends="doc-j-pdf">
+	</target>
+
+	<target name="doc-j-pdf" description="Documentation for Joomla! in PDF format">
+		<phingcall target="docbook-pdf">
+			<property name="docs.input" value="LoginGuard.xml" />
+		</phingcall>
+	</target>
+
+	<target name="doc-j-pdf" description="Documentation for Joomla! in ePub format">
+		<phingcall target="docbook-epub">
+			<property name="docs.input" value="LoginGuard.xml" />
+		</phingcall>
+	</target>
+	<!--
+	====================================================================================================
+	Tasks - Project management
+	====================================================================================================
+	-->
+
+	<target name="docsdeploy-LoginGuard" >
+		<phingcall target="docbook-deploy">
+			<property name="docsdeploy.path.source" value="" />
+			<property name="docsdeploy.path.target" value="loginguard" />
+		</phingcall>
+	</target>
+
+	<target name="docsdeploy"
+			depends="docsdeploy-LoginGuard" />
+</project>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.6.0" method="upgrade">
+	<name>LOGINGUARD</name>
+	<creationDate>##DATE##</creationDate>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@akeebabackup.com</authorEmail>
+	<authorUrl>https://www.akeebabackup.com</authorUrl>
+	<copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
+	<license>This component in released under the GNU/GPL v3 or later license</license>
+	<version>##VERSION##</version>
+	<description>Akeeba LoginGuard</description>
+
+	<!-- Public front end files -->
+	<files folder="frontend">
+		<folder>TODO</folder>
+
+		<filename>loginguard.php</filename>
+	</files>
+
+	<!-- Front end translation files -->
+	<languages folder="language/frontend">
+		<language tag="en-GB">en-GB/en-GB.com_loginguard.ini</language>
+	</languages>
+
+	<!-- Media files -->
+	<media destination="com_loginguard" folder="media">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+		<filename>index.html</filename>
+	</media>
+
+	<!-- Administrator back-end section -->
+	<administration>
+		<!-- Administration menu -->
+		<menu view="cpanel">COM_LOGINGUARD</menu>
+
+		<!-- Back-end files -->
+		<files folder="backend">
+			<folder>TODO</folder>
+
+			<filename>access.xml</filename>
+			<filename>loginguard.php</filename>
+			<filename>config.xml</filename>
+		</files>
+
+		<!-- Back-end translation files -->
+		<languages folder="language/backend">
+			<language tag="en-GB">en-GB/en-GB.com_loginguard.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_loginguard.sys.ini</language>
+		</languages>
+	</administration>
+	
+	<!-- Installation / uninstallation script file -->
+	<scriptfile>script.com_loginguard.php</scriptfile>
+</extension>

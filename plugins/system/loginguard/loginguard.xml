@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.6.0" type="plugin" group="system" method="upgrade">
+	<name>PLG_SYSTEM_LOGINGUARD</name>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
+	<authorUrl>https://www.akeebabackup.com</authorUrl>
+	<copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
+	<license>GNU General Public License version 3, or later</license>
+	<creationDate>February 2017</creationDate>
+	<version>1.0</version>
+	<description>PLG_SYSTEM_LOGINGUARD_DESCRIPTION</description>
+	<files>
+		<filename plugin="loginguard">loginguard.php</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_system_loginguard.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_loginguard.sys.ini</language>
+	</languages>
+</extension>
