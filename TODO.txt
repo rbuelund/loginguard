@@ -1,0 +1,8 @@
+Captive 2FA page
+	Earliest point is onAfterRoute
+	Must check option like JAdministratorHelper::findOption() does
+	Then I must set the option if we are logged in (!$user->get('guest') && $user->authorise('core.login.admin'))
+
+Deal with plugins
+	I need to forcibly unload all loaded plugins in various stages
+	I may have to inspect its _methods and _observers arrays
