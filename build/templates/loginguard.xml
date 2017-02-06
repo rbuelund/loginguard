@@ -12,8 +12,10 @@
 
 	<!-- Public front end files -->
 	<files folder="frontend">
-		<folder>TODO</folder>
+		<folder>views</folder>
 
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
 		<filename>loginguard.php</filename>
 	</files>
 
@@ -37,7 +39,7 @@
 
 		<!-- Back-end files -->
 		<files folder="backend">
-			<folder>TODO</folder>
+			<folder>sql</folder>
 
 			<filename>access.xml</filename>
 			<filename>loginguard.php</filename>
