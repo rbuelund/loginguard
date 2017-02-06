@@ -50,6 +50,13 @@
 			<language tag="en-GB">en-GB/en-GB.com_loginguard.sys.ini</language>
 		</languages>
 	</administration>
+
+	<!-- Runs on update, used to install the necessary database tables -->
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
 	
 	<!-- Installation / uninstallation script file -->
 	<scriptfile>script.com_loginguard.php</scriptfile>
