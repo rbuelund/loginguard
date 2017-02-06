@@ -73,11 +73,13 @@ class PlgSystemLoginguard extends JPlugin
 
 		if ($option == 'com_loginguard')
 		{
-			if ((substr($task, 0, 8) == 'captive.') || ($view == 'captive'))
-			{
-				$app->input->set('tmpl', 'index');
-				$app->input->set('format', 'html');
+			// In case someone gets any funny ideas...
+			$app->input->set('tmpl', 'index');
+			$app->input->set('format', 'html');
+			$app->input->set('layout', null);
 
+			if ($view == 'captive')
+			{
 				return;
 			}
 		}
@@ -85,7 +87,7 @@ class PlgSystemLoginguard extends JPlugin
 		// We only kick in when the user has actually set up TFA.
 		if ($this->needsTFA($user))
 		{
-			$url = JRoute::_('index.php?option=com_loginguard&task=captive.default');
+			$url = JRoute::_('index.php?option=com_loginguard&view=captive', false);
 			$app->redirect($url, 307);
 
 			return;
