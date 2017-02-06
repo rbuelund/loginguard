@@ -1,6 +1,6 @@
 # Akeeba LoginGuard
 
-A real Two Factor Authentication system for Joomla
+A real Two Factor Authentication system for Joomla!
 
 ## Pre-alpha software
 

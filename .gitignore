@@ -14,7 +14,7 @@
 
 /component/media/js/*.map
 
-/documentation/*/*.xml~
+/documentation/*/*.*~
 
 /experiment
 
