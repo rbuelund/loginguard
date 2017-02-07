@@ -54,6 +54,17 @@ class LoginGuardModelCaptive extends JModelLegacy
 	}
 
 	/**
+	 * Are we inside an administrator page?
+	 *
+	 * @return  bool
+	 */
+	public function isAdminPage()
+	{
+		$app = JFactory::getApplication();
+		return version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
+	}
+
+	/**
 	 * Get a list of module positions we are allowed to display
 	 *
 	 * @return  array
@@ -76,14 +87,4 @@ class LoginGuardModelCaptive extends JModelLegacy
 		return $res;
 	}
 
-	/**
-	 * Are we inside an administrator page?
-	 *
-	 * @return  bool
-	 */
-	public function isAdminPage()
-	{
-		$app = JFactory::getApplication();
-		return version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
-	}
 }

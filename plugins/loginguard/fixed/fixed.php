@@ -32,8 +32,13 @@ class PlgLoginguardFixed extends JPlugin
 	public function onLoginGuardTfaGetMethod()
 	{
 		return array(
+			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
+			// User-facing name for this TFA method
+			'display'       => JText::_('PLG_LOGINGUARD_FIXED_LBL_DISPLAYEDAS'),
+			// Are we allowed to disable it?
 			'canDisable'    => true,
+			// Are we allowed to have multiple instances of it per user?
 			'allowMultiple' => false
 		);
 	}

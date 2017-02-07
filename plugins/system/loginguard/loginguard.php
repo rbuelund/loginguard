@@ -15,8 +15,47 @@ defined('_JEXEC') or die;
  */
 class PlgSystemLoginguard extends JPlugin
 {
+	/**
+	 * Are we enabled, all requirements met etc?
+	 *
+	 * @var   bool
+	 */
+	public $enabled = true;
+
+	/**
+	 * Constructor
+	 *
+	 * @param   object  &$subject  The object to observe
+	 * @param   array   $config    An optional associative array of configuration settings.
+	 *                             Recognized key values include 'name', 'group', 'params', 'language'
+	 *                             (this list is not meant to be comprehensive).
+	 */
+	public function __construct($subject, array $config = array())
+	{
+		parent::__construct($subject, $config);
+
+		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+
+		if (!class_exists('LoginGuardHelperTfa'))
+		{
+			$this->enabled = false;
+		}
+	}
+
+	/**
+	 * Gets triggered right after Joomla has finished with the SEF routing and before it has the chance to dispatch the
+	 * application (load any components).
+	 *
+	 * @return  void
+	 */
 	public function onAfterRoute()
 	{
+		// If the requirements are not met do not proceed
+		if (!$this->enabled)
+		{
+			return;
+		}
+
 		// We only kick in if the session flag is not set
 		try
 		{
@@ -113,9 +152,44 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	private function needsTFA(JUser $user)
 	{
-		// TODO Implement me
+		// Get the user's TFA records
+		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
 
-		return true;
+		// No TFA methods? Then we obviously don't need to display a captive login page.
+		if (empty($records))
+		{
+			return false;
+		}
+
+		// Let's get a list of all currently active TFA methods
+		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+
+		// If not TFA method is active we can't really display a captive login page.
+		if (empty($tfaMethods))
+		{
+			return false;
+		}
+
+		// Get a list of just the method names
+		$methodNames = array();
+
+		foreach ($tfaMethods as $tfaMethod)
+		{
+			$methodNames[] = $tfaMethod['name'];
+		}
+
+		// Filter the records based on currently active TFA methods
+		foreach($records as $record)
+		{
+			if (in_array($record->method, $methodNames))
+			{
+				// We found an active method. Show the captive page.
+				return true;
+			}
+		}
+
+		// No viable TFA method found. We won't show the captive page.
+		return false;
 	}
 
 	/**
