@@ -1,5 +1,10 @@
 ** Captive 2FA page
 Captive 2FA page backend
+    If view=captive or task=captive.* use the frontend code by manipulating the $config you pass to JControllerLegacy
+    The Captive controller must redirect to the correct base URL for the backend. Should work automatically. Make sure it does!
+
+The system plugin's XML must be generated on the fly by the build script
+
 Deal with plugins
 	I need to forcibly unload all loaded plugins in various stages
 	I may have to inspect its _methods and _observers arrays
@@ -7,11 +12,15 @@ Deal with plugins
 Table for users to TFA method (one user can have multiple instances of the same TFA method, e.g. YubiKeys, U2F keys etc)
 Show a list of available TFA methods to the user if multiple are available
 Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
+
+Create a plugin for the backup codes
 Create a plugin for TOTP (Google Authenticator)
 Create a plugin for YubiKey
 Create a plugin for U2F
 Create a plugin for code by email
 Create a plugin for code by SMS
+
+The front- and back-end controllers must make sure that the backup codes plugin is always activated and published LAST. If not, activate it and reload the page.
 
 Frontend page to manage TFA methods for current user only
 User plugin to let the user launch that page from his profile edit page

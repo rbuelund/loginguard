@@ -12,6 +12,8 @@
 
 	<!-- Public front end files -->
 	<files folder="frontend">
+		<folder>controllers</folder>
+		<folder>models</folder>
 		<folder>views</folder>
 
 		<filename>controller.php</filename>
@@ -42,8 +44,9 @@
 			<folder>sql</folder>
 
 			<filename>access.xml</filename>
-			<filename>loginguard.php</filename>
 			<filename>config.xml</filename>
+			<filename>index.html</filename>
+			<filename>loginguard.php</filename>
 		</files>
 
 		<!-- Back-end translation files -->
