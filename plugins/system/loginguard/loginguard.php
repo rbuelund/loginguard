@@ -87,6 +87,10 @@ class PlgSystemLoginguard extends JPlugin
 		// We only kick in when the user has actually set up TFA.
 		if ($this->needsTFA($user))
 		{
+			// Save the current URL
+			$session->set('return_url', JUri::current(), 'com_loginguard');
+
+			// Redirect
 			$url = JRoute::_('index.php?option=com_loginguard&view=captive', false);
 			$app->redirect($url, 307);
 
@@ -94,7 +98,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// If we're here someone just logged in but does not have TFA set up. Just flag him as logged in and continue.
-		$session->set('tfa_checked', 0, 'com_loginguard');
+		$session->set('tfa_checked', 1, 'com_loginguard');
 	}
 
 	/**

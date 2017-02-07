@@ -1,8 +1,19 @@
-Captive 2FA page
-	Earliest point is onAfterRoute
-	Must check option like JAdministratorHelper::findOption() does
-	Then I must set the option if we are logged in (!$user->get('guest') && $user->authorise('core.login.admin'))
-
+** Captive 2FA page
+Captive 2FA page backend
 Deal with plugins
 	I need to forcibly unload all loaded plugins in various stages
 	I may have to inspect its _methods and _observers arrays
+
+Table for users to TFA method (one user can have multiple instances of the same TFA method, e.g. YubiKeys, U2F keys etc)
+Show a list of available TFA methods to the user if multiple are available
+Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
+Create a plugin for TOTP (Google Authenticator)
+Create a plugin for YubiKey
+Create a plugin for U2F
+Create a plugin for code by email
+Create a plugin for code by SMS
+
+Frontend page to manage TFA methods for current user only
+User plugin to let the user launch that page from his profile edit page
+
+Backend page to manage TFA methods
