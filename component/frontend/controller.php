@@ -34,6 +34,13 @@ class LoginGuardController extends JControllerLegacy
 			throw new RuntimeException(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $id), 403);
 		}
 
+		// Captive view: if we're already logged in go to the site's home page
+		if (($view == 'captive') && (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1))
+		{
+			$homeURL = JUri::base();
+			JFactory::getApplication()->redirect($homeURL);
+		}
+
 		// Captive view: kill all modules on the page
 		if ($view == 'captive')
 		{

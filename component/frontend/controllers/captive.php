@@ -49,7 +49,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		// If the return URL is not set or not inside this site redirect to the site's front page
 		if (empty($return_url) || !JUri::isInternal($return_url))
 		{
-			$return_url = JRoute::_('index.php', false);
+			$return_url = JUri::base();
 		}
 
 		$this->setRedirect($return_url);
