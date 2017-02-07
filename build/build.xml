@@ -31,6 +31,24 @@
 
 	<!--
 	====================================================================================================
+	Build customization
+	====================================================================================================
+	-->
+	<target name="component-packages" depends="plugin-manifests,package-pkg" />
+
+	<target name="plugin-manifests" depends="setup-properties">
+		<copy file="${phing.dir}/templates/plg_system_loginguard.xml" tofile="${dirs.plugins}/system/loginguard/loginguard.xml" overwrite="true">
+			<filterchain id="manifest-replace-tokens">
+				<replacetokens begintoken="##" endtoken="##">
+					<token key="DATE" value="${build.date}" />
+					<token key="VERSION" value="${version}" />
+				</replacetokens>
+			</filterchain>
+		</copy>
+	</target>
+
+	<!--
+	====================================================================================================
 	Tasks - Documentation
 	====================================================================================================
 	-->

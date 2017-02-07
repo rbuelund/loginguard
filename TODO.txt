@@ -1,7 +1,5 @@
 ** Captive 2FA page
 
-The system plugin's XML must be generated on the fly by the build script
-
 Table for users to TFA method (one user can have multiple instances of the same TFA method, e.g. YubiKeys, U2F keys etc)
 
 Show a list of available TFA methods to the user if multiple are available. Remember to load the loginguard plugin group!

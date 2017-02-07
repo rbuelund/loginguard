@@ -20,7 +20,9 @@
 
 /installers/angie
 
-/plugins/*/*/language/en-GB
 /modules/*/*/language/en-GB
+
+/plugins/*/*/language/en-GB
+/plugins/*/*/*.xml
 
 /release
