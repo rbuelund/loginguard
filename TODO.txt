@@ -1,11 +1,8 @@
-** Captive 2FA page
-
-Table for users to TFA method (one user can have multiple instances of the same TFA method, e.g. YubiKeys, U2F keys etc)
-
 Show a list of available TFA methods to the user if multiple are available. Remember to load the loginguard plugin group!
 
 Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
 
+Create a fixed code (proof of concept) plugin
 Create a plugin for the backup codes
 Create a plugin for TOTP (Google Authenticator)
 Create a plugin for YubiKey
@@ -25,3 +22,45 @@ Make sure you can't create front-end menu items to this component
 Deal with plugins(?)
 	I need to forcibly unload all loaded plugins in various stages
 	I may have to inspect its _methods and _observers arrays
+
+loginguard plugin group methods and returned results
+========================================================================================================================
+    onLoginGuardTfaGetMethod
+        name: the method name
+        canDisable: are we allowed to disable this once it is enabled
+        allowMultiple: are we allowed to create multiple #__loginguard_tfa records per user with this method?
+
+    onLoginGuardTfaCaptive($method)
+        (For the captive page) - If it's not your method return array();
+        field_type: input | custom
+        input_type: text, number, any HTML5 input type
+        placeholder: free text
+        label: free text, empty to hide
+        html: custom HTML to show when field_type = custom
+        pre_message: a message to show before the <form>
+        post_message: a message to show after the <form>
+
+    onLoginGuardTfaGetSetup($method)
+        (For the setup page) - If it's not your method return array();
+        (load any custom CSS / JS here)
+        is_enabled: set to true if this method is enabled successfully
+        default_title: default title for this method, pre-filled in "title"
+        pre_message: a message to show before the setup <form>
+        post_message: a message to show after the setup <form>
+        table_heading: Heading to display above the tabular data
+        tabular_data: array with label -> raw HTML to display in a tabular format
+        hidden_data: array with name => value to add as hidden fields in the form
+        field_type: input | custom
+        input_type: text, number, any HTML5 input type
+        placeholder: free text
+        label: free text, empty to hide
+        html: custom HTML to show when field_type = custom
+        submit_onclick: An onclick handler to add to the form's submit button, useful if you want to implement custom Javascript code (e.g. with U2F)
+
+    onLoginGuardTfaSaveSetup($method, array $form_data)
+        If it's not your method return;
+        May throw an exception. The message in the exception will be presented to the user. The user is redirected to the Setup page.
+
+    onLoginGuardTfaValidate($method, $code)
+        If it's not your method return false;
+        Return true / false
