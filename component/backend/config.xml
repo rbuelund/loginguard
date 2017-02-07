@@ -4,7 +4,27 @@
  * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
 -->
-<config>
+<config addfieldpath="/administrator/components/com_loginguard/models/fields">
+
+	<fieldset name="captive" label="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_LABEL"
+			  description="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_DESC">
+
+		<field name="allowed_positions_frontend" type="modulepositions" default="" size="7"
+			   label="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_FRONTEND_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_FRONTEND_DESC"
+			   client_id="0"
+			   multiple="1"
+			   class="input-large"/>
+
+		<field name="allowed_positions_backend" type="modulepositions" default="" size="7"
+			   label="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_BACKEND_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_BACKEND_DESC"
+			   client_id="1"
+			   multiple="1"
+			   class="input-large"/>
+
+	</fieldset>
+
 	<fieldset
 			name="permissions"
 			label="JCONFIG_PERMISSIONS_LABEL"

@@ -1,15 +1,11 @@
 ** Captive 2FA page
 
-Options: enter a comma separated list of module positions to allow in front- and back-end
-
 The system plugin's XML must be generated on the fly by the build script
 
-Deal with plugins
-	I need to forcibly unload all loaded plugins in various stages
-	I may have to inspect its _methods and _observers arrays
-
 Table for users to TFA method (one user can have multiple instances of the same TFA method, e.g. YubiKeys, U2F keys etc)
-Show a list of available TFA methods to the user if multiple are available
+
+Show a list of available TFA methods to the user if multiple are available. Remember to load the loginguard plugin group!
+
 Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
 
 Create a plugin for the backup codes
@@ -27,3 +23,7 @@ User plugin to let the user launch that page from his profile edit page
 Backend page to manage TFA methods
 
 Make sure you can't create front-end menu items to this component
+
+Deal with plugins(?)
+	I need to forcibly unload all loaded plugins in various stages
+	I may have to inspect its _methods and _observers arrays

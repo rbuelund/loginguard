@@ -62,9 +62,10 @@ class LoginGuardModelCaptive extends JModelLegacy
 	{
 		$isAdmin = $this->isAdminPage();
 
-		$res = array();
-
-		// TODO Load the list of allowed module positions from the component's settings. May be different for front- and back-end
+		// Load the list of allowed module positions from the component's settings. May be different for front- and back-end
+		$params = JComponentHelper::getParams('com_loginguard');
+		$configKey = 'allowed_positions_' . ($isAdmin ? 'backend' : 'frontend');
+		$res = $params->get($configKey, array());
 
 		// In the backend we must always add the 'title' module position
 		if ($isAdmin)
