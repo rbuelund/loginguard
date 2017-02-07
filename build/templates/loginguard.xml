@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="3.6.0" method="upgrade">
+<extension type="component" version="3.4.0" method="upgrade">
 	<name>LOGINGUARD</name>
-	<creationDate>##DATE##</creationDate>
-	<author>Nicholas K. Dionysopoulos</author>
-	<authorEmail>nicholas@akeebabackup.com</authorEmail>
-	<authorUrl>https://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
-	<license>This component in released under the GNU/GPL v3 or later license</license>
 	<version>##VERSION##</version>
+	<creationDate>##DATE##</creationDate>
+
+	<author>Akeeba Ltd</author>
+	<authorEmail>no-reply@akeebabackup.com</authorEmail>
+	<authorUrl>https://www.akeebabackup.com</authorUrl>
+
+	<copyright>Copyright (c)2016-2017 Akeeba Ltd</copyright>
+	<license>GNU/GPL v3 or any later version</license>
+
 	<description>Akeeba LoginGuard</description>
 
 	<!-- Public front end files -->

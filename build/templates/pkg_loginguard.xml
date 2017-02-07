@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.6.0" type="package" method="upgrade">
+<extension version="3.4.0" type="package" method="upgrade">
     <name>Akeeba LoginGuard package</name>
-    <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>##DATE##</creationDate>
-    <packagename>loginguard</packagename>
     <version>##VERSION##</version>
+    <creationDate>##DATE##</creationDate>
+
+    <author>Akeeba Ltd</author>
+    <authorEmail>no-reply@akeebabackup.com</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+
+    <packagename>loginguard</packagename>
     <url>https://www.akeebabackup.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
+
     <copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
+
     <description>Akeeba LoginGuard installation package v.##VERSION##</description>
 
     <!-- List of extensions to install -->
