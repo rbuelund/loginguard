@@ -87,8 +87,13 @@ class PlgSystemLoginguard extends JPlugin
 		// We only kick in when the user has actually set up TFA.
 		if ($this->needsTFA($user))
 		{
-			// Save the current URL
-			$session->set('return_url', JUri::current(), 'com_loginguard');
+			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
+			$return_url = $session->get('return_url', '', 'com_loginguard');
+
+			if (empty($return_url) || !JUri::isInternal($return_url))
+			{
+				$session->set('return_url', JUri::current(), 'com_loginguard');
+			}
 
 			// Redirect
 			$url = JRoute::_('index.php?option=com_loginguard&view=captive', false);
