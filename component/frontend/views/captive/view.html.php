@@ -12,7 +12,16 @@ class LoginGuardViewCaptive extends JViewLegacy
 {
 	function display($tpl = null)
 	{
+		/** @var LoginGuardModelCaptive $model */
+		$model = $this->getModel();
+
 		// TODO Implement this view
+
+		// Back-end: show a title
+		if ($model->isAdminPage())
+		{
+			JToolbarHelper::title(JText::_('COM_LOGINGUARD_HEAD_TFA_PAGE'), 'lock');
+		}
 
 		// Display the view
 		parent::display($tpl);

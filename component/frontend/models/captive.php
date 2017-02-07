@@ -60,11 +60,29 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 */
 	private function getAllowedModulePositions()
 	{
+		$isAdmin = $this->isAdminPage();
+
 		$res = array();
 
-		// TODO Load the list of allowed module positions from the component's settings
+		// TODO Load the list of allowed module positions from the component's settings. May be different for front- and back-end
+
+		// In the backend we must always add the 'title' module position
+		if ($isAdmin)
+		{
+			$res[] = 'title';
+		}
 
 		return $res;
 	}
 
+	/**
+	 * Are we inside an administrator page?
+	 *
+	 * @return  bool
+	 */
+	public function isAdminPage()
+	{
+		$app = JFactory::getApplication();
+		return version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
+	}
 }

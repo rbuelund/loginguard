@@ -1,7 +1,6 @@
 ** Captive 2FA page
-Captive 2FA page backend
-    If view=captive or task=captive.* use the frontend code by manipulating the $config you pass to JControllerLegacy
-    The Captive controller must redirect to the correct base URL for the backend. Should work automatically. Make sure it does!
+
+Options: enter a comma separated list of module positions to allow in front- and back-end
 
 The system plugin's XML must be generated on the fly by the build script
 
@@ -26,3 +25,5 @@ Frontend page to manage TFA methods for current user only
 User plugin to let the user launch that page from his profile edit page
 
 Backend page to manage TFA methods
+
+Make sure you can't create front-end menu items to this component
