@@ -2,7 +2,6 @@ Show a list of available TFA methods to the user if multiple are available. Reme
 
 Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
 
-Create a fixed code (proof of concept) plugin
 Create a plugin for the backup codes
 Create a plugin for TOTP (Google Authenticator)
 Create a plugin for YubiKey
@@ -19,6 +18,13 @@ Backend page to manage TFA methods
 
 Make sure you can't create front-end menu items to this component
 
+Migration from core TFA plugins
+
+Customizable module to notify users when they haven't enabled TFA yet
+    Link to enabling TFA
+    Show X times per session
+    Stop showing message after a total of X times
+
 Deal with plugins(?)
 	I need to forcibly unload all loaded plugins in various stages
 	I may have to inspect its _methods and _observers arrays
@@ -30,7 +36,7 @@ loginguard plugin group methods and returned results
         canDisable: are we allowed to disable this once it is enabled
         allowMultiple: are we allowed to create multiple #__loginguard_tfa records per user with this method?
 
-    onLoginGuardTfaCaptive($method)
+    onLoginGuardTfaCaptive($record)
         (For the captive page) - If it's not your method return array();
         field_type: input | custom
         input_type: text, number, any HTML5 input type
@@ -40,7 +46,7 @@ loginguard plugin group methods and returned results
         pre_message: a message to show before the <form>
         post_message: a message to show after the <form>
 
-    onLoginGuardTfaGetSetup($method)
+    onLoginGuardTfaGetSetup($record)
         (For the setup page) - If it's not your method return array();
         (load any custom CSS / JS here)
         is_enabled: set to true if this method is enabled successfully
@@ -55,12 +61,14 @@ loginguard plugin group methods and returned results
         placeholder: free text
         label: free text, empty to hide
         html: custom HTML to show when field_type = custom
+        show_submit: Should I show the submit button (apply the TFA setup)? Only applies when is_enabled is true.
         submit_onclick: An onclick handler to add to the form's submit button, useful if you want to implement custom Javascript code (e.g. with U2F)
 
-    onLoginGuardTfaSaveSetup($method, array $form_data)
-        If it's not your method return;
+    onLoginGuardTfaSaveSetup($record)
+        If it's not your method return null;
         May throw an exception. The message in the exception will be presented to the user. The user is redirected to the Setup page.
+        Otherwise return an array or object which will be serialized as JSON into the #__loginguard_tfa record's `options` field.
 
-    onLoginGuardTfaValidate($method, $code)
+    onLoginGuardTfaValidate($record, $user, $code)
         If it's not your method return false;
         Return true / false

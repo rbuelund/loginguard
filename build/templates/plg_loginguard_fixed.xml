@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.4.0" type="plugin" group="system" method="upgrade">
+	<name>PLG_LOGINGUARD_FIXED</name>
+	<version>##VERSION##</version>
+	<creationDate>##DATE##</creationDate>
+
+	<author>Akeeba Ltd</author>
+	<authorEmail>no-reply@akeebabackup.com</authorEmail>
+	<authorUrl>https://www.akeebabackup.com</authorUrl>
+
+	<copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
+	<license>GNU GPL v3 or later</license>
+
+	<description>PLG_LOGINGUARD_FIXED_DESCRIPTION</description>
+
+	<files>
+		<filename plugin="fixed">fixed.php</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_loginguard_fixed.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_loginguard_fixed.sys.ini</language>
+	</languages>
+</extension>
