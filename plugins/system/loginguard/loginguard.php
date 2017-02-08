@@ -123,8 +123,14 @@ class PlgSystemLoginguard extends JPlugin
 			}
 		}
 
-		// Allow the user to log out (in case they forgot their TFA code or something)
-		if (($option == 'com_users') && ($task == 'user.logout'))
+		// Allow the frontend user to log out (in case they forgot their TFA code or something)
+		if (!$isAdmin && ($option == 'com_users') && ($task == 'user.logout'))
+		{
+			return;
+		}
+
+		// Allow the backend user to log out (in case they forgot their TFA code or something)
+		if ($isAdmin && ($option == 'com_login') && ($task == 'logout'))
 		{
 			return;
 		}
