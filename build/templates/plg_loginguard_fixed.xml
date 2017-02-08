@@ -15,6 +15,7 @@
 
 	<files>
 		<filename plugin="fixed">fixed.php</filename>
+		<folder>images</folder>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_fixed.ini</language>

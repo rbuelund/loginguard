@@ -23,19 +23,25 @@ class LoginGuardController extends JControllerLegacy
 		$cachable = false;
 
 		// Set the default view name and format
-		$id   = $this->input->getInt('user_id', 0);
-		$view = $this->input->getCmd('view', 'captive');
-		$this->input->set('view', $view);
+		$id       = $this->input->getInt('user_id', 0);
+		$viewName = $this->input->getCmd('view', 'captive');
+		$this->input->set('view', $viewName);
+
+		// Get the view object
+		$document       = JFactory::getDocument();
+		$viewType       = $document->getType();
+		$view           = $this->getView($viewName, $viewType, '');
+		$view->document = $document;
 
 		// Check for edit form.
-		if ($view === 'form' && !$this->checkEditId('com_loginguard.edit.user', $id))
+		if ($viewName === 'form' && !$this->checkEditId('com_loginguard.edit.user', $id))
 		{
 			// Somehow the person just went to the form - we don't allow that.
 			throw new RuntimeException(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $id), 403);
 		}
 
 		// Captive view
-		if ($view == 'captive')
+		if ($viewName == 'captive')
 		{
 			// If we're already logged in go to the site's home page
 			if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
@@ -44,9 +50,12 @@ class LoginGuardController extends JControllerLegacy
 				JFactory::getApplication()->redirect($homeURL);
 			}
 
-			// kill all modules on the page
+			// Pass the model to the view
 			/** @var LoginGuardModelCaptive $model */
-			$model = $this->getModel('captive', 'LoginGuardModel');
+			$model = $this->getModel($viewName);
+			$view->setModel($model, true);
+
+			// kill all modules on the page
 			$model->killAllModules();
 
 			// Pass the TFA record ID to the model
@@ -54,7 +63,8 @@ class LoginGuardController extends JControllerLegacy
 			$model->setState('record_id', $record_id);
 		}
 
-		parent::display($cachable, $urlparams);
+		// Do not go through $this->display() because it overrides the model, nullifying the whole concept of MVC.
+		$view->display();
 
 		return $this;
 	}

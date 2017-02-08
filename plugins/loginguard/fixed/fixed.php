@@ -44,6 +44,8 @@ class PlgLoginguardFixed extends JPlugin
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
 			'display'       => JText::_('PLG_LOGINGUARD_FIXED_LBL_DISPLAYEDAS'),
+			// URL to the logo image for this method
+			'image'         => 'plugins/loginguard/fixed/images/fixed.svg',
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?

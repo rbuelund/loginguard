@@ -211,6 +211,62 @@ class LoginGuardModelCaptive extends JModelLegacy
 	}
 
 	/**
+	 * Translate a TFA method's name into its human-readable, display name
+	 *
+	 * @param   string  $name  The internal TFA method name
+	 *
+	 * @return  string
+	 */
+	public function translateMethodName($name)
+	{
+		static $map = null;
+
+		if (!is_array($map))
+		{
+			$map = array();
+			$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+
+			if (!empty($tfaMethods))
+			{
+				foreach ($tfaMethods as $tfaMethod)
+				{
+					$map[$tfaMethod['name']] = $tfaMethod['display'];
+				}
+			}
+		}
+
+		return isset($map[$name]) ? $map[$name] : $name;
+	}
+
+	/**
+	 * Translate a TFA method's name into the relative URL if its logo image
+	 *
+	 * @param   string  $name  The internal TFA method name
+	 *
+	 * @return  string
+	 */
+	public function getMethodImage($name)
+	{
+		static $map = null;
+
+		if (!is_array($map))
+		{
+			$map = array();
+			$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+
+			if (!empty($tfaMethods))
+			{
+				foreach ($tfaMethods as $tfaMethod)
+				{
+					$map[$tfaMethod['name']] = $tfaMethod['image'];
+				}
+			}
+		}
+
+		return isset($map[$name]) ? $map[$name] : $name;
+	}
+
+	/**
 	 * Get a list of module positions we are allowed to display
 	 *
 	 * @return  array
