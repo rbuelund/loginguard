@@ -123,6 +123,12 @@ class PlgSystemLoginguard extends JPlugin
 			}
 		}
 
+		// Allow the user to log out (in case they forgot their TFA code or something)
+		if (($option == 'com_users') && ($task == 'user.logout'))
+		{
+			return;
+		}
+
 		// We only kick in when the user has actually set up TFA.
 		if ($this->needsTFA($user))
 		{
