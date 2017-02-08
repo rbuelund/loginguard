@@ -37,7 +37,7 @@ abstract class LoginGuardHelperTfa
 	 *
 	 * @return  array  A simple array containing the results of the plugins triggered
 	 */
-	private static function runPlugins($event, $data)
+	public static function runPlugins($event, $data)
 	{
 		$app = JFactory::getApplication();
 

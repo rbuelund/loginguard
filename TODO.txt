@@ -1,7 +1,5 @@
 Show a list of available TFA methods to the user if multiple are available. Remember to load the loginguard plugin group!
 
-Implement showing a single TFA method's page to the user (w/ a link to change the method if multiple are present)
-
 Create a plugin for the backup codes
 Create a plugin for TOTP (Google Authenticator)
 Create a plugin for YubiKey

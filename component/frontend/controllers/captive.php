@@ -19,17 +19,41 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 	public function validate($cachable = false, $urlparameters = array())
 	{
 		// Get the TFA parameters from the request
-		$method = $this->input->getCmd('method', null);
-		$code   = $this->input->get('code', null, 'raw');
+		$record_id = $this->input->getInt('record_id', null);
+		$code      = $this->input->get('code', null, 'raw');
+		/** @var LoginGuardModelCaptive $model */
+		$model = $this->getModel('Captive', 'LoginGuardModel');
 
-		// TODO Validate the method
-		if ($method != 'poc')
+		// Validate the TFA record
+		$model->setState('record_id', $record_id);
+		$record = $model->getRecord();
+
+		if (empty($record))
 		{
 			throw new RuntimeException(JText::_('COM_LOGINGUARD_ERR_INVALID_METHOD'), 500);
 		}
 
-		// TODO Validate the code
-		if ($code != 'poc')
+		// Validate the code
+		$user = JFactory::getUser();
+
+		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
+		$isValidCode = false;
+
+		if (is_array($results) && !empty($results))
+		{
+			foreach ($results as $result)
+			{
+				if ($result)
+				{
+					$isValidCode = true;
+
+					break;
+				}
+			}
+		}
+
+		if (!$isValidCode)
 		{
 			// The code is wrong. Display an error and go back.
 			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive', false);

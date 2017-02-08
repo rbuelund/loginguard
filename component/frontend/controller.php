@@ -34,19 +34,24 @@ class LoginGuardController extends JControllerLegacy
 			throw new RuntimeException(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $id), 403);
 		}
 
-		// Captive view: if we're already logged in go to the site's home page
-		if (($view == 'captive') && (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1))
-		{
-			$homeURL = JUri::base();
-			JFactory::getApplication()->redirect($homeURL);
-		}
-
-		// Captive view: kill all modules on the page
+		// Captive view
 		if ($view == 'captive')
 		{
+			// If we're already logged in go to the site's home page
+			if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
+			{
+				$homeURL = JUri::base();
+				JFactory::getApplication()->redirect($homeURL);
+			}
+
+			// kill all modules on the page
 			/** @var LoginGuardModelCaptive $model */
 			$model = $this->getModel('captive', 'LoginGuardModel');
 			$model->killAllModules();
+
+			// Pass the TFA record ID to the model
+			$record_id = $this->input->getInt('record_id', null);
+			$model->setState('record_id', $record_id);
 		}
 
 		parent::display($cachable, $urlparams);

@@ -16,6 +16,15 @@
 			   multiple="1"
 			   class="input-large"/>
 
+		<field name="frontend_show_title" type="radio"
+			   default="1"
+			   label="COM_LOGINGUARD_CONFIG_FRONTEND_SHOW_TITLE_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_FRONTEND_SHOW_TITLE_LDESC"
+			   class="btn-group">
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
 		<field name="allowed_positions_backend" type="modulepositions" default="" size="7"
 			   label="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_BACKEND_LABEL"
 			   description="COM_LOGINGUARD_CONFIG_ALLOWED_POSITIONS_BACKEND_DESC"
