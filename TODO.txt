@@ -1,3 +1,13 @@
+Frontend page to manage TFA methods for current user only
+Make sure you can't create front-end menu items to this component
+Backend page to manage TFA methods
+User plugin to let the user launch that page from his profile edit page
+
+Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
+    Only shows that if the user doesn't have TFA already enabled
+    Default page in the component, option to have your own page (link)
+    The user can cancel this temporarily ("not now") or permanently ("never ask again", store a flag in the user profile)
+
 Create a plugin for the backup codes
 Create a plugin for TOTP (Google Authenticator)
 Create a plugin for YubiKey
@@ -7,20 +17,8 @@ Create a plugin for code by SMS - https://www.cmtelecom.com/pricing/sms
 
 The front- and back-end controllers must make sure that the backup codes plugin is always activated and published LAST. If not, activate it and reload the page.
 
-Frontend page to manage TFA methods for current user only
-
-User plugin to let the user launch that page from his profile edit page
-
-Backend page to manage TFA methods
-
-Make sure you can't create front-end menu items to this component
-
 Migration from core TFA plugins
 
-Customizable user plugin to redirect the user to a landing page to enable TFA
-    Only shows that if the user doesn't have TFA already enabled
-    Default page in the component, option to have your own page (link)
-    The user can cancel this temporarily ("not now") or permanently ("never ask again", store a flag in the user profile)
 
 Deal with plugins(?)
 	I need to forcibly unload all loaded plugins in various stages
