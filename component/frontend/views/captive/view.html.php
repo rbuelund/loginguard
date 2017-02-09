@@ -88,6 +88,13 @@ class LoginGuardViewCaptive extends JViewLegacy
 			$this->title = '';
 		}
 
+		// Include CSS
+		JHtml::_('stylesheet', 'com_loginguard/captive.min.css', array(
+			'version'     => 'auto',
+			'relative'    => true,
+			'detectDebug' => true
+		), true, false, false, true);
+
 		// Display the view
 		parent::display($tpl);
 	}

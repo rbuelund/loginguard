@@ -12,6 +12,15 @@ defined('_JEXEC') or die;
 
 ?>
 <div id="loginguard-select">
+    <h3 id="loginguard-select-heading">
+        <?php echo JText::_('COM_LOGINGUARD_HEAD_SELECT_PAGE'); ?>
+    </h3>
+    <div id="loginguard-select-information">
+        <p>
+	        <?php echo JText::_('COM_LOGINGUARD_LBL_SELECT_INSTRUCTIONS'); ?>
+        </p>
+    </div>
+
 	<?php foreach ($this->records as $record):?>
 	<div class="loginguard-method">
 		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>">
