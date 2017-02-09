@@ -9,11 +9,11 @@
 defined('_JEXEC') or die;
 
 /**
- * Akeeba LoginGuard Plugin for Two Factor Authentication method "Fixed"
+ * Akeeba LoginGuard Plugin for Two Step Verification method "Fixed"
  *
  * Requires a static string (password), different for each user. It effectively works as a second password. This is NOT
  * to be used on production sites. It serves as a demonstration plugin and as a template for developers to create their
- * own custom two factor authentication plugins.
+ * own custom Two Step Verification plugins.
  */
 class PlgLoginguardFixed extends JPlugin
 {

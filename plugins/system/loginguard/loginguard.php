@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 /**
  * Akeeba LoginGuard System Plugin
  *
- * Implements the captive Two Factor Authentication page
+ * Implements the captive Two Step Verification page
  */
 class PlgSystemLoginguard extends JPlugin
 {
