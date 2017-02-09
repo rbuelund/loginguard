@@ -15,6 +15,8 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 	 *
 	 * @param   bool   $cachable       Can this view be cached
 	 * @param   array  $urlparameters  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 *
+	 * @return  self   The current JControllerLegacy object to support chaining.
 	 */
 	public function validate($cachable = false, $urlparameters = array())
 	{
@@ -60,7 +62,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
 			$this->setRedirect($captiveURL, $message, 'error');
 
-			return;
+			return $this;
 		}
 
 		// Flag the user as fully logged in
@@ -77,5 +79,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		}
 
 		$this->setRedirect($return_url);
+
+		return $this;
 	}
 }
