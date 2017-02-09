@@ -10,6 +10,9 @@ defined('_JEXEC') or die;
 
 JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
 
+/**
+ * Captive Two Step Verification page's model
+ */
 class LoginGuardModelCaptive extends JModelLegacy
 {
 	/**
@@ -29,12 +32,20 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 *
 	 * Similar code paths are followed by any canonical code which tries to load modules. So even if your template does
 	 * not use jdoc tags this code will still work as expected.
+	 *
+	 * @param   $app  JApplicationCms  The CMS application to manipulate
+	 *
+	 * @return  void
 	 */
-	public function killAllModules()
+	public function killAllModules(JApplicationCms $app = null)
 	{
+		if (is_null($app))
+		{
+			$app = JFactory::getApplication();
+		}
+
 		$allowedPositions = $this->getAllowedModulePositions();
 
-		$app = JFactory::getApplication();
 		$app->registerEvent('onAfterModuleList', function (&$modules) use ($allowedPositions) {
 			if (empty($modules))
 			{
@@ -65,23 +76,35 @@ class LoginGuardModelCaptive extends JModelLegacy
 	/**
 	 * Are we inside an administrator page?
 	 *
+	 * @param   $app  JApplicationCms  The current CMS application which tells us if we are inside an admin page
+	 *
 	 * @return  bool
 	 */
-	public function isAdminPage()
+	public function isAdminPage(JApplicationCms $app = null)
 	{
-		$app = JFactory::getApplication();
+		if (is_null($app))
+		{
+			$app = JFactory::getApplication();
+		}
+
 		return version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
 	}
 
 	/**
-	 * Get the TFA records for the current user which correspond to active plugins
+	 * Get the TFA records for the user which correspond to active plugins
+	 *
+	 * @param   $user   JUser  The user for which to fetch records. Skip to use the current user.
 	 *
 	 * @return  array
 	 */
-	public function getRecords()
+	public function getRecords(JUser $user = null)
 	{
+		if (is_null($user))
+		{
+			$user = JFactory::getUser();
+		}
+
 		// Get the user's TFA records
-		$user = JFactory::getUser();
 		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
@@ -111,10 +134,11 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 * Get the currently selected TFA record for the current user. If the record ID is empty, it does not correspond to
 	 * the currently logged in user or does not correspond to an active plugin null is returned instead.
 	 *
+	 * @param   $user   JUser  The user for which to fetch records. Skip to use the current user.
 	 *
 	 * @return mixed|null
 	 */
-	public function getRecord()
+	public function getRecord(JUser $user = null)
 	{
 		$id = (int) $this->getState('record_id', null);
 
@@ -123,7 +147,11 @@ class LoginGuardModelCaptive extends JModelLegacy
 			return null;
 		}
 
-		$user  = JFactory::getUser();
+		if (is_null($user))
+		{
+			$user = JFactory::getUser();
+		}
+
 		$db    = $this->getDbo();
 		$query = $db->getQuery(true)
 		            ->select('*')
@@ -272,26 +300,15 @@ class LoginGuardModelCaptive extends JModelLegacy
 	}
 
 	/**
-	 * Returns the base URI of the site's root, even when in backend
-	 */
-	public function getFrontendBaseUri()
-	{
-		if (!$this->isAdminPage())
-		{
-			return JUri::base();
-		}
-
-		return JUri::root();
-	}
-
-	/**
 	 * Get a list of module positions we are allowed to display
+	 *
+	 * @param   $app  JApplicationCms  The CMS application to manipulate
 	 *
 	 * @return  array
 	 */
-	private function getAllowedModulePositions()
+	private function getAllowedModulePositions(JApplicationCms $app = null)
 	{
-		$isAdmin = $this->isAdminPage();
+		$isAdmin = $this->isAdminPage($app);
 
 		// Load the list of allowed module positions from the component's settings. May be different for front- and back-end
 		$params = JComponentHelper::getParams('com_loginguard');

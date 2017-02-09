@@ -32,27 +32,31 @@ abstract class LoginGuardHelperTfa
 	/**
 	 * Execute plugins and fetch back an array with their return values.
 	 *
-	 * @param   string  $event  The event (trigger) name, e.g. onBeforeScratchMyEar
-	 * @param   array   $data   A hash array of data sent to the plugins as part of the trigger
+	 * @param   string  $event       The event (trigger) name, e.g. onBeforeScratchMyEar
+	 * @param   array   $data        A hash array of data sent to the plugins as part of the trigger
+	 * @param   object  $dispatcher  An events dispatcher, typically descending from JEventDispatcher.
 	 *
 	 * @return  array  A simple array containing the results of the plugins triggered
 	 */
-	public static function runPlugins($event, $data)
+	public static function runPlugins($event, $data, $dispatcher = null)
 	{
-		$app = JFactory::getApplication();
+		if (is_null($dispatcher))
+		{
+			$app = JFactory::getApplication();
 
-		if (method_exists($app, 'triggerEvent'))
-		{
-			return $app->triggerEvent($event, $data);
-		}
+			if (method_exists($app, 'triggerEvent'))
+			{
+				return $app->triggerEvent($event, $data);
+			}
 
-		if (class_exists('JEventDispatcher'))
-		{
-			$dispatcher = JEventDispatcher::getInstance();
-		}
-		else
-		{
-			$dispatcher = JDispatcher::getInstance();
+			if (class_exists('JEventDispatcher'))
+			{
+				$dispatcher = JEventDispatcher::getInstance();
+			}
+			else
+			{
+				$dispatcher = JDispatcher::getInstance();
+			}
 		}
 
 		return $dispatcher->trigger($event, $data);
@@ -61,15 +65,17 @@ abstract class LoginGuardHelperTfa
 	/**
 	 * Get a list of all of the TFA methods
 	 *
+	 * @param   object  $dispatcher  An events dispatcher, typically descending from JEventDispatcher.
+	 *
 	 * @return  array
 	 */
-	public static function getTfaMethods()
+	public static function getTfaMethods($dispatcher = null)
 	{
 		JPluginHelper::importPlugin('loginguard');
 
 		if (is_null(self::$allTFAs))
 		{
-			self::$allTFAs = self::runPlugins('onLoginGuardTfaGetMethod', array());
+			self::$allTFAs = self::runPlugins('onLoginGuardTfaGetMethod', array(), $dispatcher);
 		}
 
 		return self::$allTFAs;

@@ -20,8 +20,6 @@ class LoginGuardController extends JControllerLegacy
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
-		$cachable = false;
-
 		// Set the default view name and format
 		$id       = $this->input->getInt('user_id', 0);
 		$viewName = $this->input->getCmd('view', 'captive');

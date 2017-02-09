@@ -10,19 +10,25 @@ defined('_JEXEC') or die;
 
 JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
 
+/**
+ * Two Step Verification methods list page's model
+ */
 class LoginGuardModelMethods extends JModelLegacy
 {
 	/**
-	 * Group by METHOD
+	 * Returns a list of all available and their currently active records for given user.
 	 *
-	 * Create a list of all methods
-	 * Create a list of method => enabled entries
+	 * @param   $user  JUser  The user object. Skip to use the current user.
 	 *
+	 * @return  array
 	 */
-
-	public function getMethods()
+	public function getMethods($user = null)
 	{
-		$user = JFactory::getUser();
+		if (!is_object($user) || !($user instanceof JUser))
+		{
+			$user = JFactory::getUser();
+		}
+
 
 		if ($user->guest)
 		{

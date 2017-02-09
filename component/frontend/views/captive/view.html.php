@@ -39,13 +39,6 @@ class LoginGuardViewCaptive extends JViewLegacy
 	public $title = '';
 
 	/**
-	 * The base URI to the site's frontend
-	 *
-	 * @var   string
-	 */
-	public $frontendBaseUri = '';
-
-	/**
 	 * Is this an administrator page?
 	 *
 	 * @var   bool
@@ -68,7 +61,6 @@ class LoginGuardViewCaptive extends JViewLegacy
 
 		// Load data from the model
 		$this->isAdmin         = $model->isAdminPage();
-		$this->frontendBaseUri = $this->get('FrontendBaseUri');
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
 		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
