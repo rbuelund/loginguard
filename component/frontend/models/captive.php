@@ -159,8 +159,6 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 */
 	public function loadCaptiveRenderOptions($record)
 	{
-		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaCaptive', array($record));
-
 		$renderOptions = array(
 			'pre_message'  => '',
 			'field_type'   => 'input',
@@ -170,6 +168,13 @@ class LoginGuardModelCaptive extends JModelLegacy
 			'html'         => '',
 			'post_message' => ''
 		);
+
+		if (empty($record))
+		{
+			return $renderOptions;
+		}
+
+		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaCaptive', array($record));
 
 		if (empty($results))
 		{
@@ -264,6 +269,19 @@ class LoginGuardModelCaptive extends JModelLegacy
 		}
 
 		return isset($map[$name]) ? $map[$name] : $name;
+	}
+
+	/**
+	 * Returns the base URI of the site's root, even when in backend
+	 */
+	public function getFrontendBaseUri()
+	{
+		if (!$this->isAdminPage())
+		{
+			return JUri::base();
+		}
+
+		return JUri::root();
 	}
 
 	/**

@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 	<?php foreach ($this->records as $record):?>
 	<div class="loginguard-method">
 		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>">
-			<img src="<?php echo JUri::base() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
+			<img src="<?php echo $this->frontendBaseUri . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
 			<span class="loginguard-method-title">
 				<?php echo $this->escape($record->title) ?>
 			</span>

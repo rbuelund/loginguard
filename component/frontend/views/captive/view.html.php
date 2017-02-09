@@ -39,6 +39,13 @@ class LoginGuardViewCaptive extends JViewLegacy
 	public $title = '';
 
 	/**
+	 * The base URI to the site's frontend
+	 *
+	 * @var   string
+	 */
+	public $frontendBaseUri = '';
+
+	/**
 	 * Is this an administrator page?
 	 *
 	 * @var   bool
@@ -50,11 +57,12 @@ class LoginGuardViewCaptive extends JViewLegacy
 		/** @var LoginGuardModelCaptive $model */
 		$model = $this->getModel();
 
-		$this->isAdmin = $model->isAdminPage();
-
-		// Load the list of TFA records and the currently selected record (if any)
-		$this->records = $this->get('records');
-		$this->record  = $this->get('record');
+		// Load data from the model
+		$this->isAdmin         = $model->isAdminPage();
+		$this->frontendBaseUri = $this->get('FrontendBaseUri');
+		$this->records         = $this->get('records');
+		$this->record          = $this->get('record');
+		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
 
 		// If we only have one record there's no point asking the user to select a TFA method
 		if (count($this->records) == 1)
@@ -62,15 +70,12 @@ class LoginGuardViewCaptive extends JViewLegacy
 			$this->record = $this->records[0];
 		}
 
-		// Set the correct layout based on the records
+		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('select');
 
 		if (!is_null($this->record))
 		{
 			$this->setLayout('default');
-
-			// If we have a selected record load its rendering options
-			$this->renderOptions = $model->loadCaptiveRenderOptions($this->record);
 		}
 
 		// Which title should I use for the page?

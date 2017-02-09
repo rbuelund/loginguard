@@ -28,9 +28,15 @@ class LoginGuardController extends JControllerLegacy
 		$this->input->set('view', $viewName);
 
 		// Get the view object
-		$document       = JFactory::getDocument();
-		$viewType       = $document->getType();
-		$view           = $this->getView($viewName, $viewType, '');
+		$document   = JFactory::getDocument();
+		$viewType   = $document->getType();
+		$viewLayout = $this->input->get('layout', 'default', 'string');
+		$view       = $this->getView($viewName, $viewType, '', array(
+			'base_path' => $this->basePath,
+			'layout'    => $viewLayout
+		));
+
+
 		$view->document = $document;
 
 		// Check for edit form.

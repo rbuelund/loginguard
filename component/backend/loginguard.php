@@ -22,6 +22,7 @@ if (($view == 'captive') || (substr($task, 0, 8) == '.captive'))
 	$lang->load('com_loginguard', JPATH_SITE, null, true, true);
 
 	$config['base_path'] = JPATH_SITE . '/components/com_loginguard';
+	$config['view_path'] = JPATH_SITE . '/components/com_loginguard/views';
 }
 
 // Get an instance of the LoginGuard controller
