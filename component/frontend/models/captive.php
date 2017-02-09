@@ -33,7 +33,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 * Similar code paths are followed by any canonical code which tries to load modules. So even if your template does
 	 * not use jdoc tags this code will still work as expected.
 	 *
-	 * @param   $app  JApplicationCms  The CMS application to manipulate
+	 * @param   JApplicationCms  $app  The CMS application to manipulate
 	 *
 	 * @return  void
 	 */
@@ -76,7 +76,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	/**
 	 * Are we inside an administrator page?
 	 *
-	 * @param   $app  JApplicationCms  The current CMS application which tells us if we are inside an admin page
+	 * @param   JApplicationCms  $app  The current CMS application which tells us if we are inside an admin page
 	 *
 	 * @return  bool
 	 */
@@ -93,7 +93,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	/**
 	 * Get the TFA records for the user which correspond to active plugins
 	 *
-	 * @param   $user   JUser  The user for which to fetch records. Skip to use the current user.
+	 * @param   JUser  $user   The user for which to fetch records. Skip to use the current user.
 	 *
 	 * @return  array
 	 */
@@ -134,7 +134,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 * Get the currently selected TFA record for the current user. If the record ID is empty, it does not correspond to
 	 * the currently logged in user or does not correspond to an active plugin null is returned instead.
 	 *
-	 * @param   $user   JUser  The user for which to fetch records. Skip to use the current user.
+	 * @param   JUser  $user  The user for which to fetch records. Skip to use the current user.
 	 *
 	 * @return mixed|null
 	 */
@@ -302,7 +302,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	/**
 	 * Get a list of module positions we are allowed to display
 	 *
-	 * @param   $app  JApplicationCms  The CMS application to manipulate
+	 * @param   JApplicationCms  $app  The CMS application to manipulate
 	 *
 	 * @return  array
 	 */

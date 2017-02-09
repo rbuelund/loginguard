@@ -18,7 +18,7 @@ class LoginGuardModelMethods extends JModelLegacy
 	/**
 	 * Returns a list of all available and their currently active records for given user.
 	 *
-	 * @param   $user  JUser  The user object. Skip to use the current user.
+	 * @param   JUser  $user  The user object. Skip to use the current user.
 	 *
 	 * @return  array
 	 */
