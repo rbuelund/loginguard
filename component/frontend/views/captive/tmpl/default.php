@@ -28,6 +28,7 @@ defined('_JEXEC') or die;
         <input type="hidden" name="option" value="com_loginguard">
         <input type="hidden" name="task" value="captive.validate">
         <input type="hidden" name="record_id" value="<?php echo $this->record->id ?>">
+        <input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">
 
 	    <?php if ($this->renderOptions['field_type'] == 'custom'): ?>
             <?php echo $this->renderOptions['html']; ?>

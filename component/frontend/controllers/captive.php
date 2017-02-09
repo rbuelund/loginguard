@@ -20,6 +20,15 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 	 */
 	public function validate($cachable = false, $urlparameters = array())
 	{
+		// CSRF Check
+		$token = JSession::getFormToken();
+		$value = $this->input->post->getInt($token, 0);
+
+		if ($value != 1)
+		{
+			die(JText::_('JINVALID_TOKEN'));
+		}
+
 		// Get the TFA parameters from the request
 		$record_id = $this->input->getInt('record_id', null);
 		$code      = $this->input->get('code', null, 'raw');
