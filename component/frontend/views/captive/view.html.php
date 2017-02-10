@@ -63,13 +63,15 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$this->isAdmin         = LoginGuardHelperTfa::isAdminPage();
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
-		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
 
 		// If we only have one record there's no point asking the user to select a TFA method
 		if (count($this->records) == 1)
 		{
 			$this->record = $this->records[0];
 		}
+
+		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
+
 
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('select');
