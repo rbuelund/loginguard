@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-class LoginGuardViewMethods extends JViewLegacy
+class LoginGuardViewMethod extends JViewLegacy
 {
 	/**
 	 * Is this an administrator page?
@@ -18,11 +18,25 @@ class LoginGuardViewMethods extends JViewLegacy
 	public $isAdmin = false;
 
 	/**
-	 * The TFA methods available for this user
+	 * The editor page render options
 	 *
 	 * @var   array
 	 */
-	public $methods = array();
+	public $renderOptions = array();
+
+	/**
+	 * The TFA method record being edited
+	 *
+	 * @var   object
+	 */
+	public $record = null;
+
+	/**
+	 * The title text for this page
+	 *
+	 * @var  string
+	 */
+	public $title = '';
 
 	/**
 	 * Execute and display a template script.
@@ -35,9 +49,18 @@ class LoginGuardViewMethods extends JViewLegacy
 	 */
 	function display($tpl = null)
 	{
-		$this->setLayout('list');
-		$this->methods = $this->get('methods');
-		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
+		$this->setLayout('edit');
+		$this->renderOptions = $this->get('RenderOptions');
+		$this->record        = $this->get('record');
+		$this->title         = $this->get('PageTitle');
+
+		// Back-end: always show a title in the 'title' module position, not in the page body
+		if ($this->isAdmin)
+		{
+			JToolbarHelper::title(JText::_($this->title), 'lock');
+			$this->title = '';
+		}
+
 
 		// Include CSS
 		JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(

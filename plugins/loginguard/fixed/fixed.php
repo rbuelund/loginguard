@@ -89,6 +89,15 @@ class PlgLoginguardFixed extends JPlugin
 		);
 	}
 
+	/**
+	 * Returns the information which allows LoginGuard to render the TFA setup page. This is the page which allows the
+	 * user to add or modify a TFA method for their user account. If the record does not correspond to your plugin
+	 * return an empty array.
+	 *
+	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
+	 *
+	 * @return  array
+	 */
 	public function onLoginGuardTfaGetSetup($record)
 	{
 		// Make sure we are actually meant to handle this method
@@ -98,7 +107,7 @@ class PlgLoginguardFixed extends JPlugin
 		}
 
 		// Load the options from the record (if any)
-		$options = $this->decodeRecordOptions($record);
+		$options = $this->_decodeRecordOptions($record);
 
 		/**
 		 * Return the parameters used to render the GUI.
@@ -112,8 +121,6 @@ class PlgLoginguardFixed extends JPlugin
 		 * user.
 		 */
 		return array(
-			// Is this TFA method already enabled? Used to determine when to display the "Disable" button in the GUI.
-			'is_enabled'     => !empty($options->fixed_code),
 			// Default title if you are setting up this TFA method for the first time
 			'default_title'  => JText::_('PLG_LOGINGUARD_FIXED_LBL_DEFAULTTITLE'),
 			// Custom HTML to display above the TFA setup form
@@ -136,7 +143,7 @@ class PlgLoginguardFixed extends JPlugin
 			'label'          => JText::_('PLG_LOGINGUARD_FIXED_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
-			// Should I show the submit button (apply the TFA setup)? Only applies when is_enabled is true.
+			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
 			'show_submit'    => true,
 			// onclick handler for the submit button (apply the TFA setup)?
 			'submit_onclick' => '',
@@ -145,7 +152,20 @@ class PlgLoginguardFixed extends JPlugin
 		);
 	}
 
-	public function onLoginGuardTfaSaveSetup($record)
+	/**
+	 * Parse the input from the TFA setup page and return the configuration information to be saved to the database. If
+	 * the information is invalid throw a RuntimeException to signal the need to display the editor page again. The
+	 * message of the exception will be displayed to the user. If the record does not correspond to your plugin return
+	 * an empty array.
+	 *
+	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
+	 * @param   JInput    $input   The user input you are going to take into account.
+	 *
+	 * @return  array  The configuration data to save to the database
+	 *
+	 * @throws  RuntimeException  In case the validation fails
+	 */
+	public function onLoginGuardTfaSaveSetup($record, JInput $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -154,34 +174,43 @@ class PlgLoginguardFixed extends JPlugin
 		}
 
 		// Load the options from the record (if any)
-		$options = $this->decodeRecordOptions($record);
+		$options = $this->_decodeRecordOptions($record);
 
 		// Merge with the submitted form data
-		$input = JFactory::getApplication()->input;
 		$code = $input->get('code', $options->fixed_code, 'raw');
 
 		// Make sure the code is not empty
 		if (empty($code))
 		{
-			throw new Exception(JText::_('PLG_LOGINGUARD_FIXED_ERR_EMPTYCODE'));
+			throw new RuntimeException(JText::_('PLG_LOGINGUARD_FIXED_ERR_EMPTYCODE'));
 		}
 
 		// Return the configuration to be serialized
-		return (object) array(
+		return array(
 			'fixed_code' => $code
 		);
 	}
 
+	/**
+	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
+	 * the record does not correspond to your plugin return FALSE.
+	 *
+	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   JUser     $user    The user record
+	 * @param   string    $code    The submitted code
+	 *
+	 * @return  bool
+	 */
 	public function onLoginGuardTfaValidate($record, JUser $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return false;
 		}
 
 		// Load the options from the record (if any)
-		$options = $this->decodeRecordOptions($record);
+		$options = $this->_decodeRecordOptions($record);
 
 		// Double check the TFA method is for the correct user
 		if ($user->id != $record->user_id)
@@ -200,7 +229,7 @@ class PlgLoginguardFixed extends JPlugin
 	 *
 	 * @return  stdClass
 	 */
-	private function decodeRecordOptions($record)
+	private function _decodeRecordOptions($record)
 	{
 		$options = array(
 			'fixed_code' => ''

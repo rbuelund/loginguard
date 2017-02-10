@@ -60,7 +60,7 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$model = $this->getModel();
 
 		// Load data from the model
-		$this->isAdmin         = $model->isAdminPage();
+		$this->isAdmin         = LoginGuardHelperTfa::isAdminPage();
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
 		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);

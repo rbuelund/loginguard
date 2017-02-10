@@ -42,7 +42,7 @@ JHtml::_('bootstrap.tooltip');
 							<span class="loginguard-methods-list-method-record-title">
 								<?php echo $this->escape($record->title); ?>
 							</span>
-								<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&method=' . (int) $record->id)?>"
+								<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id)?>"
 								   class="btn btn-mini btn-xs btn-default loginguard-methods-list-method-record-edit"
 								>
 									<span class="icon icon-pencil glyphicon glyphicon-pencil"></span>

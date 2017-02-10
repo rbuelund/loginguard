@@ -30,6 +30,13 @@ abstract class LoginGuardHelperTfa
 	protected static $allTFAs = null;
 
 	/**
+	 * Are we inside the administrator application
+	 *
+	 * @var   bool
+	 */
+	protected static $isAdmin = null;
+
+	/**
 	 * Execute plugins and fetch back an array with their return values.
 	 *
 	 * @param   string  $event       The event (trigger) name, e.g. onBeforeScratchMyEar
@@ -110,4 +117,27 @@ abstract class LoginGuardHelperTfa
 
 		return self::$recordsPerUser[$user_id];
 	}
+
+	/**
+	 * Are we inside an administrator page?
+	 *
+	 * @param   JApplicationCms  $app  The current CMS application which tells us if we are inside an admin page
+	 *
+	 * @return  bool
+	 */
+	public static function isAdminPage(JApplicationCms $app = null)
+	{
+		if (is_null(self::$isAdmin))
+		{
+			if (is_null($app))
+			{
+				$app = JFactory::getApplication();
+			}
+
+			self::$isAdmin = version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
+		}
+
+		return self::$isAdmin;
+	}
+
 }

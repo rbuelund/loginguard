@@ -38,7 +38,7 @@ class LoginGuardControllerMethods extends JControllerLegacy
 		// Make sure the user is logged in
 		if (JFactory::getUser()->guest)
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 404);
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		parent::display($cachable, $urlparams);

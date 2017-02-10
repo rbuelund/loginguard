@@ -74,23 +74,6 @@ class LoginGuardModelCaptive extends JModelLegacy
 	}
 
 	/**
-	 * Are we inside an administrator page?
-	 *
-	 * @param   JApplicationCms  $app  The current CMS application which tells us if we are inside an admin page
-	 *
-	 * @return  bool
-	 */
-	public function isAdminPage(JApplicationCms $app = null)
-	{
-		if (is_null($app))
-		{
-			$app = JFactory::getApplication();
-		}
-
-		return version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
-	}
-
-	/**
 	 * Get the TFA records for the user which correspond to active plugins
 	 *
 	 * @param   JUser  $user   The user for which to fetch records. Skip to use the current user.
@@ -181,11 +164,12 @@ class LoginGuardModelCaptive extends JModelLegacy
 	/**
 	 * Load the captive login page render options for a specific TFA record
 	 *
-	 * @param   stdClass  $record  The TFA record to process
+	 * @param   stdClass  $record      The TFA record to process
+	 * @param   object    $dispatcher  The Joomla events dispatcher for plugins. Null to use the system default.
 	 *
 	 * @return  array  The rendering options
 	 */
-	public function loadCaptiveRenderOptions($record)
+	public function loadCaptiveRenderOptions($record, $dispatcher = null)
 	{
 		$renderOptions = array(
 			'pre_message'  => '',
@@ -202,7 +186,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 			return $renderOptions;
 		}
 
-		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaCaptive', array($record));
+		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaCaptive', array($record), $dispatcher);
 
 		if (empty($results))
 		{
@@ -308,7 +292,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 	 */
 	private function getAllowedModulePositions(JApplicationCms $app = null)
 	{
-		$isAdmin = $this->isAdminPage($app);
+		$isAdmin = LoginGuardHelperTfa::isAdminPage($app);
 
 		// Load the list of allowed module positions from the component's settings. May be different for front- and back-end
 		$params = JComponentHelper::getParams('com_loginguard');
