@@ -338,6 +338,7 @@ class LoginGuardModelMethod extends JModelLegacy
 			'user_id' => $user->id,
 			'title'   => $title,
 			'method'  => $method,
+			'default' => 0,
 			'options' => '{}'
 		);
 
