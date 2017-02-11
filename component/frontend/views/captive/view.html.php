@@ -65,20 +65,34 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$this->record          = $this->get('record');
 
 		// If we only have one record there's no point asking the user to select a TFA method
-		if (count($this->records) == 1)
+		if (empty($this->record))
 		{
+			// Default to the first record
 			$this->record = $this->records[0];
+
+			// If we have multiple records try to make this record the default
+			if (count($this->records) > 1)
+			{
+				foreach ($this->records as $record)
+				{
+					if ($record->default)
+					{
+						$this->record = $record;
+
+						break;
+					}
+				}
+			}
 		}
 
 		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
 
-
 		// Set the correct layout based on the availability of a TFA record
-		$this->setLayout('select');
+		$this->setLayout('default');
 
-		if (!is_null($this->record))
+		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
-			$this->setLayout('default');
+			$this->setLayout('select');
 		}
 
 		// Which title should I use for the page?

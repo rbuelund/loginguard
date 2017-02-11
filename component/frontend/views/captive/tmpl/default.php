@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
 <div class="loginguard-captive">
     <?php if (!empty($this->title)): ?>
     <h3 id="loginguard-title">
-        <?php echo $this->title ?>
+        <?php echo $this->title ?> <small> &ndash; <?php echo $this->escape($this->record->title) ?></small>
     </h3>
     <?php endif; ?>
 
@@ -73,7 +73,7 @@ defined('_JEXEC') or die;
 
         <?php if (count($this->records) > 1): ?>
         <br/>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive') ?>">
+        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
             <?php echo JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
         </a>
         <?php endif; ?>
