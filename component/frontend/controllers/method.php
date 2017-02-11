@@ -108,6 +108,49 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	}
 
 	/**
+	 * Delete an existing TFA method
+	 *
+	 * @param   bool   $cachable   Can this view be cached
+	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 *
+	 * @return  JControllerLegacy   The current JControllerLegacy object to support chaining.
+	 */
+	public function delete($cachable = false, $urlparams = array())
+	{
+		// Make sure the user is logged in
+		$this->_assertLoggedIn();
+
+		// Also make sure the method really does exist
+		$id = $this->input->getInt('id');
+		$record = $this->_assertValidRecordId($id);
+
+		if ($id <= 0)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		/** @var LoginGuardModelMethod $model */
+		$model = $this->getModel();
+
+		$type    = null;
+		$message = null;
+
+		try
+		{
+			$model->deleteRecord($id);
+		}
+		catch (Exception $e)
+		{
+			$message = $e->getMessage();
+			$type    = 'error';
+		}
+
+		// Redirect
+		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false), $message, $type);
+
+	}
+
+	/**
 	 * Save the TFA method
 	 *
 	 * @param   bool   $cachable   Can this view be cached

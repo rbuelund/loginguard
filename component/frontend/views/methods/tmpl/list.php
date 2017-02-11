@@ -51,7 +51,7 @@ JHtml::_('bootstrap.tooltip');
 									<span class="icon icon-pencil glyphicon glyphicon-pencil"></span>
 								</a>
 								<?php if ($method['canDisable']): ?>
-									<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&method=' . (int) $record->id)?>"
+									<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id)?>"
 									   class="btn btn-mini btn-xs btn-danger loginguard-methods-list-method-record-delete"
 									>
 										<span class="icon icon-trash glyphicon glyphicon-trash"></span>

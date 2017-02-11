@@ -273,6 +273,67 @@ class LoginGuardModelMethod extends JModelLegacy
 		return $renderOptions;
 	}
 
+	public function deleteRecord($id, JUser $user = null)
+	{
+		// Make sure we have a valid user
+		if (is_null($user))
+		{
+			$user = JFactory::getUser();
+		}
+
+		// The user must be a registered user, not a guest
+		if ($user->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		// The record ID must be a positive integer
+		if ($id <= 0)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		// The record must exist and belong to the specified user
+		$this->setState('id', $id);
+		$record = $this->getRecord($user);
+
+		if (($record->user_id != $user->id) || ($record->id != $id))
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		// Try to delete the record
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+		            ->delete($db->qn('#__loginguard_tfa'))
+		            ->where($db->qn('id') . ' = ' . $db->q($id))
+		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id));
+		$db->setQuery($query)->execute();
+
+		// If the record was the default set a new default
+		if ($record->default)
+		{
+			$records = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+
+			if (empty($records))
+			{
+				return;
+			}
+
+			$record          = array_shift($records);
+			$record->default = 1;
+
+			try
+			{
+				$this->saveRecord($record);
+			}
+			catch (Exception $e)
+			{
+				// If we can't set a new default record it's OK, we'll survive.
+			}
+		}
+	}
+
 	/**
 	 * Return the title to use for the page
 	 *
