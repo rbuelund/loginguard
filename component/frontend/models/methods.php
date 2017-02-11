@@ -63,4 +63,34 @@ class LoginGuardModelMethods extends JModelLegacy
 
 		return $methods;
 	}
+
+	/**
+	 * Delete all Two Step Verification methods for the given user.
+	 *
+	 * @param   JUser  $user  The user object to reset TSV for. Null to use the current user.
+	 *
+	 * @return  void
+	 *
+	 * @throws  RuntimeException  When the user is invalid or a database error has occurred.
+	 */
+	public function deleteAll(JUser $user = null)
+	{
+		// Make sure we have a user object
+		if (is_null($user))
+		{
+			$user = JFactory::getUser();
+		}
+
+		// If the user object is a guest (who can't have TSV) we abort with an error
+		if ($user->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		$db = $this->getDbo();
+		$query = $db->getQuery(true)
+			->delete($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
+		$db->setQuery($query)->execute();
+	}
 }

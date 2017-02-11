@@ -76,4 +76,9 @@ JHtml::_('bootstrap.tooltip');
 		<?php endforeach; ?>
 	</div>
 
+    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1') ?>"
+       class="btn btn-small btn-sm btn-danger">
+        <?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
+    </a>
+
 </div>

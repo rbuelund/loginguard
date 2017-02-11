@@ -126,7 +126,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 
 		if ($value != 1)
 		{
-			die(JText::_('JINVALID_TOKEN'));
+			die (JText::_('JINVALID_TOKEN'));
 		}
 
 		// The record must either be new (ID zero) or exist
