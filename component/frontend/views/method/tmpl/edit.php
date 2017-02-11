@@ -45,6 +45,16 @@ JHtml::_('bootstrap.tooltip');
 		</div>
 	</div>
 
+    <div class="control-group form-group">
+        <div class="controls">
+            <label class="control-label hasTooltip"
+            title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT_DESC')); ?>">
+                <input type="checkbox" <?php echo $this->record->default ? 'checked="checked"' : ''; ?> name="default">
+				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT'); ?>
+            </label>
+        </div>
+    </div>
+
 	<?php if (!empty($this->renderOptions['pre_message'])): ?>
 	<div class="loginguard-method-edit-pre-message">
 		<?php echo $this->renderOptions['pre_message'] ?>

@@ -1,4 +1,3 @@
-Allow the user to set up a default TSV method
 Give a link to completely disable TFA
 Make sure you can't create front-end menu items to this component
 Backend page to manage TFA methods

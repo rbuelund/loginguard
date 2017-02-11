@@ -185,8 +185,11 @@ class LoginGuardControllerMethod extends JControllerLegacy
 			$title  = $method['display'];
 		}
 
+		// Update the record's "default" flag
+		$default         = $this->input->getBool('default', false);
 		$record->title   = $title;
 		$record->options = json_encode($result);
+		$record->default = $default ? 1 : 0;
 
 		// Ask the model to save the record
 		try

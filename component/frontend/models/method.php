@@ -124,6 +124,74 @@ class LoginGuardModelMethod extends JModelLegacy
 	{
 		$db = $this->getDbo();
 
+		// Get existing records for this user EXCEPT the current record
+		$records = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+
+		if ($record->id)
+		{
+			$allRecords = $records;
+			$records = array();
+
+			foreach ($allRecords as $rec)
+			{
+				if ($rec->id == $record->id)
+				{
+					continue;
+				}
+
+				$records[] = $rec;
+			}
+		}
+
+		// Let's handle the default record flag
+		switch ($record->default)
+		{
+			case 1:
+				// If this record is marked as default we have to make all the other user's records non-default
+				if (count($records))
+				{
+					foreach ($records as $rec)
+					{
+						if (!$rec->default)
+						{
+							continue;
+						}
+
+						$rec->default = 0;
+
+						try
+						{
+							$db->updateObject('#__loginguard_tfa', $rec, array('id'));
+						}
+						catch (Exception $e)
+						{
+							// No problem if that fails
+						}
+					}
+				}
+
+				break;
+
+			case 0:
+				// If this record is NOT marked default we have to make it default unless another record is the default
+				$record->default = 1;
+
+				if (!empty($records))
+				{
+					foreach ($records as $rec)
+					{
+						if ($rec->default)
+						{
+							$record->default = 0;
+
+							break;
+						}
+					}
+				}
+
+				break;
+		}
+
 		if (!$record->id)
 		{
 			$result = $db->insertObject('#__loginguard_tfa', $record, 'id');
