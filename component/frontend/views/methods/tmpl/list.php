@@ -40,7 +40,10 @@ JHtml::_('bootstrap.tooltip');
 						<?php foreach($method['active'] as $record): ?>
 							<div class="loginguard-methods-list-method-record">
 							<span class="loginguard-methods-list-method-record-title">
-								<?php echo $this->escape($record->title); ?>
+								<?php if ($record->default): ?>
+                                    <span class="icon icon-star glyphicon glyphicon-star"></span>
+								<?php endif; ?>
+                                <?php echo $this->escape($record->title); ?>
 							</span>
 								<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id)?>"
 								   class="btn btn-mini btn-xs btn-default loginguard-methods-list-method-record-edit"
