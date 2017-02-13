@@ -42,7 +42,8 @@ class LoginGuardControllerMethods extends JControllerLegacy
 		}
 
 		$returnURL       = $this->input->getBase64('returnurl');
-		$view            = $this->getView();
+		$viewLayout      = $this->input->get('layout', 'default', 'string');
+		$view            = $this->getView('Methods', 'html', '', array('base_path' => $this->basePath, 'layout' => $viewLayout));
 		$view->returnURL = $returnURL;
 
 		parent::display($cachable, $urlparams);

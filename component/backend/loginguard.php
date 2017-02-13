@@ -16,7 +16,7 @@ $config = array(
 	'base_path' => JPATH_COMPONENT_ADMINISTRATOR
 );
 
-if (($view == 'captive') || (substr($task, 0, 8) == '.captive'))
+if (($view == 'captive') || (substr($task, 0, 8) == 'captive.') || (substr($task, 0, 7) == 'method.') || (substr($task, 0, 8) == 'methods.'))
 {
 	$lang = JFactory::getLanguage();
 	$lang->load('com_loginguard', JPATH_SITE, null, true, true);
