@@ -39,6 +39,11 @@
     margin-left: 125px;
 }
 
+.loginguard-methods-list-method-record
+{
+    min-height: 1.75em;
+}
+
 a.loginguard-methods-list-method-record-delete {
     display: none;
 }
@@ -51,4 +56,10 @@ div.loginguard-methods-list-method-record:hover a.loginguard-methods-list-method
 div.loginguard-methods-list-method-record:hover a.loginguard-methods-list-method-record-edit
 {
     display: inline-block;
+}
+
+div#loginguard-methods-reset-container
+{
+    clear: both;
+    margin-top: 1em;
 }

@@ -46,6 +46,13 @@ class LoginGuardViewMethods extends JViewLegacy
 			'detectDebug' => true
 		), true, false, false, true);
 
+		// Back-end: always show a title in the 'title' module position, not in the page body
+		if ($this->isAdmin)
+		{
+			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . JText::_('COM_LOGINGUARD_HEAD_LIST_PAGE') . "</small>", 'lock');
+			$this->title = '';
+		}
+
 		// Display the view
 		return parent::display($tpl);
 	}

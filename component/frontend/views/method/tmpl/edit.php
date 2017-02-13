@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 JHtml::_('bootstrap.tooltip');
 
 ?>
-<form action="index.php" method="post" id="loginguard-method-edit">
+<form action="index.php" method="post" id="loginguard-method-edit" class="form">
 	<input type="hidden" name="option" value="com_loginguard">
 	<input type="hidden" name="task" value="method.save">
 	<input type="hidden" name="id" value="<?php echo $this->record->id ?>">
@@ -38,7 +38,7 @@ JHtml::_('bootstrap.tooltip');
 			<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE'); ?>
 		</label>
 		<div class="controls">
-			<input type="text" class="form-control" id="loginguard-method-edit-title"
+			<input type="text" class="form-control input-xxlarge" id="loginguard-method-edit-title"
 			       name="title"
 			       value="<?php echo $this->escape($this->record->title) ?>"
 			       placeholder="<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE_DESC') ?>">
@@ -104,23 +104,25 @@ JHtml::_('bootstrap.tooltip');
 	</div>
 	<?php endif; ?>
 
+	<?php if (!$this->isAdmin): ?>
 	<div class="control-group">
 		<div class="controls">
 			<?php if ($this->renderOptions['show_submit'] || empty($this->record->id)): ?>
 			<button type="submit" class="btn btn-primary"
 				<?php echo $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
-				<span class="icon icon-ok-circle glyphicon glyphicon-ok-circle"></span>
+				<span class="icon icon-ok glyphicon glyphicon-ok-circle"></span>
 				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_SUBMIT'); ?>
 			</button>
 			<?php endif; ?>
 
-			<a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=methods.display') ?>"
+			<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.display') ?>"
 			   class="btn btn-small btn-sm btn-default">
 				<span class="icon icon-cancel-2 glyphicon glyphicon-cancel-2"></span>
 				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_CANCEL'); ?>
 			</a>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<?php if (!empty($this->renderOptions['post_message'])): ?>
 		<div class="loginguard-method-edit-post-message">

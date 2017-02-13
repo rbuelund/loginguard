@@ -14,9 +14,11 @@ JHtml::_('bootstrap.tooltip');
 
 ?>
 <div id="loginguard-methods-list">
+	<?php if (!$this->isAdmin): ?>
 	<h3 id="loginguard-methods-list-head">
 		<?php echo JText::_('COM_LOGINGUARD_HEAD_LIST_PAGE'); ?>
 	</h3>
+	<?php endif; ?>
 	<div id="loginguard-methods-list-instructions" class="alert alert-info">
 		<span class="icon icon-info glyphicon glyphicon-info"></span>
 		<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_INSTRUCTIONS'); ?>
@@ -76,9 +78,11 @@ JHtml::_('bootstrap.tooltip');
 		<?php endforeach; ?>
 	</div>
 
-    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1') ?>"
-       class="btn btn-small btn-sm btn-danger">
-        <?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
-    </a>
+	<div id="loginguard-methods-reset-container">
+		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1') ?>"
+		   class="btn btn-small btn-sm btn-danger">
+			<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
+		</a>
+	</div>
 
 </div>
