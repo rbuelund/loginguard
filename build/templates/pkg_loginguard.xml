@@ -25,6 +25,9 @@
 
         <!-- Plugins: system -->
         <file type="plugin" group="system" id="loginguard">plg_system_loginguard.zip</file>
+
+        <!-- Plugins: loginguard -->
+        <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
     </files>
 
     <!-- Installation script -->
