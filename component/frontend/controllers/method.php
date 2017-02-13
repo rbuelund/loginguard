@@ -214,8 +214,10 @@ class LoginGuardControllerMethod extends JControllerLegacy
 				$nonSefUrl .= 'add';
 			}
 
-			$url = JRoute::_($nonSefUrl);
+			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
+
+			return $this;
 		}
 
 		// Update the record's options with the plugin response
@@ -253,11 +255,13 @@ class LoginGuardControllerMethod extends JControllerLegacy
 				$nonSefUrl .= 'add';
 			}
 
-			$url = JRoute::_($nonSefUrl);
+			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
+
+			return $this;
 		}
 
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display'));
+		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false));
 
 		return $this;
 	}
