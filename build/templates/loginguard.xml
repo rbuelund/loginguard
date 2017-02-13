@@ -16,6 +16,7 @@
 	<!-- Public front end files -->
 	<files folder="frontend">
 		<folder>controllers</folder>
+		<folder>helpers</folder>
 		<folder>models</folder>
 		<folder>views</folder>
 
@@ -44,6 +45,9 @@
 
 		<!-- Back-end files -->
 		<files folder="backend">
+			<folder>controllers</folder>
+			<folder>models</folder>
+			<folder>views</folder>
 			<folder>sql</folder>
 
 			<filename>access.xml</filename>
