@@ -34,7 +34,6 @@ class LoginGuardController extends JControllerLegacy
 			'layout'    => $viewLayout
 		));
 
-
 		$view->document = $document;
 
 		// Check for edit form.
@@ -50,8 +49,19 @@ class LoginGuardController extends JControllerLegacy
 			// If we're already logged in go to the site's home page
 			if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
 			{
-				$homeURL = JUri::base();
-				JFactory::getApplication()->redirect($homeURL);
+				$nonSefUrl = 'index.php?option=com_loginguard&';
+
+				if (LoginGuardHelperTfa::isAdminPage())
+				{
+					$nonSefUrl .= 'task=users.default';
+				}
+				else
+				{
+					$nonSefUrl .= 'task=methods.display';
+				}
+
+				$url       = JRoute::_($nonSefUrl, false);
+				JFactory::getApplication()->redirect($url);
 			}
 
 			// Pass the model to the view
