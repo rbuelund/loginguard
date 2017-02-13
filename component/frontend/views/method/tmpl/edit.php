@@ -12,6 +12,13 @@ defined('_JEXEC') or die;
 
 JHtml::_('bootstrap.tooltip');
 
+$cancelURL = JRoute::_('index.php?option=com_loginguard&task=methods.display');
+
+if (!empty($this->returnURL))
+{
+	$cancelURL = $this->escape(base64_decode($this->returnURL));
+}
+
 ?>
 <form action="index.php" method="post" id="loginguard-method-edit" class="form">
 	<input type="hidden" name="option" value="com_loginguard">
@@ -19,6 +26,9 @@ JHtml::_('bootstrap.tooltip');
 	<input type="hidden" name="id" value="<?php echo $this->record->id ?>">
 	<input type="hidden" name="method" value="<?php echo $this->record->method ?>">
 	<input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">
+	<?php if (!empty($this->returnURL)): ?>
+	<input type="hidden" name="returnurl" value="<?php echo $this->escape($this->returnURL) ?>">
+	<?php endif; ?>
 
 	<?php if (!empty($this->renderOptions['hidden_data'])): ?>
 	<?php foreach ($this->renderOptions['hidden_data'] as $key => $value): ?>
@@ -115,7 +125,7 @@ JHtml::_('bootstrap.tooltip');
 			</button>
 			<?php endif; ?>
 
-			<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.display') ?>"
+			<a href="<?php echo $cancelURL ?>"
 			   class="btn btn-small btn-sm btn-default">
 				<span class="icon icon-cancel-2 glyphicon glyphicon-cancel-2"></span>
 				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_CANCEL'); ?>

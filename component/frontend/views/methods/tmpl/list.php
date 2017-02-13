@@ -47,13 +47,13 @@ JHtml::_('bootstrap.tooltip');
 								<?php endif; ?>
                                 <?php echo $this->escape($record->title); ?>
 							</span>
-								<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id)?>"
+								<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
 								   class="btn btn-mini btn-xs btn-default loginguard-methods-list-method-record-edit"
 								>
 									<span class="icon icon-pencil glyphicon glyphicon-pencil"></span>
 								</a>
 								<?php if ($method['canDisable']): ?>
-									<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id)?>"
+									<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
 									   class="btn btn-mini btn-xs btn-danger loginguard-methods-list-method-record-delete"
 									>
 										<span class="icon icon-trash glyphicon glyphicon-trash"></span>
@@ -66,7 +66,7 @@ JHtml::_('bootstrap.tooltip');
 
 				<?php if (empty($method['active']) || $method['allowMultiple']): ?>
 					<div class="loginguard-methods-list-method-addnew-container">
-						<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . urlencode($method['name']))?>"
+						<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . $this->escape(urlencode($method['name'])) . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
 						   class="loginguard-methods-list-method-addnew"
 						>
 							<?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_ADD_A', $method['display']) ?>
@@ -79,7 +79,7 @@ JHtml::_('bootstrap.tooltip');
 	</div>
 
 	<div id="loginguard-methods-reset-container">
-		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1') ?>"
+		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '')) ?>"
 		   class="btn btn-small btn-sm btn-danger">
 			<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
 		</a>

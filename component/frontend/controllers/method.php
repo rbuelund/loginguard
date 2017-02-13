@@ -74,6 +74,11 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		$model = $this->getModel();
 		$model->setState('method', $method);
 
+		// Pass the return URL to the view
+		$returnURL       = $this->input->getBase64('returnurl');
+		$view            = $this->getView('Method', 'html', '');
+		$view->returnURL = $returnURL;
+
 		return parent::display($cachable, $urlparams);
 	}
 
@@ -92,7 +97,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		$this->_assertLoggedIn();
 
 		// Also make sure the method really does exist
-		$id = $this->input->getInt('id');
+		$id     = $this->input->getInt('id');
 		$record = $this->_assertValidRecordId($id);
 
 		if ($id <= 0)
@@ -103,6 +108,11 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		/** @var LoginGuardModelMethod $model */
 		$model = $this->getModel();
 		$model->setState('id', $id);
+
+		// Pass the return URL to the view
+		$returnURL       = $this->input->getBase64('returnurl');
+		$view            = $this->getView('Method', 'html', '');
+		$view->returnURL = $returnURL;
 
 		return parent::display($cachable, $urlparams);
 	}
@@ -146,8 +156,17 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		}
 
 		// Redirect
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false), $message, $type);
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$returnURL = $this->input->getBase64('returnurl');
 
+		if (!empty($returnURL))
+		{
+			$url = base64_decode($returnURL);
+		}
+
+		$this->setRedirect($url, $message, $type);
+
+		return $this;
 	}
 
 	/**
@@ -170,6 +189,15 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		if ($value != 1)
 		{
 			die (JText::_('JINVALID_TOKEN'));
+		}
+
+		// Redirect
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$returnURL = $this->input->getBase64('returnurl');
+
+		if (!empty($returnURL))
+		{
+			$url = base64_decode($returnURL);
 		}
 
 		// The record must either be new (ID zero) or exist
@@ -214,6 +242,11 @@ class LoginGuardControllerMethod extends JControllerLegacy
 				$nonSefUrl .= 'add';
 			}
 
+			if (!empty($returnURL))
+			{
+				$nonSefUrl .= '&returnurl=' . urlencode($returnURL);
+			}
+
 			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
 
@@ -255,13 +288,18 @@ class LoginGuardControllerMethod extends JControllerLegacy
 				$nonSefUrl .= 'add';
 			}
 
+			if (!empty($returnURL))
+			{
+				$nonSefUrl .= '&returnurl=' . urlencode($returnURL);
+			}
+
 			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
 
 			return $this;
 		}
 
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false));
+		$this->setRedirect($url);
 
 		return $this;
 	}

@@ -25,6 +25,13 @@ class LoginGuardViewMethods extends JViewLegacy
 	public $methods = array();
 
 	/**
+	 * The return URL to use for all links and forms
+	 *
+	 * @var   string
+	 */
+	public $returnURL = null;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.

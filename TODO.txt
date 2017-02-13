@@ -1,6 +1,4 @@
 Make sure you can't create front-end menu items to this component
-Backend page to manage TFA methods
-User plugin to let the user launch that page from his profile edit page
 
 Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
     Only shows that if the user doesn't have TFA already enabled

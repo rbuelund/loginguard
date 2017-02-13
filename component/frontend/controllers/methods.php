@@ -41,6 +41,10 @@ class LoginGuardControllerMethods extends JControllerLegacy
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
+		$returnURL       = $this->input->getBase64('returnurl');
+		$view            = $this->getView();
+		$view->returnURL = $returnURL;
+
 		parent::display($cachable, $urlparams);
 
 		return $this;
@@ -87,7 +91,15 @@ class LoginGuardControllerMethods extends JControllerLegacy
 		}
 
 		// Redirect
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false), $message, $type);
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$returnURL = $this->input->getBase64('returnurl');
+
+		if (!empty($returnURL))
+		{
+			$url = base64_decode($returnURL);
+		}
+
+		$this->setRedirect($url, $message, $type);
 
 		return $this;
 	}

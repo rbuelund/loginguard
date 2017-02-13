@@ -28,6 +28,9 @@
 
         <!-- Plugins: loginguard -->
         <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
+
+        <!-- Plugins: user -->
+        <file type="plugin" group="user" id="loginguard">plg_user_loginguard.zip</file>
     </files>
 
     <!-- Installation script -->

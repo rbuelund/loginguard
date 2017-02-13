@@ -53,6 +53,7 @@ class Pkg_LoginguardInstallerScript
 	 */
 	protected $extensionsToEnable = array(
 		array('plugin', 'loginguard', 1, 'system'),
+		array('plugin', 'loginguard', 1, 'user'),
 		// TODO Only for demonstration purposes. Change this with the final version plugins.
 		array('plugin', 'fixed', 1, 'loginguard'),
     );

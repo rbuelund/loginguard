@@ -39,6 +39,13 @@ class LoginGuardViewMethod extends JViewLegacy
 	public $title = '';
 
 	/**
+	 * The return URL to use for all links and forms
+	 *
+	 * @var   string
+	 */
+	public $returnURL = null;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -67,7 +74,14 @@ class LoginGuardViewMethod extends JViewLegacy
 				$this->renderSubmitToolbarButton($bar);
 			}
 
-			$bar->appendButton('Link', 'cancel', 'JTOOLBAR_CANCEL', JRoute::_('index.php?option=com_loginguard&task=methods.display'));
+			$nonSefUrl = 'index.php?option=com_loginguard&task=methods.display';
+
+			if (!empty($this->returnURL))
+			{
+				$nonSefUrl .= '&redirecturl=' . $this->returnURL;
+			}
+
+			$bar->appendButton('Link', 'cancel', 'JTOOLBAR_CANCEL', JRoute::_($nonSefUrl));
 
 			$this->title = '';
 		}
