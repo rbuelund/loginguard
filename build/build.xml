@@ -45,6 +45,10 @@
 				</replacetokens>
 			</filterchain>
 		</copy>
+
+		<copy file="${phing.dir}/templates/plg_loginguard_fixed.xml" tofile="${dirs.plugins}/loginguard/fixed/fixed.xml" overwrite="true">
+			<filterchain refid="manifest-replace-tokens" />
+		</copy>
 	</target>
 
 	<!--
