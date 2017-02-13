@@ -53,6 +53,12 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
+		// Only display the form if I'm editing my own user
+		if ($data->get('id') != JFactory::getUser()->id)
+		{
+			return true;
+		}
+
 		// Add the fields to the form.
 		JForm::addFormPath(dirname(__FILE__) . '/loginguard');
 		$form->loadFile('loginguard', false);
