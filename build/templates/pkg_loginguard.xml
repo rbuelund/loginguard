@@ -13,7 +13,7 @@
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
 
-    <copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
+    <copyright>Copyright (c)2016-2017 Akeeba Ltd</copyright>
     <license>GNU GPL v3 or later</license>
 
     <description>Akeeba LoginGuard installation package v.##VERSION##</description>
