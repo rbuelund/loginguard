@@ -1,5 +1,3 @@
-Make sure you can't create front-end menu items to this component
-
 Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
     Only shows that if the user doesn't have TFA already enabled
     Default page in the component, option to have your own page (link)

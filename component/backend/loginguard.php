@@ -9,24 +9,11 @@
 defined('_JEXEC') or die;
 
 // The captive page has to be rendered with frontend code and frontend language strings
-$app    = JFactory::getApplication();
-$view   = $app->input->getCmd('view', 'captive');
-$task   = $app->input->getCmd('task', 'default');
-$config = array(
-	'base_path' => JPATH_COMPONENT_ADMINISTRATOR
-);
-
-if (($view == 'captive') || (substr($task, 0, 8) == 'captive.') || (substr($task, 0, 7) == 'method.') || (substr($task, 0, 8) == 'methods.'))
-{
-	$lang = JFactory::getLanguage();
-	$lang->load('com_loginguard', JPATH_SITE, null, true, true);
-
-	$config['base_path'] = JPATH_SITE . '/components/com_loginguard';
-	$config['view_path'] = JPATH_SITE . '/components/com_loginguard/views';
-}
+$lang = JFactory::getLanguage();
+$lang->load('com_loginguard', JPATH_SITE, null, true, true);
 
 // Get an instance of the LoginGuard controller
-$controller = JControllerLegacy::getInstance('LoginGuard', $config);
+$controller = JControllerLegacy::getInstance('LoginGuard');
 
 // Get and execute the requested task
 $input = JFactory::getApplication()->input;
