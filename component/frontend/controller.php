@@ -49,18 +49,7 @@ class LoginGuardController extends JControllerLegacy
 			// If we're already logged in go to the site's home page
 			if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
 			{
-				$nonSefUrl = 'index.php?option=com_loginguard&';
-
-				if (LoginGuardHelperTfa::isAdminPage())
-				{
-					$nonSefUrl .= 'task=users.default';
-				}
-				else
-				{
-					$nonSefUrl .= 'task=methods.display';
-				}
-
-				$url       = JRoute::_($nonSefUrl, false);
+				$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
 				JFactory::getApplication()->redirect($url);
 			}
 

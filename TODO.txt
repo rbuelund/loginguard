@@ -1,3 +1,5 @@
+Allow back-end Super Users to edit other people's TSV settings
+
 Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
     Only shows that if the user doesn't have TFA already enabled
     Default page in the component, option to have your own page (link)
@@ -13,7 +15,6 @@ Create a plugin for code by SMS - https://www.cmtelecom.com/pricing/sms
 The front- and back-end controllers must make sure that the backup codes plugin is always activated and published LAST. If not, activate it and reload the page.
 
 Migration from core TFA plugins
-
 
 Deal with plugins(?)
 	I need to forcibly unload all loaded plugins in various stages
