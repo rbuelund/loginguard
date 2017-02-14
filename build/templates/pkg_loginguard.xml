@@ -28,6 +28,7 @@
 
         <!-- Plugins: loginguard -->
         <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
+        <file type="plugin" group="loginguard" id="totp">plg_loginguard_totp.zip</file>
 
         <!-- Plugins: user -->
         <file type="plugin" group="user" id="loginguard">plg_user_loginguard.zip</file>
