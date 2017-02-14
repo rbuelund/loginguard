@@ -17,20 +17,27 @@ defined('_JEXEC') or die;
  */
 class PlgLoginguardFixed extends JPlugin
 {
-	public function __construct($subject, array $config = array())
-	{
-		parent::__construct($subject, $config);
-
-		$this->loadLanguage();
-	}
-
-
 	/**
 	 * The TFA method name handled by this plugin
 	 *
 	 * @var   string
 	 */
 	private $tfaMethodName = 'fixed';
+
+	/**
+	 * Constructor. Loads the language files as well.
+	 *
+	 * @param   object  &$subject  The object to observe
+	 * @param   array   $config    An optional associative array of configuration settings.
+	 *                             Recognized key values include 'name', 'group', 'params', 'language'
+	 *                             (this list is not meant to be comprehensive).
+	 */
+	public function __construct($subject, array $config = array())
+	{
+		parent::__construct($subject, $config);
+
+		$this->loadLanguage();
+	}
 
 	/**
 	 * Gets the identity of this TFA method

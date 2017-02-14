@@ -11,9 +11,12 @@
     max-width: 500px;
     margin: auto;
     padding: 0.25em;
-    border-top: thin solid #666666;
-    border-bottom: thin solid #666666;
-    background: #f5f8f9;
+    border: thin solid #cccccc;
+    background: #fafafa;
+}
+
+.loginguard-methods-list-method-default {
+    border-left: 8px solid navy;
 }
 
 .loginguard-methods-list-method-image {

@@ -32,6 +32,20 @@ class LoginGuardViewMethods extends JViewLegacy
 	public $returnURL = null;
 
 	/**
+	 * Are there any active TFA methods at all?
+	 *
+	 * @var   bool
+	 */
+	public $tfaActive = false;
+
+	/**
+	 * Which method has the default record?
+	 *
+	 * @var   string
+	 */
+	public $defaultMethod = '';
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -45,6 +59,26 @@ class LoginGuardViewMethods extends JViewLegacy
 		$this->setLayout('list');
 		$this->methods = $this->get('methods');
 		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
+
+		if (count($this->methods)) foreach ($this->methods as $methodName => $method)
+		{
+			if (!count($method['active']))
+			{
+				continue;
+			}
+
+			$this->tfaActive = true;
+
+			foreach ($method['active'] as $record)
+			{
+				if ($record->default)
+				{
+					$this->defaultMethod = $methodName;
+
+					break;
+				}
+			}
+		}
 
 		// Include CSS
 		JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
