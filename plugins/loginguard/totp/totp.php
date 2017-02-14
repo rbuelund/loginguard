@@ -296,7 +296,7 @@ class PlgLoginguardTotp extends JPlugin
 	private function _decodeRecordOptions($record)
 	{
 		$options = array(
-			'fixed_code' => ''
+			'key' => ''
 		);
 
 		if (!empty($record->options))
