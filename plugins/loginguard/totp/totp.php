@@ -137,7 +137,7 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// Generate a QR code for the key
-		$user = JFactory::getUser($record->id);
+		$user = JFactory::getUser($record->user_id);
 		$hostname = JUri::getInstance()->toString(array('host'));
 		$qr = $totp->getUrl($user->username, $hostname, $key);
 
