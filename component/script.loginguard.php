@@ -52,10 +52,14 @@ class Pkg_LoginguardInstallerScript
 	 * @var array
 	 */
 	protected $extensionsToEnable = array(
+		// System plugins
 		array('plugin', 'loginguard', 1, 'system'),
+		// User plugins
 		array('plugin', 'loginguard', 1, 'user'),
-		array('plugin', 'totp', 1, 'loginguard'),
-    );
+		// LoginGuard plugins
+		array('plugin', 'totp',       1, 'loginguard'),
+		array('plugin', 'yubikey',    1, 'loginguard'),
+	);
 
 	/**
 	 * =================================================================================================================

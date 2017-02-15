@@ -241,7 +241,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 			}
 			else
 			{
-				$nonSefUrl .= 'add';
+				$nonSefUrl .= 'add&method=' . $record->method;
 			}
 
 			if (!empty($returnURL))

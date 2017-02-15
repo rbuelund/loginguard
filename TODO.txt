@@ -6,7 +6,6 @@ Customizable user plugin to redirect the user to a landing page to enable TFA af
     The user can cancel this temporarily ("not now") or permanently ("never ask again", store a flag in the user profile)
 
 Create a plugin for the backup codes
-Create a plugin for YubiKey
 Create a plugin for U2F
 Create a plugin for code by email
 Create a plugin for code by SMS - https://www.cmtelecom.com/pricing/sms
