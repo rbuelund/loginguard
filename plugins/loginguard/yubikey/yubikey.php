@@ -412,8 +412,7 @@ class PlgLoginguardYubikey extends JPlugin
 
 		if ($calculatedH != $h)
 		{
-			// TODO Since the signature does NOT work according to Yubico's documentation I AM IGNORING IT FOR NOW.
-			// return false;
+			return false;
 		}
 
 		// Validate the response - We need an OK message reply
@@ -497,8 +496,22 @@ class PlgLoginguardYubikey extends JPlugin
 		/**
 		 * Construct a single line with each ordered key/value pair concatenated using &, and each key and value
 		 * concatenated with =. Do not add any line breaks. Do not add whitespace.
+		 *
+		 * Now, if you thought I can't really write PHP code, a.k.a. why not use http_build_query, read on.
+		 *
+		 * The way YubiKey expects the query to be built is UTTERLY WRONG. They are doing string concatenation, not
+		 * URL query building! Therefore you cannot use http_build_query(). Instead, you need to use dumb string
+		 * concatenation. I kid you not. If you want to laugh (or cry) read their Auth_Yubico class. It's 1998 all over
+		 * again.
 		 */
-		$stringToSign = http_build_query($vars);
+		$stringToSign = '';
+
+		foreach ($vars as $k => $v)
+		{
+			$stringToSign .= '&' . $k . '=' . $v;
+		}
+
+		$stringToSign = ltrim($stringToSign, '&');
 
 		/**
 		 * Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key (remember to
