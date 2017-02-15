@@ -64,10 +64,20 @@
 		</languages>
 	</administration>
 
-	<!-- Runs on update, used to install the necessary database tables -->
+	<!-- Handle the database installation and updates -->
+	<install>
+		<sql>
+			<file driver="mysql">sql/mysql/install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql">sql/mysql/uninstall.sql</file>
+		</sql>
+	</uninstall>
 	<update>
 		<schemas>
-			<schemapath type="mysql">sql/updates/mysql</schemapath>
+			<schemapath type="mysql">sql/mysql/updates</schemapath>
 		</schemas>
 	</update>
 	
