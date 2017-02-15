@@ -29,6 +29,7 @@
 }
 
 .loginguard-methods-list-method-title {
+    font-size: larger;
     margin-left: 125px;
 }
 
@@ -45,6 +46,14 @@
 .loginguard-methods-list-method-record
 {
     min-height: 1.75em;
+    padding-bottom: 1em;
+}
+
+.loginguard-methods-list-method-record-title-container
+{
+    font-size: larger;
+    display: inline-block;
+    padding: 0.2em 0 0.5em 0;
 }
 
 a.loginguard-methods-list-method-record-delete {
@@ -59,6 +68,16 @@ div.loginguard-methods-list-method-record:hover a.loginguard-methods-list-method
 div.loginguard-methods-list-method-record:hover a.loginguard-methods-list-method-record-edit
 {
     display: inline-block;
+}
+
+.loginguard-methods-list-method-record-lastused
+{
+    color: #7e7e7e;
+}
+
+.loginguard-methods-list-method-record-lastused-date
+{
+    display: block;
 }
 
 div#loginguard-methods-reset-container

@@ -93,4 +93,61 @@ class LoginGuardModelMethods extends JModelLegacy
 			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
 		$db->setQuery($query)->execute();
 	}
+
+	public function formatRelative($dateTimeText)
+	{
+		// The timestamp is given in UTC. Make sure Joomla! parses it as such.
+		$utcTimeZone = new DateTimeZone('UTC');
+		$jDate       = JDate::getInstance($dateTimeText, $utcTimeZone);
+		$unixStamp   = $jDate->toUnix();
+
+		// I'm pretty sure we didn't have TFA in Joomla back in 1970 ;)
+		if ($unixStamp < 0)
+		{
+			return '&ndash;';
+		}
+
+		// I need to display the date in the user's local timezone. That's how you do it.
+		$user   = JFactory::getUser();
+		$userTZ = $user->getParam('timezone', 'UTC');
+		$tz     = new DateTimeZone($userTZ);
+		$jDate->setTimezone($tz);
+
+		// Default format string: way in the past, the time of the day is not important
+		$formatString    = JText::_('COM_LOGINGUARD_LBL_DATE_FORMAT_PAST');
+		$containerString = JText::_('COM_LOGINGUARD_LBL_PAST');
+
+		// If the timestamp is within the last 72 hours we may need a special format
+		if ($unixStamp > (time() - (72 * 3600)))
+		{
+			// Is this timestamp today?
+			$jNow = JDate::getInstance();
+			$jNow->setTimezone($tz);
+			$checkNow  = $jNow->format('Ymd', true);
+			$checkDate = $jDate->format('Ymd', true);
+
+			if ($checkDate == $checkNow)
+			{
+				$formatString    = JText::_('COM_LOGINGUARD_LBL_DATE_FORMAT_TODAY');
+				$containerString = JText::_('COM_LOGINGUARD_LBL_TODAY');
+			}
+			else
+			{
+				// Is this timestamp yesterday?
+				$jYesterday = clone $jNow;
+				$jYesterday->setTime(0, 0, 0);
+				$oneSecond = new DateInterval('PT1S');
+				$jYesterday->sub($oneSecond);
+				$checkYesterday = $jYesterday->format('Ymd', true);
+
+				if ($checkDate == $checkYesterday)
+				{
+					$formatString    = JText::_('COM_LOGINGUARD_LBL_DATE_FORMAT_YESTERDAY');
+					$containerString = JText::_('COM_LOGINGUARD_LBL_YESTERDAY');
+				}
+			}
+		}
+
+		return sprintf($containerString, $jDate->format($formatString, true));
+	}
 }

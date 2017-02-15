@@ -12,6 +12,9 @@ defined('_JEXEC') or die;
 
 JHtml::_('bootstrap.tooltip');
 
+/** @var LoginGuardModelMethods $model */
+$model = $this->getModel();
+
 ?>
 <div id="loginguard-methods-list">
     <div id="loginguard-methods-reset-container" class="well well-large well-lg col-sm-6 col-sm-offset-3 span6 offset3">
@@ -60,31 +63,46 @@ JHtml::_('bootstrap.tooltip');
 			<div class="loginguard-methods-list-method-records-container">
 				<?php if (count($method['active'])): ?>
 					<div class="loginguard-methods-list-method-records">
-						<?php foreach($method['active'] as $record): ?>
+						<?php  foreach($method['active'] as $record): ?>
 							<div class="loginguard-methods-list-method-record">
-                                <span class="loginguard-methods-list-method-record-title">
-                                    <?php if ($record->default): ?>
-                                    <span id="loginguard-methods-list-method-default-badge-small" class="badge badge-info hasTooltip" title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_LIST_DEFAULTTAG')) ?>">
-                                        <span class="icon icon-star glyphicon glyphicon-star"></span>
-                                    </span>
-                                    <?php endif; ?>
-                                    <?php echo $this->escape($record->title); ?>
-                                </span>
                                 <div class="pull-right">
                                     <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
                                        class="btn btn-mini btn-xs btn-default loginguard-methods-list-method-record-edit"
                                     >
                                         <span class="icon icon-pencil glyphicon glyphicon-pencil"></span>
                                     </a>
-	                                <?php if ($method['canDisable']): ?>
-                                    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
-                                       class="btn btn-mini btn-xs btn-danger loginguard-methods-list-method-record-delete"
-                                    >
-                                        <span class="icon icon-trash glyphicon glyphicon-trash"></span>
-                                    </a>
-	                                <?php endif; ?>
+									<?php if ($method['canDisable']): ?>
+                                        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
+                                           class="btn btn-mini btn-xs btn-danger loginguard-methods-list-method-record-delete"
+                                        >
+                                            <span class="icon icon-trash glyphicon glyphicon-trash"></span>
+                                        </a>
+									<?php endif; ?>
                                 </div>
-							</div>
+                                <span class="loginguard-methods-list-method-record-title-container">
+                                    <?php if ($record->default): ?>
+                                    <span id="loginguard-methods-list-method-default-badge-small" class="badge badge-info hasTooltip" title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_LIST_DEFAULTTAG')) ?>">
+                                        <span class="icon icon-star glyphicon glyphicon-star"></span>
+                                    </span>
+                                    <?php endif; ?>
+                                    <span class="loginguard-methods-list-method-record-title">
+                                        <?php echo $this->escape($record->title); ?>
+                                    </span>
+                                    <span class="loginguard-methods-list-method-record-createdon">
+                                        <?php echo JText::sprintf('COM_LOGINGUARD_LBL_CREATEDON', $model->formatRelative($record->created_on)) ?>
+                                    </span>
+                                </span>
+                                <div class="loginguard-methods-list-method-record-lastused">
+                                    <span class="loginguard-methods-list-method-record-lastused-date">
+                                        <?php echo JText::sprintf('COM_LOGINGUARD_LBL_LASTUSED', $model->formatRelative($record->last_used)) ?>
+                                    </span>
+                                    <!--
+                                    <span class="loginguard-methods-list-method-record-lastused-location">
+                                        Browser on Operating System in City, Country
+                                    </span>
+                                    -->
+                                </div>
+                            </div>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
