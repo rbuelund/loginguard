@@ -1,6 +1,6 @@
 Remember when each method was created and used
     * Add created_on and used_on timestamps to each record
-    Update the created_on timestamp only when adding a new record
+    * Update the created_on timestamp only when adding a new record
     Update the used_on timestamp every time we successfully log in with a specific method
     Display the created and last used timestamps in list.php
 

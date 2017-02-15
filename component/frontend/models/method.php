@@ -194,6 +194,10 @@ class LoginGuardModelMethod extends JModelLegacy
 
 		if (!$record->id)
 		{
+			// Update the Created On timestamp
+			$jNow = JDate::getInstance();
+			$record->created_on = $jNow->toSql();
+
 			$result = $db->insertObject('#__loginguard_tfa', $record, 'id');
 		}
 		else
