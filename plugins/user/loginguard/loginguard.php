@@ -54,7 +54,22 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Only display the form if I'm editing my own user
-		if ($data->get('id') != JFactory::getUser()->id)
+		$id = null;
+
+		if (is_array($data))
+		{
+			$id = isset($data['id']) ? $data['id'] : null;
+		}
+		elseif (is_object($data) && is_null($data) && ($data instanceof JRegistry))
+		{
+			$id = $data->get('id');
+		}
+		elseif (is_object($data) && is_null($data))
+		{
+			$id = isset($data->id) ? $data->id : null;
+		}
+
+		if ($id != JFactory::getUser()->id)
 		{
 			return true;
 		}
