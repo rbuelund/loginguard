@@ -48,7 +48,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		$user = JFactory::getUser();
 
 		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
-		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
+		$results     = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
 		$isValidCode = false;
 
 		if (is_array($results) && !empty($results))
@@ -74,9 +74,21 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 			return $this;
 		}
 
-		// Update the last used timestamp on the used validation method
-		$jNow = new JDate();
+		// Update the Last Used, UA and IP columns
+		JLoader::import('joomla.environment.browser');
+		$jNow    = JDate::getInstance();
+		$browser = JBrowser::getInstance();
+		$session = JFactory::getSession();
+		$ip      = $session->get('session.client.address');
+
+		if (empty($ip))
+		{
+			$ip = $_SERVER['REMOTE_ADDR'];
+		}
+
 		$record->last_used = $jNow->toSql();
+		$record->ua        = $browser->getAgentString();
+		$record->ip        = $ip;
 
 		if (!class_exists('LoginGuardModelMethod'))
 		{

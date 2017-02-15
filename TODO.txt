@@ -1,6 +1,4 @@
 Store the User Agent and IP address
-    Store the UA and IP when creating a record
-    Store the UA and IP upon successful login
     Display the information in the list view
 
 Create SQL files for PostgreSQL and Microsoft SQL Server

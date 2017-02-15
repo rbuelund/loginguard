@@ -130,7 +130,7 @@ class LoginGuardModelMethod extends JModelLegacy
 		if ($record->id)
 		{
 			$allRecords = $records;
-			$records = array();
+			$records    = array();
 
 			foreach ($allRecords as $rec)
 			{
@@ -194,9 +194,21 @@ class LoginGuardModelMethod extends JModelLegacy
 
 		if (!$record->id)
 		{
-			// Update the Created On timestamp
-			$jNow = JDate::getInstance();
+			// Update the Created On, UA and IP columns
+			JLoader::import('joomla.environment.browser');
+			$jNow    = JDate::getInstance();
+			$browser = JBrowser::getInstance();
+			$session = JFactory::getSession();
+			$ip      = $session->get('session.client.address');
+
+			if (empty($ip))
+			{
+				$ip = $_SERVER['REMOTE_ADDR'];
+			}
+
 			$record->created_on = $jNow->toSql();
+			$record->ua         = $browser->getAgentString();
+			$record->ip         = $ip;
 
 			$result = $db->insertObject('#__loginguard_tfa', $record, 'id');
 		}
