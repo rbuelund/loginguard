@@ -94,6 +94,16 @@ class LoginGuardModelMethods extends JModelLegacy
 		$db->setQuery($query)->execute();
 	}
 
+	/**
+	 * Format a relative timestamp. It deals with timestamps today and yesterday in a special manner. Example returns:
+	 * Yesterday, 13:12
+	 * Today, 08:33
+	 * January 1, 2015
+	 *
+	 * @param   string  $dateTimeText  The database time string to use, e.g. "2017-01-13 13:25:36"
+	 *
+	 * @return  string  The formatted, human-readable date
+	 */
 	public function formatRelative($dateTimeText)
 	{
 		// The timestamp is given in UTC. Make sure Joomla! parses it as such.
@@ -149,5 +159,149 @@ class LoginGuardModelMethods extends JModelLegacy
 		}
 
 		return sprintf($containerString, $jDate->format($formatString, true));
+	}
+
+	public function formatBrowser($ua)
+	{
+		if (empty($ua))
+		{
+			return '';
+		}
+
+		JLoader::import('joomla.environment.browser');
+		$jBrowser = JBrowser::getInstance($ua);
+		$platform = $jBrowser->getPlatform();
+		$browser = $jBrowser->getBrowser();
+
+		// Let's make sure we have the correct platform
+		if (strpos($ua, '; Android') !== false)
+		{
+			$platform = 'android';
+		}
+		elseif ((strpos($ua, 'iPhone;')) !== false || (strpos($ua, 'iPad;') !== false) || (strpos($ua, 'iPod;') !== false) || (strpos($ua, 'iPad touch;') !== false))
+		{
+			$platform = 'ios';
+		}
+		elseif (strpos($ua, 'Linux') !== false)
+		{
+			$platform = 'linux';
+		}
+
+		// Let's make sure we have the correct browser
+		if (strpos($ua, 'Edge/'))
+		{
+			$browser = 'edge';
+		}
+		if (strpos($ua, 'Chromium/'))
+		{
+			$browser = 'chromium';
+		}
+		elseif (strpos($ua, 'Opera Mini/'))
+		{
+			$browser = 'operamini';
+		}
+		elseif (strpos($ua, 'Maxthon;'))
+		{
+			$browser = 'maxthon';
+		}
+		elseif (strpos($ua, 'YaBrowser/'))
+		{
+			$browser = 'yandex';
+		}
+		elseif (strpos($ua, 'Avant Browser'))
+		{
+			$browser = 'avant';
+		}
+		elseif (strpos($ua, 'Camino/'))
+		{
+			$browser = 'camino';
+		}
+		elseif (strpos($ua, 'Epiphany/'))
+		{
+			$browser = 'epiphany';
+		}
+		elseif (strpos($ua, 'Galeon/'))
+		{
+			$browser = 'galeon';
+		}
+		elseif (strpos($ua, 'Iceweasel/'))
+		{
+			$browser = 'iceweasel';
+		}
+		elseif (strpos($ua, 'K-Meleon/'))
+		{
+			$browser = 'kmeleon';
+		}
+		elseif (strpos($ua, 'Midori/'))
+		{
+			$browser = 'midori';
+		}
+		elseif (strpos($ua, 'rekonq/'))
+		{
+			$browser = 'rekonq';
+		}
+		elseif (strpos($ua, 'SamsungBrowser/'))
+		{
+			$browser = 'samsung';
+		}
+		elseif (strpos($ua, 'SeaMonkey/'))
+		{
+			$browser = 'seamonkey';
+		}
+		elseif (strpos($ua, 'Iron/'))
+		{
+			$browser = 'iron';
+		}
+		elseif (strpos($ua, 'Dalvik/'))
+		{
+			$browser = 'android';
+		}
+		elseif (strpos($ua, 'presto/'))
+		{
+			$browser = 'android';
+		}
+		elseif (strpos($ua, 'Vivaldi/'))
+		{
+			$browser = 'vivaldi';
+		}
+
+		// Translate the information
+		$platformText  = JText::_('COM_LOGINGUARD_LBL_BROWSER_PLATFORM_' . $platform);
+		$browserString = JText::_('COM_LOGINGUARD_LBL_BROWSER_' . $browser);
+
+		return JText::sprintf('COM_LOGINGUARD_LBL_BROWSER', $browserString, $platformText);
+	}
+
+	public function formatIp($ip)
+	{
+		if (empty($ip))
+		{
+			return;
+		}
+
+		$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMIP', $ip);
+
+		if (class_exists('AkeebaGeoipProvider'))
+		{
+			$geoip     = new AkeebaGeoipProvider();
+			$country   = $geoip->getCountryName($ip);
+
+			if (!empty($country))
+			{
+				$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMCOUNTRY', $country);
+			}
+
+			if (method_exists($geoip, 'getCity'))
+			{
+				$city = $geoip->getCity($ip);
+
+				if (!empty($city) && !empty($country))
+				{
+					$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMCITYCOUNTRY', $city, $country);
+				}
+			}
+		}
+
+		return $string;
 	}
 }
