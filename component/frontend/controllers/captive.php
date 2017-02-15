@@ -74,6 +74,26 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 			return $this;
 		}
 
+		// Update the last used timestamp on the used validation method
+		$jNow = new JDate();
+		$record->last_used = $jNow->toSql();
+
+		if (!class_exists('LoginGuardModelMethod'))
+		{
+			JLoader::register('LoginGuardModelMethod', __DIR__ . '/../models/method.php');
+		}
+
+		$methodModel = new LoginGuardModelMethod();
+
+		try
+		{
+			$methodModel->saveRecord($record);
+		}
+		catch (Exception $e)
+		{
+			// We don't really care if the timestamp can't be saved to the database
+		}
+
 		// Flag the user as fully logged in
 		$session = JFactory::getSession();
 		$session->set('tfa_checked', 1, 'com_loginguard');
