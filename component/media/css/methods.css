@@ -80,6 +80,14 @@ div.loginguard-methods-list-method-record:hover a.loginguard-methods-list-method
     display: block;
 }
 
+.loginguard-methods-list-method-addnew
+{
+    display: inline-block;
+    padding: 1em 0;
+    font-size: larger;
+    text-transform: uppercase;
+}
+
 div#loginguard-methods-reset-container
 {
     clear: both;
