@@ -82,7 +82,7 @@ $model = $this->getModel();
 
                                     <div class="span2 col-sm-2 pull-right" style="margin-left: 0">
                                         <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
-                                           class="loginguard-methods-list-method-record-edit"
+                                           class="loginguard-methods-list-method-record-edit btn btn-default"
                                         ><span class="icon icon-pencil glyphicon glyphicon-pencil"></span></a>
                                         <br/>
                                     </div>
@@ -106,7 +106,7 @@ $model = $this->getModel();
 	                                <?php if ($method['canDisable']): ?>
                                     <span class="span2 col-sm-2 pull-right" style="margin-left: 0">
                                         <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
-                                           class="loginguard-methods-list-method-record-delete"
+                                           class="loginguard-methods-list-method-record-delete btn btn-danger"
                                         ><span class="icon icon-trash glyphicon glyphicon-trash"></span></a>
                                     </span>
 	                                <?php endif; ?>
@@ -119,7 +119,7 @@ $model = $this->getModel();
 				<?php if (empty($method['active']) || $method['allowMultiple']): ?>
 					<div class="loginguard-methods-list-method-addnew-container">
 						<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . $this->escape(urlencode($method['name'])) . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
-						   class="loginguard-methods-list-method-addnew"
+						   class="loginguard-methods-list-method-addnew btn btn-primary"
 						>
 							<?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_ADD_A', $method['display']) ?>
 						</a>

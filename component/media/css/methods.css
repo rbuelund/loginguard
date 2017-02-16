@@ -46,7 +46,6 @@
 .loginguard-methods-list-method-record
 {
     min-height: 1.75em;
-    padding-bottom: 2em;
 }
 
 .loginguard-methods-list-method-record-title-container
@@ -81,6 +80,11 @@
 {
     color: firebrick;
     font-size: small;
+}
+
+.loginguard-methods-list-method-addnew-container
+{
+    padding: 1em 0;
 }
 
 .loginguard-methods-list-method-addnew
