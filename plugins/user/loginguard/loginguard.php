@@ -53,6 +53,11 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
+		if (!LoginGuardHelperTfa::isAdminPage() && (JFactory::getApplication()->input->getCmd('layout', 'default') != 'edit'))
+		{
+			return true;
+		}
+
 		// Get the user ID
 		$id = null;
 
