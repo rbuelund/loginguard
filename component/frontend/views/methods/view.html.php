@@ -46,6 +46,13 @@ class LoginGuardViewMethods extends JViewLegacy
 	public $defaultMethod = '';
 
 	/**
+	 * The user object used to display this page
+	 *
+	 * @var   JUser
+	 */
+	public $user = null;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -56,26 +63,37 @@ class LoginGuardViewMethods extends JViewLegacy
 	 */
 	function display($tpl = null)
 	{
+		if (empty($this->user))
+		{
+			$this->user = JFactory::getUser();
+		}
+
+		/** @var LoginGuardModelMethods $model */
+		$model = $this->getModel();
+
 		$this->setLayout('list');
-		$this->methods = $this->get('methods');
+		$this->methods = $model->getMethods($this->user);
 		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
 
-		if (count($this->methods)) foreach ($this->methods as $methodName => $method)
+		if (count($this->methods))
 		{
-			if (!count($method['active']))
+			foreach ($this->methods as $methodName => $method)
 			{
-				continue;
-			}
-
-			$this->tfaActive = true;
-
-			foreach ($method['active'] as $record)
-			{
-				if ($record->default)
+				if (!count($method['active']))
 				{
-					$this->defaultMethod = $methodName;
+					continue;
+				}
 
-					break;
+				$this->tfaActive = true;
+
+				foreach ($method['active'] as $record)
+				{
+					if ($record->default)
+					{
+						$this->defaultMethod = $methodName;
+
+						break;
+					}
 				}
 			}
 		}

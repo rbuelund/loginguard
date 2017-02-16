@@ -63,8 +63,10 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	 */
 	public function add($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		$this->_assertLoggedIn();
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+		$this->_assertCanEdit($user);
 
 		// Also make sure the method really does exist
 		$method = $this->input->getCmd('method');
@@ -77,8 +79,12 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		// Pass the return URL to the view
 		$returnURL       = $this->input->getBase64('returnurl');
 		$viewLayout      = $this->input->get('layout', 'default', 'string');
-		$view            = $this->getView('Method', 'html', '', array('base_path' => $this->basePath, 'layout' => $viewLayout));
+		$view            = $this->getView('Method', 'html', '', array(
+			'base_path' => $this->basePath,
+			'layout'    => $viewLayout
+		));
 		$view->returnURL = $returnURL;
+		$view->user      = $user;
 
 		return parent::display($cachable, $urlparams);
 	}
@@ -94,12 +100,14 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	 */
 	public function edit($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		$this->_assertLoggedIn();
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+		$this->_assertCanEdit($user);
 
 		// Also make sure the method really does exist
 		$id     = $this->input->getInt('id');
-		$record = $this->_assertValidRecordId($id);
+		$record = $this->_assertValidRecordId($id, $user);
 
 		if ($id <= 0)
 		{
@@ -113,8 +121,12 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		// Pass the return URL to the view
 		$returnURL       = $this->input->getBase64('returnurl');
 		$viewLayout      = $this->input->get('layout', 'default', 'string');
-		$view            = $this->getView('Method', 'html', '', array('base_path' => $this->basePath, 'layout' => $viewLayout));
+		$view            = $this->getView('Method', 'html', '', array(
+			'base_path' => $this->basePath,
+			'layout'    => $viewLayout
+		));
 		$view->returnURL = $returnURL;
+		$view->user      = $user;
 
 		return parent::display($cachable, $urlparams);
 	}
@@ -129,12 +141,14 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	 */
 	public function delete($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		$this->_assertLoggedIn();
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+		$this->_assertCanEdit($user);
 
 		// Also make sure the method really does exist
 		$id = $this->input->getInt('id');
-		$record = $this->_assertValidRecordId($id);
+		$record = $this->_assertValidRecordId($id, $user);
 
 		if ($id <= 0)
 		{
@@ -149,7 +163,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 
 		try
 		{
-			$model->deleteRecord($id);
+			$model->deleteRecord($id, $user);
 		}
 		catch (Exception $e)
 		{
@@ -158,7 +172,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -181,8 +195,10 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	 */
 	public function save($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		$this->_assertLoggedIn();
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+		$this->_assertCanEdit($user);
 
 		// CSRF Check
 		$token = JSession::getFormToken();
@@ -194,7 +210,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -204,7 +220,7 @@ class LoginGuardControllerMethod extends JControllerLegacy
 
 		// The record must either be new (ID zero) or exist
 		$id     = $this->input->getInt('id', 0);
-		$record = $this->_assertValidRecordId($id);
+		$record = $this->_assertValidRecordId($id, $user);
 
 		// If it's a new record we need to read the method from the request and update the (not yet created) record.
 		if ($record->id == 0)
@@ -243,6 +259,8 @@ class LoginGuardControllerMethod extends JControllerLegacy
 			{
 				$nonSefUrl .= 'add&method=' . $record->method;
 			}
+
+			$nonSefUrl .= '&user_id=' . $user_id;
 
 			if (!empty($returnURL))
 			{
@@ -289,6 +307,8 @@ class LoginGuardControllerMethod extends JControllerLegacy
 			{
 				$nonSefUrl .= 'add';
 			}
+
+			$nonSefUrl .= '&user_id=' . $user_id;
 
 			if (!empty($returnURL))
 			{
@@ -374,14 +394,14 @@ class LoginGuardControllerMethod extends JControllerLegacy
 	 *
 	 * @throws  RuntimeException  When the user is a guest (not logged in)
 	 */
-	private function _assertLoggedIn(JUser $user = null)
+	private function _assertCanEdit(JUser $user = null)
 	{
 		if (is_null($user))
 		{
 			$user = JFactory::getUser();
 		}
 
-		if ($user->guest)
+		if (!LoginGuardHelperTfa::canEditUser($user))
 		{
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}

@@ -31,6 +31,15 @@ class JFormFieldLoginguard extends JFormField
 		// Load the language files
 		JFactory::getLanguage()->load('com_loginguard', JPATH_SITE, null, true, true);
 
+		$user_id = $this->form->getData()->get('id', null);
+
+		if (is_null($user_id))
+		{
+			return JText::_('PLG_USER_LOGINGUARD_ERR_NOUSER');
+		}
+
+		$user = JFactory::getUser($user_id);
+
 		// Get a model
 		/** @var LoginGuardModelMethods $model */
 		$model = new LoginGuardModelMethods();
@@ -40,7 +49,8 @@ class JFormFieldLoginguard extends JFormField
 			'base_path' => JPATH_SITE . '/components/com_loginguard'
 		));
 		$view->setModel($model, true);
-		$view->returnURL = base64_encode(JUri::current());
+		$view->returnURL = base64_encode(JUri::getInstance()->toString());
+		$view->user      = $user;
 
 		return $view->display();
 	}

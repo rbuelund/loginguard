@@ -140,4 +140,46 @@ abstract class LoginGuardHelperTfa
 		return self::$isAdmin;
 	}
 
+	/**
+	 * Is the current user allowed to edit the TFA configuration of $user? To do so I must either be editing my own
+	 * account OR I have to be a Super User editing a non-superuser's account. Important to note: nobody can edit the
+	 * accounts of Super Users except themselves. Therefore make damn sure you keep those backup codes safe!
+	 *
+	 * @param   JUser  $user  The user you want to know if we're allowed to edit
+	 *
+	 * @return  bool
+	 */
+	public static function canEditUser(JUser $user = null)
+	{
+		// I can edit myself
+		if (empty($user))
+		{
+			return true;
+		}
+
+		// Get the currently logged in used
+		$myUser = JFactory::getUser();
+
+		// Same user? I can edit myself
+		if ($myUser->id == $user->id)
+		{
+			return true;
+		}
+
+		// To edit a different user I must be a User User myself. If I'm not, I can't edit another user!
+		if (!$myUser->authorise('core.manage'))
+		{
+			return false;
+		}
+
+		// Even if I am a Super User I must not be able to edit another Super User.
+		if ($user->authorise('core.manage'))
+		{
+			return false;
+		}
+
+		// I am a Super User trying to edit a non-superuser. That's allowed.
+		return true;
+	}
+
 }

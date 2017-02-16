@@ -13,10 +13,12 @@
     padding: 0.25em;
     border: thin solid #cccccc;
     background: #fafafa;
+    padding-left: .75em;
 }
 
 .loginguard-methods-list-method-default {
-    border-left: 8px solid navy;
+    border-left: .5em solid navy;
+    padding-left: .25em;
 }
 
 .loginguard-methods-list-method-image {
@@ -93,4 +95,9 @@ div#loginguard-methods-reset-container
 {
     clear: both;
     margin-top: 1em;
+}
+
+#jform_loginguard_loginguard-lbl
+{
+    display: none;
 }

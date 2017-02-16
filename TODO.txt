@@ -1,5 +1,3 @@
-Allow back-end Super Users to edit other people's TSV settings
-
 Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
     Only shows that if the user doesn't have TFA already enabled
     Send to the task=methods.display page in the component
@@ -11,13 +9,6 @@ Create a plugin for the backup codes
     Automatically create new backup codes when saving another record and there are no backup codes already created
 
 Create a plugin for U2F
-
-Backend polishing
-    Create main page with a short intro and a checklist for the correct operation.
-    Check if the plugins are activated. If not show a Big Ass Warning and actions to activate the necessary plugins.
-    Show controls for updating or upgrading the GeoIP library.
-    Provide a link to manage your own TSV methods.
-    TODO Link to a video tutorial
 
 Create a plugin for "Code by email"
     Works similar to TOTP with 120 second period and 10 digit passcodes
@@ -39,6 +30,12 @@ Create a plugin for code by SMS
     If it's already activated, send a code to the user's mobile phone onLoginGuardTfaCaptive
     If the code validates store the mobile phone and secret key onLoginGuardTfaSaveSetup
 
+Backend polishing
+    Create main page with a short intro and a checklist for the correct operation.
+    Check if the plugins are activated. If not show a Big Ass Warning and actions to activate the necessary plugins.
+    Show controls for updating or upgrading the GeoIP library.
+    Provide a link to manage your own TSV methods.
+    TODO Link to a video tutorial
 
 The front- and back-end controllers must make sure that the backup codes plugin is always activated and published LAST. If not, activate it and reload the page.
 

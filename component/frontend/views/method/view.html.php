@@ -46,6 +46,13 @@ class LoginGuardViewMethod extends JViewLegacy
 	public $returnURL = null;
 
 	/**
+	 * The user object used to display this page
+	 *
+	 * @var   JUser
+	 */
+	public $user = null;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -56,10 +63,17 @@ class LoginGuardViewMethod extends JViewLegacy
 	 */
 	function display($tpl = null)
 	{
+		if (empty($this->user))
+		{
+			$this->user = JFactory::getUser();
+		}
+
+		/** @var LoginGuardModelMethod $model */
+		$model = $this->getModel();
 		$this->setLayout('edit');
-		$this->renderOptions = $this->get('RenderOptions');
-		$this->record        = $this->get('record');
-		$this->title         = $this->get('PageTitle');
+		$this->renderOptions = $model->getRenderOptions($this->user);
+		$this->record        = $model->getRecord($this->user);
+		$this->title         = $model->getPageTitle();
 		$this->isAdmin       = LoginGuardHelperTfa::isAdminPage();
 
 		// Back-end: always show a title in the 'title' module position, not in the page body
@@ -74,7 +88,7 @@ class LoginGuardViewMethod extends JViewLegacy
 				$this->renderSubmitToolbarButton($bar);
 			}
 
-			$nonSefUrl = 'index.php?option=com_loginguard&task=methods.display';
+			$nonSefUrl = 'index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id;
 
 			if (!empty($this->returnURL))
 			{

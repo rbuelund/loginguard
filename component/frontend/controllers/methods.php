@@ -35,16 +35,23 @@ class LoginGuardControllerMethods extends JControllerLegacy
 	 */
 	public function display($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		if (JFactory::getUser()->guest)
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+
+		if (!LoginGuardHelperTfa::canEditUser($user))
 		{
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		$returnURL       = $this->input->getBase64('returnurl');
 		$viewLayout      = $this->input->get('layout', 'default', 'string');
-		$view            = $this->getView('Methods', 'html', '', array('base_path' => $this->basePath, 'layout' => $viewLayout));
+		$view            = $this->getView('Methods', 'html', '', array(
+			'base_path' => $this->basePath,
+			'layout'    => $viewLayout
+		));
 		$view->returnURL = $returnURL;
+		$view->user      = $user;
 
 		parent::display($cachable, $urlparams);
 
@@ -61,8 +68,11 @@ class LoginGuardControllerMethods extends JControllerLegacy
 	 */
 	public function disable($cachable = false, $urlparams = array())
 	{
-		// Make sure the user is logged in
-		if (JFactory::getUser()->guest)
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+
+		if (!LoginGuardHelperTfa::canEditUser($user))
 		{
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
@@ -83,7 +93,7 @@ class LoginGuardControllerMethods extends JControllerLegacy
 
 		try
 		{
-			$model->deleteAll();
+			$model->deleteAll($user);
 		}
 		catch (Exception $e)
 		{
@@ -92,7 +102,7 @@ class LoginGuardControllerMethods extends JControllerLegacy
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))

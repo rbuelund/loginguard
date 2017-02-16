@@ -29,7 +29,6 @@ class LoginGuardModelMethods extends JModelLegacy
 			$user = JFactory::getUser();
 		}
 
-
 		if ($user->guest)
 		{
 			return array();
@@ -161,6 +160,13 @@ class LoginGuardModelMethods extends JModelLegacy
 		return sprintf($containerString, $jDate->format($formatString, true));
 	}
 
+	/**
+	 * Extract the the browser and platform from a User Agent string and format them in a human-readable manner.
+	 *
+	 * @param   string  $ua  A User-Agent string
+	 *
+	 * @return  string  Human readable format, e.g. "Chrome on Windows"
+	 */
 	public function formatBrowser($ua)
 	{
 		if (empty($ua))
@@ -272,11 +278,19 @@ class LoginGuardModelMethods extends JModelLegacy
 		return JText::sprintf('COM_LOGINGUARD_LBL_BROWSER', $browserString, $platformText);
 	}
 
+	/**
+	 * Format an IP address in a human readable format, either as an IP or - if the Akeeba GeoIP plugin is installed and
+	 * enabled - as a country or as a city and country (depending on the GeoIP database you have installed).
+	 *
+	 * @param   string  $ip  The IPv4/IPv6 address of the visitor.
+	 *
+	 * @return  string  Human readable format e.g. "on 123.123.123.123", "from Germany", or "from Tokyo, Japan"
+	 */
 	public function formatIp($ip)
 	{
 		if (empty($ip))
 		{
-			return;
+			return '';
 		}
 
 		$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMIP', $ip);

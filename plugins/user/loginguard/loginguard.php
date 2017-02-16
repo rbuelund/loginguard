@@ -53,7 +53,7 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
-		// Only display the form if I'm editing my own user
+		// Get the user ID
 		$id = null;
 
 		if (is_array($data))
@@ -64,12 +64,21 @@ class plgUserLoginguard extends JPlugin
 		{
 			$id = $data->get('id');
 		}
-		elseif (is_object($data) && is_null($data))
+		elseif (is_object($data) && !is_null($data))
 		{
 			$id = isset($data->id) ? $data->id : null;
 		}
 
-		if ($id != JFactory::getUser()->id)
+		$user = JFactory::getUser($id);
+
+		// Make sure the loaded user is the correct one
+		if ($user->id != $id)
+		{
+			return true;
+		}
+
+		// Make sure I am either editing myself OR I am a Super User AND I'm not editing another Super User
+		if (!LoginGuardHelperTfa::canEditUser($user))
 		{
 			return true;
 		}

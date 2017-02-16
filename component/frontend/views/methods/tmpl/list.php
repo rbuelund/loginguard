@@ -19,7 +19,7 @@ $model = $this->getModel();
 <div id="loginguard-methods-list">
     <div id="loginguard-methods-reset-container" class="well well-large well-lg col-sm-6 col-sm-offset-3 span6 offset3">
 		<?php if ($this->tfaActive): ?>
-            <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '')) ?>"
+            <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id) ?>"
                class="btn btn-danger pull-right">
 				<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
             </a>
@@ -81,7 +81,7 @@ $model = $this->getModel();
                                     </div>
 
                                     <div class="span2 col-sm-2 pull-right" style="margin-left: 0">
-                                        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
+                                        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
                                            class="loginguard-methods-list-method-record-edit"
                                         ><span class="icon icon-pencil glyphicon glyphicon-pencil"></span></a>
                                         <br/>
@@ -105,7 +105,7 @@ $model = $this->getModel();
                                     </div>
 	                                <?php if ($method['canDisable']): ?>
                                     <span class="span2 col-sm-2 pull-right" style="margin-left: 0">
-                                        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
+                                        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.delete&id=' . (int) $record->id  . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
                                            class="loginguard-methods-list-method-record-delete"
                                         ><span class="icon icon-trash glyphicon glyphicon-trash"></span></a>
                                     </span>
@@ -118,7 +118,7 @@ $model = $this->getModel();
 
 				<?php if (empty($method['active']) || $method['allowMultiple']): ?>
 					<div class="loginguard-methods-list-method-addnew-container">
-						<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . $this->escape(urlencode($method['name'])) . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : ''))?>"
+						<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . $this->escape(urlencode($method['name'])) . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
 						   class="loginguard-methods-list-method-addnew"
 						>
 							<?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_ADD_A', $method['display']) ?>
