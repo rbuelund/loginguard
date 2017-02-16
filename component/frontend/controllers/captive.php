@@ -10,6 +10,54 @@ defined('_JEXEC') or die;
 
 class LoginGuardControllerCaptive extends JControllerLegacy
 {
+	public function __construct(array $config = array())
+	{
+		parent::__construct($config);
+
+		$this->registerDefaultTask('captive');
+	}
+
+	public function captive($cachable = false, $urlparams = false)
+	{
+		// Set the default view name and format
+		$id       = $this->input->getInt('user_id', 0);
+
+		// Get the view object
+		$document   = JFactory::getDocument();
+		$viewLayout = $this->input->get('layout', 'default', 'string');
+		$view       = $this->getView('captive', 'html', '', array(
+			'base_path' => $this->basePath,
+			'layout'    => $viewLayout
+		));
+
+		$view->document = $document;
+
+		// If we're already logged in go to the site's home page
+		if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
+		{
+			$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+			JFactory::getApplication()->redirect($url);
+		}
+
+		// Pass the model to the view
+		/** @var LoginGuardModelCaptive $model */
+		$model = $this->getModel('captive');
+		$view->setModel($model, true);
+
+		// kill all modules on the page
+		$model->killAllModules();
+
+		// Pass the TFA record ID to the model
+		$record_id = $this->input->getInt('record_id', null);
+		$model->setState('record_id', $record_id);
+
+		// Do not go through $this->display() because it overrides the model, nullifying the whole concept of MVC.
+		$view->display();
+
+		return $this;
+	}
+
+
 	/**
 	 * Validate the TFA code entered by the user
 	 *
@@ -67,7 +115,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		if (!$isValidCode)
 		{
 			// The code is wrong. Display an error and go back.
-			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive', false);
+			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record_id, false);
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
 			$this->setRedirect($captiveURL, $message, 'error');
 
