@@ -22,16 +22,14 @@ defined('_JEXEC') or die;
     </div>
 
 	<?php foreach ($this->records as $record):?>
-	<div class="loginguard-method">
-		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>">
-			<img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
-			<span class="loginguard-method-title">
-				<?php echo $this->escape($record->title) ?>
-			</span>
-			<span class="loginguard-method-name">
-				<?php echo $this->getModel()->translateMethodName($record->method) ?>
-			</span>
-		</a>
-	</div>
+    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>" class="loginguard-method">
+        <img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
+        <span class="loginguard-method-title">
+            <?php echo $this->escape($record->title) ?>
+        </span>
+        <span class="loginguard-method-name">
+            <?php echo $this->getModel()->translateMethodName($record->method) ?>
+        </span>
+    </a>
 	<?php endforeach; ?>
 </div>

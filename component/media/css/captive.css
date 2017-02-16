@@ -16,15 +16,18 @@
     width: 50%;
     min-width: 300px;
     max-width: 500px;
+    min-height: 55px;
     margin: auto;
     padding: 0.25em;
     border-top: thin solid #666666;
     border-bottom: thin solid #666666;
-    background: #ededed;
+    background: #fafafa;
+    clear: left;
 }
 
 #loginguard-select .loginguard-method:hover {
-    background: #fafae0;
+    background: #fffff0;
+    text-decoration: none;
 }
 
 #loginguard-select .loginguard-method img.loginguard-method-image {
