@@ -10,10 +10,9 @@
     min-width: 300px;
     max-width: 500px;
     margin: auto;
-    padding: 0.25em;
+    padding: 0.25em 0.25em 0.25em 0.75em;
     border: thin solid #cccccc;
     background: #fafafa;
-    padding-left: .75em;
 }
 
 .loginguard-methods-list-method-default {
@@ -48,6 +47,12 @@
     min-height: 1.75em;
 }
 
+.loginguard-methods-list-method-record-edit,
+.loginguard-methods-list-method-record-delete
+{
+    margin: -15px;
+}
+
 .loginguard-methods-list-method-record-title-container
 {
     font-size: larger;
@@ -70,29 +75,9 @@
     display: block;
 }
 
-.loginguard-methods-list-method-record-edit
-{
-    color: black;
-    font-size: larger;
-}
-
-.loginguard-methods-list-method-record-delete
-{
-    color: firebrick;
-    font-size: small;
-}
-
 .loginguard-methods-list-method-addnew-container
 {
     padding: 1em 0;
-}
-
-.loginguard-methods-list-method-addnew
-{
-    display: inline-block;
-    padding: 1em 0;
-    font-size: larger;
-    text-transform: uppercase;
 }
 
 div#loginguard-methods-reset-container
