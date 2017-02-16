@@ -12,11 +12,16 @@ defined('_JEXEC') or die;
 
 ?>
 <div class="loginguard-captive">
-    <?php if (!empty($this->title)): ?>
     <h3 id="loginguard-title">
-        <?php echo $this->title ?> <small> &ndash; <?php echo $this->escape($this->record->title) ?></small>
+	    <?php if (!empty($this->title)): ?>
+	    <?php echo $this->title ?> <small> &ndash;
+	    <?php endif; ?>
+        <?php echo $this->escape($this->record->title) ?>
+	    <?php if (!empty($this->title)): ?>
+        </small>
+        <?php endif; ?>
     </h3>
-    <?php endif; ?>
+
 
 	<?php if ($this->renderOptions['pre_message']): ?>
         <div class="loginguard-captive-pre-message">

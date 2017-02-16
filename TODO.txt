@@ -14,6 +14,13 @@ Create a plugin for the backup codes
 
 Create a plugin for U2F
 
+Backend polishing
+    Create main page with a short intro and a checklist for the correct operation.
+    Check if the plugins are activated. If not show a Big Ass Warning and actions to activate the necessary plugins.
+    Show controls for updating or upgrading the GeoIP library.
+    Provide a link to manage your own TSV methods.
+    TODO Link to a video tutorial
+
 Create a plugin for "Code by email"
     Works similar to TOTP with 120 second period and 10 digit passcodes
     If it's not already activated, send a code to the user's email address onLoginGuardTfaGetSetup
