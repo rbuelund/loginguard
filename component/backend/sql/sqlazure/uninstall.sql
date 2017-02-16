@@ -1,0 +1,3 @@
+SET QUOTED_IDENTIFIER ON;
+
+DROP TABLE [#__loginguard_tfa];

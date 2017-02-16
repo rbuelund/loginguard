@@ -68,16 +68,22 @@
 	<install>
 		<sql>
 			<file driver="mysql">sql/mysql/install.sql</file>
+			<file driver="postgresql">sql/postgresql/install.sql</file>
+			<file driver="sqlazure">sql/sqlazure/install.sql</file>
 		</sql>
 	</install>
 	<uninstall>
 		<sql>
 			<file driver="mysql">sql/mysql/uninstall.sql</file>
+			<file driver="postgresql">sql/postgresql/uninstall.sql</file>
+			<file driver="sqlazure">sql/sqlazure/uninstall.sql</file>
 		</sql>
 	</uninstall>
 	<update>
 		<schemas>
 			<schemapath type="mysql">sql/mysql/updates</schemapath>
+			<schemapath type="postgresql">sql/postgresql/updates</schemapath>
+			<schemapath type="sqlazure">sql/sqlazure/updates</schemapath>
 		</schemas>
 	</update>
 	
