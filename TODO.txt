@@ -1,5 +1,5 @@
 Implement backup codes
-    Create a model to handle generation and validation of backup codes
+    * Create a model to handle generation and validation of backup codes
     When we add the first TFA method for a user create backup codes automatically
     Inject a fake TFA method "backupcodes" in the selection page
     When the "backupcodes" method is selected implement checks using our special model
