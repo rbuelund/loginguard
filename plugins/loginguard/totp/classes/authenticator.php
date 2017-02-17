@@ -107,16 +107,19 @@ class LoginGuardTOTPAuthenticator
 	public function checkCode($secret, $code)
 	{
 		$time = $this->getPeriod();
+		$result = false;
 
 		for ($i = -1; $i <= 1; $i++)
 		{
-			if ($this->getCode($secret, ($time + $i) * $this->_timeStep) == $code)
+			$generatedCode = $this->getCode($secret, ($time + $i) * $this->_timeStep);
+
+			if (JCrypt::timingSafeCompare($generatedCode, $code))
 			{
-				return true;
+				$result = true;
 			}
 		}
 
-		return false;
+		return $result;
 	}
 
 	/**

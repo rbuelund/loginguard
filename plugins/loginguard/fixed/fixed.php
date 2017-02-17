@@ -226,7 +226,7 @@ class PlgLoginguardFixed extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		return $options->fixed_code == $code;
+		return JCrypt::timingSafeCompare($options->fixed_code, $code);
 	}
 
 	/**

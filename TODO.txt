@@ -1,12 +1,20 @@
+Implement backup codes
+    Create a model to handle generation and validation of backup codes
+    When we add the first TFA method for a user create backup codes automatically
+    Inject a fake TFA method "backupcodes" in the selection page
+    When the "backupcodes" method is selected implement checks using our special model
+    Inject a "Backup codes" entry in the list page with a special link
+    The special link leads to a special view where you can see and/or regenerate your backup codes
+
+Detect when all TFA plugins are disabled
+    Notify SUPER USERS ONLY when they edit anyone's profile
+    Include a special link to activate some default plugins, if they are detected to be installed (diff message if they are not even installed)
+
 Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
     Only shows that if the user doesn't have TFA already enabled
     Send to the task=methods.display page in the component
     Allow customizable Joomla article OR link for a "More information" link in the component
     When displayed through this plugin, the user can cancel this temporarily ("not now") or permanently ("never ask again", store a flag in the user profile)
-
-Create a plugin for the backup codes
-    Do not display a "create new" for this plugin
-    Automatically create new backup codes when saving another record and there are no backup codes already created
 
 Create a plugin for U2F
 
