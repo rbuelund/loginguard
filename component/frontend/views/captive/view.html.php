@@ -64,6 +64,15 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
 
+		if (!empty($this->records))
+		{
+			/** @var LoginGuardModelBackupcodes $codesModel */
+			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
+			$backupCodesRecord = $codesModel->getBackupCodesRecord();
+			$backupCodesRecord->title = JText::_('COM_LOGINGUARD_LBL_BACKUPCODES');
+			$this->records[] = $backupCodesRecord;
+		}
+
 		// If we only have one record there's no point asking the user to select a TFA method
 		if (empty($this->record))
 		{

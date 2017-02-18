@@ -99,6 +99,13 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		$results     = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
 		$isValidCode = false;
 
+		if ($record->method == 'backupcodes')
+		{
+			/** @var LoginGuardModelBackupcodes $codesModel */
+			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
+			$results = array($codesModel->isBackupCode($code, $user));
+		}
+
 		if (is_array($results) && !empty($results))
 		{
 			foreach ($results as $result)

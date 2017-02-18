@@ -153,7 +153,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 
 		$methodNames = $this->getActiveMethodNames();
 
-		if (!in_array($record->method, $methodNames))
+		if (!in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
 		{
 			return null;
 		}
@@ -252,6 +252,11 @@ class LoginGuardModelCaptive extends JModelLegacy
 			}
 		}
 
+		if ($name == 'backupcodes')
+		{
+			return JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_METHOD_NAME');
+		}
+
 		return isset($map[$name]) ? $map[$name] : $name;
 	}
 
@@ -278,6 +283,11 @@ class LoginGuardModelCaptive extends JModelLegacy
 					$map[$tfaMethod['name']] = $tfaMethod['image'];
 				}
 			}
+		}
+
+		if ($name == 'backupcodes')
+		{
+			return 'media/com_loginguard/images/emergency.svg';
 		}
 
 		return isset($map[$name]) ? $map[$name] : $name;

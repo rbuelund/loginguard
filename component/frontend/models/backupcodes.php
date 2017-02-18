@@ -219,9 +219,10 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 
 		// Keep only the numbers in the provided $code
 		filter_var($code, FILTER_SANITIZE_NUMBER_INT);
+		$code = trim($code);
 
 		// If the backup codes is not an array or an empty array we use our fake array of 10 elements.
-		$codes = empty($codes) ? $temp1 : $temp2;
+		$codes = empty($temp2) ? $temp1 : $temp2;
 
 		// Check if the code is in the array. We always check against ten codes to prevent timing attacks which
 		// determine the amount of codes.

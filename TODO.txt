@@ -1,12 +1,3 @@
-Implement backup codes
-    * Create a model to handle generation and validation of backup codes
-    * When we add the first TFA method for a user create backup codes automatically
-    * When we delete the last TFA method for a user also delete their backup codes automatically
-    * Inject a "Backup codes" entry in the list page
-    * Special layout where you can see and/or regenerate your backup codes
-    Inject a fake TFA method "backupcodes" in the selection page
-    When the "backupcodes" method is selected implement checks using our special model
-
 Detect when all TFA plugins are disabled
     Notify SUPER USERS ONLY when they edit anyone's profile
     Include a special link to activate some default plugins, if they are detected to be installed (diff message if they are not even installed)
