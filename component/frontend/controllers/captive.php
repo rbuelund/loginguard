@@ -101,6 +101,11 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 
 		if ($record->method == 'backupcodes')
 		{
+			if (!class_exists('LoginGuardModelBackupcodes'))
+			{
+				require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
+			}
+
 			/** @var LoginGuardModelBackupcodes $codesModel */
 			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 			$results = array($codesModel->isBackupCode($code, $user));

@@ -104,6 +104,11 @@ class LoginGuardViewMethods extends JViewLegacy
 		}
 
 		// If there are no backup codes yet we should create new ones
+		if (!class_exists('LoginGuardModelBackupcodes'))
+		{
+			require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
+		}
+
 		/** @var LoginGuardModelBackupcodes $model */
 		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 

@@ -66,6 +66,11 @@ class LoginGuardViewCaptive extends JViewLegacy
 
 		if (!empty($this->records))
 		{
+			if (!class_exists('LoginGuardModelBackupcodes'))
+			{
+				require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
+			}
+
 			/** @var LoginGuardModelBackupcodes $codesModel */
 			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 			$backupCodesRecord = $codesModel->getBackupCodesRecord();

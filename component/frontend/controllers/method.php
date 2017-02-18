@@ -146,6 +146,11 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		$this->_assertCanEdit($user);
 
 		/** @var LoginGuardModelBackupcodes $model */
+		if (!class_exists('LoginGuardModelBackupcodes'))
+		{
+			require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
+		}
+
 		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 		$model->regenerateBackupCodes($user);
 

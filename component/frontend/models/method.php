@@ -228,6 +228,11 @@ class LoginGuardModelMethod extends JModelLegacy
 		// If that was the very first method we added for that user let's also create their backup codes
 		if ($isNewRecord && !count($records))
 		{
+			if (!class_exists('LoginGuardModelBackupcodes'))
+			{
+				require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
+			}
+
 			/** @var LoginGuardModelBackupcodes $model */
 			$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 			$user = JFactory::getUser($record->user_id);
