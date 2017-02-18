@@ -104,7 +104,11 @@ class LoginGuardViewMethod extends JViewLegacy
 				$backupCodes[] = '';
 			}
 
-			$this->backupCodes = $backupCodes;
+			/**
+			 * The call to array_merge resets the array indices. This is necessary since array_filter kept the indices,
+			 * meaning our elements are completely out of order.
+			 */
+			$this->backupCodes = array_merge($backupCodes);
 		}
 
 		// Backend: display a save button, unless we're showing Backup Codes

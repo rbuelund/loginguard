@@ -37,12 +37,16 @@ if ($this->record->method != 'backupcodes')
 	<?php for ($i = 0; $i < (count($this->backupCodes) / 2); $i++): ?>
         <tr>
             <td>
+	            <?php if (!empty($this->backupCodes[2 * $i])): ?>
                 &#128273;
                 <?php echo $this->backupCodes[2 * $i] ?>
+                <?php endif; ?>
             </td>
             <td>
+                <?php if (!empty($this->backupCodes[1 + 2 * $i])): ?>
                 &#128273;
                 <?php echo $this->backupCodes[1 + 2 * $i] ?>
+                <?php endif ;?>
             </td>
         </tr>
 	<?php endfor; ?>
