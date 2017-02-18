@@ -21,7 +21,7 @@ class LoginGuardController extends JControllerLegacy
 	public function display($cachable = false, $urlparams = false)
 	{
 		// You should never be here
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&view=captive'));
+		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&view=captive', false));
 
 		return $this;
 	}
