@@ -8,9 +8,30 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-// The captive page has to be rendered with frontend code and frontend language strings
-$lang = JFactory::getLanguage();
-$lang->load('com_loginguard', JPATH_SITE, null, true, true);
+// Load both frontend and backend languages for this component
+JFactory::getLanguage()->load('com_loginguard', JPATH_SITE, null, true, true);
+JFactory::getLanguage()->load('com_loginguard', JPATH_ADMINISTRATOR, null, true, true);
+
+// I have to do some special handling to accommodate for the discrepancies between how Joomla creates menu items and how
+// Joomla handles component controllers. Ugh!
+$app = JFactory::getApplication();
+$view = $app->input->getCmd('view');
+$task = $app->input->getCmd('task');
+
+if (!empty($view))
+{
+	if (strpos($task, '.') === false)
+	{
+		$task = $view . '.' . $task;
+	}
+	else
+	{
+		list($view, $task2) = explode('.', $task, 2);
+	}
+
+	$app->input->set('view', $view);
+	$app->input->set('task', $task);
+}
 
 // Get an instance of the LoginGuard controller
 $controller = JControllerLegacy::getInstance('LoginGuard');
