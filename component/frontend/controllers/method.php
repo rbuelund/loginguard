@@ -89,7 +89,6 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		return parent::display($cachable, $urlparams);
 	}
 
-
 	/**
 	 * Edit an existing TFA method
 	 *
@@ -129,6 +128,41 @@ class LoginGuardControllerMethod extends JControllerLegacy
 		$view->user      = $user;
 
 		return parent::display($cachable, $urlparams);
+	}
+
+	/**
+	 * Regenerate backup codes
+	 *
+	 * @param   bool   $cachable   Can this view be cached
+	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 *
+	 * @return  JControllerLegacy   The current JControllerLegacy object to support chaining.
+	 */
+	public function regenbackupcodes($cachable = false, $urlparams = array())
+	{
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+		$this->_assertCanEdit($user);
+
+		/** @var LoginGuardModelBackupcodes $model */
+		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
+		$model->regenerateBackupCodes($user);
+
+		$backupCodesRecord = $model->getBackupCodesRecord($user);
+
+		// Redirect
+		$redirectUrl = 'index.php?option=com_loginguard&task=method.edit&user_id=' . $user_id . '&id=' . $backupCodesRecord->id;
+		$returnURL = $this->input->getBase64('returnurl');
+
+		if (!empty($returnURL))
+		{
+			$redirectUrl .= '&returnurl=' . $returnURL;
+		}
+
+		$this->setRedirect(JRoute::_($redirectUrl, false));
+
+		return $this;
 	}
 
 	/**

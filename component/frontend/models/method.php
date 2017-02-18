@@ -414,6 +414,16 @@ class LoginGuardModelMethod extends JModelLegacy
 		{
 			$this->tfaMethods[$method['name']] = $method;
 		}
+
+		// We also need to add the backup codes method
+		$this->tfaMethods['backupcodes'] = array(
+			'name' => 'backupcodes',
+			'display' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
+			'shortinfo' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
+			'image' => 'media/com_loginguard/images/emergency.svg',
+			'canDisable' => false,
+			'allowMultiple' => false,
+		);
 	}
 
 	/**

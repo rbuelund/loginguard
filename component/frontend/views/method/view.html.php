@@ -53,6 +53,13 @@ class LoginGuardViewMethod extends JViewLegacy
 	public $user = null;
 
 	/**
+	 * The backup codes for the current user. Only applies when the backup codes record is being "edited"
+	 *
+	 * @var   array
+	 */
+	public $backupCodes = array();
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -76,18 +83,49 @@ class LoginGuardViewMethod extends JViewLegacy
 		$this->title         = $model->getPageTitle();
 		$this->isAdmin       = LoginGuardHelperTfa::isAdminPage();
 
-		// Back-end: always show a title in the 'title' module position, not in the page body
-		if ($this->isAdmin)
+		// Backup codes are a special case, rendered with a special layout
+		if ($this->record->method == 'backupcodes')
 		{
-			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
+			$this->setLayout('backupcodes');
 
+			$backupCodes = json_decode($this->record->options);
+
+			if (!is_array($backupCodes))
+			{
+				$backupCodes = array();
+			}
+
+			$backupCodes = array_filter($backupCodes, function ($x) {
+				return !empty($x);
+			});
+
+			if (count($backupCodes) % 2 != 0)
+			{
+				$backupCodes[] = '';
+			}
+
+			$this->backupCodes = $backupCodes;
+		}
+
+		// Backend: display a save button, unless we're showing Backup Codes
+		if ($this->isAdmin && ($this->record->method != 'backupcodes'))
+		{
 			$bar = JToolbar::getInstance('toolbar');
 
 			if ($this->renderOptions['show_submit'] || empty($this->record->id))
 			{
 				$this->renderSubmitToolbarButton($bar);
 			}
+		}
 
+		// Back-end: always show a title in the 'title' module position, not in the page body
+		if ($this->isAdmin)
+		{
+			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
+
+			$this->title = '';
+
+			$bar = JToolbar::getInstance('toolbar');
 			$nonSefUrl = 'index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id;
 
 			if (!empty($this->returnURL))
@@ -96,8 +134,6 @@ class LoginGuardViewMethod extends JViewLegacy
 			}
 
 			$bar->appendButton('Link', 'cancel', 'JTOOLBAR_CANCEL', JRoute::_($nonSefUrl));
-
-			$this->title = '';
 		}
 
 		// Include CSS
