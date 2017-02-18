@@ -222,6 +222,12 @@ class LoginGuardModelMethod extends JModelLegacy
 		{
 			throw new RuntimeException($db->getErrorMsg());
 		}
+
+		// If that was the very first method we added for that user let's also create their backup codes
+		/** @var LoginGuardModelBackupcodes $model */
+		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
+		$user = JFactory::getUser($record->user_id);
+		$model->regenerateBackupCodes($user);
 	}
 
 	/**
