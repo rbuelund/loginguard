@@ -332,27 +332,48 @@ class LoginGuardModelMethod extends JModelLegacy
 		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id));
 		$db->setQuery($query)->execute();
 
+		// We will need the list of records later on
+		$allRecords = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+
 		// If the record was the default set a new default
-		if ($record->default)
+		if ($record->default && !empty($records))
 		{
-			$records = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+			$records = $allRecords;
 
-			if (empty($records))
+			do
 			{
-				return;
-			}
+				$otherRecord = array_shift($records);
+				$otherRecord->default = 1;
 
-			$record          = array_shift($records);
-			$record->default = 1;
+				if ($otherRecord->method != 'backupcodes')
+				{
+					break;
+				}
+
+				$otherRecord = null;
+
+			} while (!empty($records));
+
 
 			try
 			{
-				$this->saveRecord($record);
+				if (!empty($otherRecord))
+				{
+					$this->saveRecord($record);
+				}
 			}
 			catch (Exception $e)
 			{
 				// If we can't set a new default record it's OK, we'll survive.
 			}
+		}
+
+		// If the last remaining record is backup codes we need to remove it
+		if (!empty($records) && (count($records) == 1))
+		{
+			$backupCodesRecord = array_shift($allRecords);
+
+			$this->deleteRecord($backupCodesRecord);
 		}
 	}
 
