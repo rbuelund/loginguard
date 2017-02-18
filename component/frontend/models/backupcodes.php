@@ -23,6 +23,42 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	protected $cache = array();
 
 	/**
+	 * Get the backup codes record for the specified user
+	 *
+	 * @param   JUser  $user  The user in question. Use null for the currently logged in user.
+	 *
+	 * @return  stdClass|null  Record object or null if none is found
+	 */
+	public function getBackupCodesRecord(JUser $user = null)
+	{
+		// Make sure I have a user
+		if (empty($user))
+		{
+			$user = JFactory::getUser();
+		}
+
+		// Try to load the record
+		$db = $this->getDbo();
+		$query = $db->getQuery(true)
+		            ->select('*')
+		            ->from($db->qn('#__loginguard_tfa'))
+		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+		            ->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
+
+		try
+		{
+			$record = $db->setQuery($query)->loadObject();
+		}
+		catch (Exception $e)
+		{
+			// Any db issue is equivalent to "no such record exists"
+			$record = null;
+		}
+
+		return $record;
+	}
+
+	/**
 	 * Returns the backup codes for the specified user. Cached values will be preferentially returned, therefore you
 	 * MUST go through this model's methods ONLY when dealing with backup codes.
 	 *
@@ -91,7 +127,7 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 		for ($i = 0; $i < 10; $i++)
 		{
 			// Each backup code is 2 groups of 4 digits
-			$backupCodes[$i] = sprintf('%4u%4u', $this->getRandomInteger(0, 9999), $this->getRandomInteger(0, 9999));
+			$backupCodes[$i] = sprintf('%04u%04u', $this->getRandomInteger(0, 9999), $this->getRandomInteger(0, 9999));
 		}
 
 		// Save the backup codes to the database and update the cache
@@ -274,19 +310,19 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 			// If the backup codes is null insert a new record
 			$query->insert($db->qn('#__loginguard_tfa'))
 			      ->columns(array(
-				      'user_id',
-				      'title',
-				      'method',
-				      'default',
-				      'created_on',
-				      'options'
+				      $db->qn('user_id'),
+				      $db->qn('title'),
+				      $db->qn('method'),
+				      $db->qn('default'),
+				      $db->qn('created_on'),
+				      $db->qn('options'),
 			      ))->values(
-					'(' . $db->q($user->id) . ', ' .
+					$db->q($user->id) . ', ' .
 					$db->q('Backup Codes') . ', ' .
 					$db->q('backupcodes') . ', ' .
 					$db->q(0) . ', ' .
 					$db->q($jNow->toSql()) . ', ' .
-					$db->q($json) . ')'
+					$db->q($json)
 				);
 		}
 		else

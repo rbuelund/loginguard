@@ -75,15 +75,20 @@ class LoginGuardViewMethods extends JViewLegacy
 		$this->methods = $model->getMethods($this->user);
 		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
 
+		$activeRecords = 0;
+
 		if (count($this->methods))
 		{
 			foreach ($this->methods as $methodName => $method)
 			{
-				if (!count($method['active']))
+				$methodActiveRecords = count($method['active']);
+
+				if (!$methodActiveRecords)
 				{
 					continue;
 				}
 
+				$activeRecords += $methodActiveRecords;
 				$this->tfaActive = true;
 
 				foreach ($method['active'] as $record)
@@ -96,6 +101,30 @@ class LoginGuardViewMethods extends JViewLegacy
 					}
 				}
 			}
+		}
+
+		// If there are no backup codes yet we should create new ones
+		/** @var LoginGuardModelBackupcodes $model */
+		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
+
+		if ($activeRecords && empty($model->getBackupCodes($this->user)))
+		{
+			$model->regenerateBackupCodes($this->user);
+		}
+
+		$backupCodesRecord = $model->getBackupCodesRecord($this->user);
+
+		if (!is_null($backupCodesRecord))
+		{
+			$this->methods['backupcodes'] = array(
+				'name' => 'backupcodes',
+				'display' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
+				'shortinfo' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
+				'image' => 'media/com_loginguard/images/emergency.svg',
+				'canDisable' => false,
+				'allowMultiple' => false,
+				'active' => array($backupCodesRecord)
+			);
 		}
 
 		// Include CSS
