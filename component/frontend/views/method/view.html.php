@@ -130,14 +130,14 @@ class LoginGuardViewMethod extends JViewLegacy
 			$this->title = '';
 
 			$bar = JToolbar::getInstance('toolbar');
-			$nonSefUrl = 'index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id;
+			$url = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
 
 			if (!empty($this->returnURL))
 			{
-				$nonSefUrl .= '&redirecturl=' . $this->returnURL;
+				$url = base64_decode($this->returnURL);
 			}
 
-			$bar->appendButton('Link', 'cancel', 'JTOOLBAR_CANCEL', JRoute::_($nonSefUrl));
+			$bar->appendButton('Link', 'cancel', 'JTOOLBAR_CANCEL', $url);
 		}
 
 		// Include CSS
