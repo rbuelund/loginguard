@@ -56,7 +56,7 @@ if ($this->record->method != 'backupcodes')
     <?php echo JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_RESET_INFO'); ?>
 </p>
 
-<a class="btn btn-danger" href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL ? '' : '&returnurl=' . $this->returnURL))) ?>">
+<a class="btn btn-danger" href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL) ? '' : '&returnurl=' . $this->returnURL)) ?>">
 	<?php echo JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_RESET'); ?>
 </a>
 
