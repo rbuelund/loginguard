@@ -379,11 +379,22 @@ class LoginGuardModelMethod extends JModelLegacy
 		}
 
 		// If the last remaining record is backup codes we need to remove it
-		if (!empty($records) && (count($records) == 1))
+		if (!empty($allRecords) && (count($allRecords) == 1))
 		{
 			$backupCodesRecord = array_shift($allRecords);
 
-			$this->deleteRecord($backupCodesRecord);
+			$query = $db->getQuery(true)
+				->delete($db->qn('#__loginguard_tfa'))
+				->where($db->qn('id') . ' = ' . $db->q($backupCodesRecord->id));
+
+			try
+			{
+				$db->setQuery($query)->execute();
+			}
+			catch (Exception $e)
+			{
+				// If we can't delete the backup codes it's OK, we'll survive.
+			}
 		}
 	}
 
