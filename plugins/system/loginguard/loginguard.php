@@ -93,7 +93,7 @@ class PlgSystemLoginguard extends JPlugin
 
 		list($isCLI, $isAdmin) = $this->isCliAdmin();
 
-		// 2FA is not applicable under CLI
+		// TFA is not applicable under CLI
 		if ($isCLI)
 		{
 			return;
@@ -158,7 +158,7 @@ class PlgSystemLoginguard extends JPlugin
 	}
 
 	/**
-	 * Does the current user need to complete 2FA authentication before allowed to access the site?
+	 * Does the current user need to complete TFA authentication before allowed to access the site?
 	 *
 	 * @return  bool
 	 */
