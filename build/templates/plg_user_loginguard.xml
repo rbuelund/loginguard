@@ -23,4 +23,31 @@
 		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.sys/ini</language>
 	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+						name="redirectonlogin"
+						type="radio"
+						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_LABEL"
+						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_DESC"
+						default="0"
+						class="btn-group"
+				>
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field
+						name="redirecturl"
+						type="text"
+						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_LABEL"
+						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_DESC"
+						default=""
+				/>
+			</fieldset>
+		</fields>
+	</config>
+
 </extension>

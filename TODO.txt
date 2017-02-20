@@ -1,12 +1,15 @@
+Backend polishing
+    Create main page with a short intro and a checklist for the correct operation.
+    Check if the plugins are activated. If not show a Big Ass Warning and actions to activate the necessary plugins.
+    Show controls for updating or upgrading the GeoIP library.
+    Provide a link to manage your own TSV methods.
+    TODO Link to a video tutorial
+
 Detect when all TFA plugins are disabled
     Notify SUPER USERS ONLY when they edit anyone's profile
     Include a special link to activate some default plugins, if they are detected to be installed (diff message if they are not even installed)
 
-Customizable user plugin to redirect the user to a landing page to enable TFA after logging in
-    Only shows that if the user doesn't have TFA already enabled
-    Send to the task=methods.display page in the component
-    Allow customizable Joomla article OR link for a "More information" link in the component
-    When displayed through this plugin, the user can cancel this temporarily ("not now") or permanently ("never ask again", store a flag in the user profile)
+Migration from core TFA plugins
 
 Create a plugin for U2F
 
@@ -29,17 +32,6 @@ Create a plugin for code by SMS
         Return to the same page in the component
     If it's already activated, send a code to the user's mobile phone onLoginGuardTfaCaptive
     If the code validates store the mobile phone and secret key onLoginGuardTfaSaveSetup
-
-Backend polishing
-    Create main page with a short intro and a checklist for the correct operation.
-    Check if the plugins are activated. If not show a Big Ass Warning and actions to activate the necessary plugins.
-    Show controls for updating or upgrading the GeoIP library.
-    Provide a link to manage your own TSV methods.
-    TODO Link to a video tutorial
-
-The front- and back-end controllers must make sure that the backup codes plugin is always activated and published LAST. If not, activate it and reload the page.
-
-Migration from core TFA plugins
 
 Deal with plugins(?) in the captive page
 	I need to forcibly unload all loaded plugins in various stages

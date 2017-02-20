@@ -56,19 +56,20 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// We only kick in if the session flag is not set
+		// Get the session objects
 		try
 		{
 			$session = JFactory::getSession();
-
-			if ($session->get('tfa_checked', 0, 'com_loginguard'))
-			{
-				return;
-			}
 		}
 		catch (Exception $e)
 		{
 			// Can't get access to the session? Must be under CLI which is not supported.
+			return;
+		}
+
+		// We only kick in if the session flag is not set
+		if ($session->get('tfa_checked', 0, 'com_loginguard'))
+		{
 			return;
 		}
 
@@ -136,7 +137,9 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// We only kick in when the user has actually set up TFA.
-		if ($this->needsTFA($user))
+		$needsTFA = $this->needsTFA($user);
+
+		if ($needsTFA)
 		{
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
 			$return_url = $session->get('return_url', '', 'com_loginguard');
@@ -155,6 +158,16 @@ class PlgSystemLoginguard extends JPlugin
 
 		// If we're here someone just logged in but does not have TFA set up. Just flag him as logged in and continue.
 		$session->set('tfa_checked', 1, 'com_loginguard');
+
+		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
+		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
+
+		if (!$needsTFA && $redirectionUrl)
+		{
+			$session->set('postloginredirect', null, 'com_loginguard');
+
+			JFactory::getApplication()->redirect($redirectionUrl);
+		}
 	}
 
 	/**

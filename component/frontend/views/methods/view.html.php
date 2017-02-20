@@ -71,7 +71,11 @@ class LoginGuardViewMethods extends JViewLegacy
 		/** @var LoginGuardModelMethods $model */
 		$model = $this->getModel();
 
-		$this->setLayout('list');
+		if ($this->getLayout() != 'firsttime')
+		{
+			$this->setLayout('default');
+		}
+
 		$this->methods = $model->getMethods($this->user);
 		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
 

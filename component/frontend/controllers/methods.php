@@ -114,4 +114,49 @@ class LoginGuardControllerMethods extends JControllerLegacy
 
 		return $this;
 	}
+
+	/**
+	 * Disable Two Step Verification for the current user
+	 *
+	 * @param   bool   $cachable   Can this view be cached
+	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 *
+	 * @return  self   The current JControllerLegacy object to support chaining.
+	 */
+	public function dontshowthisagain($cachable = false, $urlparams = array())
+	{
+		// Make sure I am allowed to edit the specified user
+		$user_id = $this->input->getInt('user_id', null);
+		$user    = JFactory::getUser($user_id);
+
+		if (!LoginGuardHelperTfa::canEditUser($user))
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		// CSRF prevention
+		$token = JFactory::getSession()->getToken();
+
+		if ($this->input->get->getInt($token, 0) != 1)
+		{
+			die (JText::_('JINVALID_TOKEN'));
+		}
+
+		/** @var LoginGuardModelMethods $model */
+		$model = $this->getModel('Methods');
+		$model->setFlag($user, true);
+
+		// Redirect
+		$url       = JUri::base();
+		$returnURL = $this->input->getBase64('returnurl');
+
+		if (!empty($returnURL))
+		{
+			$url = base64_decode($returnURL);
+		}
+
+		$this->setRedirect($url);
+
+		return $this;
+	}
 }

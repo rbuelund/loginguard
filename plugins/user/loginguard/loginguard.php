@@ -163,4 +163,128 @@ class plgUserLoginguard extends JPlugin
 
 		return true;
 	}
+
+	/**
+	 * Runs after successful login of the user. Used to redirect the user to a page where they can set up their Two Step
+	 * Verification after logging in.
+	 *
+	 * @param   array  $options  Passed by Joomla. user: a JUser object; responseType: string, authentication response
+	 *                           type.
+	 */
+	public function onUserAfterLogin($options)
+	{
+		// Make sure the option to redirect is set
+		if (!$this->params->get('redirectonlogin', false))
+		{
+			return;
+		}
+
+		// Make sure I have a valid user
+		/** @var JUser $user */
+		$user = $options['user'];
+
+		if (!is_object($user) || !($user instanceof JUser))
+		{
+			return;
+		}
+
+		// Make sure this user does not already have 2SV enabled
+		if ($this->needsTFA($user))
+		{
+			return;
+		}
+
+		// Make sure the user does not have a flag to not bother him again with the 2SV setup page
+		if ($this->hasFlag($user))
+		{
+			return;
+		}
+
+		// Get the redirection URL
+		$url           = JRoute::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
+		$configuredUrl = $this->params->get('redirecturl', null);
+
+		if ($configuredUrl)
+		{
+			$url = $configuredUrl;
+		}
+
+		// Prepare to redirect
+		JFactory::getSession()->set('postloginredirect', $url, 'com_loginguard');
+	}
+
+	/**
+	 * Does the current user need to complete 2FA authentication before allowed to access the site?
+	 *
+	 * @return  bool
+	 */
+	private function needsTFA(JUser $user)
+	{
+		// Get the user's TFA records
+		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+
+		// No TFA methods? Then we obviously don't need to display a captive login page.
+		if (empty($records))
+		{
+			return false;
+		}
+
+		// Let's get a list of all currently active TFA methods
+		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+
+		// If not TFA method is active we can't really display a captive login page.
+		if (empty($tfaMethods))
+		{
+			return false;
+		}
+
+		// Get a list of just the method names
+		$methodNames = array();
+
+		foreach ($tfaMethods as $tfaMethod)
+		{
+			$methodNames[] = $tfaMethod['name'];
+		}
+
+		// Filter the records based on currently active TFA methods
+		foreach($records as $record)
+		{
+			if (in_array($record->method, $methodNames))
+			{
+				// We found an active method. Show the captive page.
+				return true;
+			}
+		}
+
+		// No viable TFA method found. We won't show the captive page.
+		return false;
+	}
+
+	/**
+	 * Does the user have a "don't show this again" flag?
+	 *
+	 * @param   JUser  $user  The user to check
+	 *
+	 * @return  bool
+	 */
+	private function hasFlag(JUser $user)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->qn('profile_value'))
+			->from($db->qn('#__user_profiles'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+			->where($db->qn('profile_key') . ' = ' . $db->q('loginguard.dontshow'));
+
+		try
+		{
+			$result = $db->setQuery($query)->loadResult();
+		}
+		catch (Exception $e)
+		{
+			$result = 1;
+		}
+
+		return is_null($result) ? false : ($result == 1);
+	}
 }

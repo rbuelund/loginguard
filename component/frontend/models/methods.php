@@ -318,4 +318,49 @@ class LoginGuardModelMethods extends JModelLegacy
 
 		return $string;
 	}
+
+	/**
+	 * Set the user's "don't show this again" flag.
+	 *
+	 * @param   JUser  $user  The user to check
+	 * @param   bool   $flag  True to set the flag, false to unset it (it will be set to 0, actually)
+	 *
+	 * @return  void
+	 */
+	public function setFlag(JUser $user, $flag = true)
+	{
+		$db = $this->getDbo();
+		$query = $db->getQuery(true)
+		            ->select($db->qn('profile_value'))
+		            ->from($db->qn('#__user_profiles'))
+		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+		            ->where($db->qn('profile_key') . ' = ' . $db->q('loginguard.dontshow'));
+
+		try
+		{
+			$result = $db->setQuery($query)->loadResult();
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
+
+		$exists = !is_null($result);
+
+		$object = (object) array(
+			'user_id'       => $user->id,
+			'profile_key'   => 'loginguard.dontshow',
+			'profile_value' => ($flag ? 1 : 0),
+			'ordering'      => 1
+		);
+
+		if (!$exists)
+		{
+			$db->insertObject('#__user_profiles', $object);
+		}
+		else
+		{
+			$db->updateObject('#__user_profiles', $object, array('user_id', 'profile_key'));
+		}
+	}
 }
