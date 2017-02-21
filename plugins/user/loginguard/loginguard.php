@@ -174,7 +174,7 @@ class plgUserLoginguard extends JPlugin
 	public function onUserAfterLogin($options)
 	{
 		// Make sure the option to redirect is set
-		if (!$this->params->get('redirectonlogin', false))
+		if (!$this->params->get('redirectonlogin', 1))
 		{
 			return;
 		}
