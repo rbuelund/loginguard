@@ -9,9 +9,6 @@
 
 /component/loginguard.xml
 
-/component/language/backend/en-GB
-/component/language/frontend/en-GB
-
 /component/media/js/*.map
 
 /documentation/*/*.*~
@@ -20,9 +17,6 @@
 
 /installers/angie
 
-/modules/*/*/language/en-GB
-
-/plugins/*/*/language/en-GB
-/plugins/*/*/*.xml
+/plugins/**/**/*.xml
 
 /release
