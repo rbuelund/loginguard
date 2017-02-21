@@ -13,6 +13,9 @@ Migration from core TFA plugins
 
 Create a plugin for U2F
 
+Create a plugin for code by PushBullet.
+    It's TOTP delivered by PushBullet
+
 Create a plugin for "Code by email"
     Works similar to TOTP with 120 second period and 10 digit passcodes
     If it's not already activated, send a code to the user's email address onLoginGuardTfaGetSetup
