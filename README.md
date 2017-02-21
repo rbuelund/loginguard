@@ -15,15 +15,23 @@ The advantages of Two Step Verification over two factor authentication are:
 * **Supports methods which do not require entering a code**. For example U2F dongles, biometric verification etc. These need to interact with the browser and/or the operating system through native HTML5 APIs.
 * **Supports methods which require user interaction**. For example sending a code via push message, SMS or email. These methods require knowing which user is being authenticated before pushing the authentication code to the user.
 
-## Alpha software
+## Releases
 
-This software is still being developed. It is **not** ready for use on a live site. For this reason no installable ZIP file is currently provided. You can build one from the source following the developer instructions in this README.
+The official releases for this plugin are hosted on our GitHub repository's [Releases page](https://github.com/akeeba/loginguard/releases). 
 
-## This repository is for development, not for support.
+## Found a bug?
 
-Please only use this repository if you are a developer and you are submitting an improvement to the code, if you have a legitimate feature request or if you have a genuine bug report. Any issues with support requests and / or other requests outside the categories mentioned above will be closed and locked without a reply.
+Please check out the [existing issues](https://github.com/akeeba/loginguard/issues). If nobody else has already reported it feel free to [file an issue](https://github.com/akeeba/loginguard/issues/new). Do provide as much information as possible. At the very least we need the Joomla, PHP and MySQL version. Also include the steps to reproduce the issue, the expected result and the actual result.
 
-## Prerequisites
+Make sure your issue can be reproduced on a new installation of Joomla! without any modified configuration settings or third party extensions. If the issue only occurs with a specific third party extension or configuration setting please specify exactly what triggers it. Always keep in mind that if it can't be reproduced it can't be fixed!
+
+## Have a suggestion?
+
+If you have a suggestion for a feature which would benefit everyone file an issue and make your case about the feature you have in mind. Better yet, send in a PR with its implementation.
+
+If you have a suggestion about something which would benefit only you / your organization / a very limited number of people please get in touch with us through our site's Contact Us page. If it's an interesting project we may consider it. We have very limited time so we apologize in advance if we have to turn down your project.
+
+## Building the packages
 
 In order to build the installation packages of this component you will need to have the following tools:
 
