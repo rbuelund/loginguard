@@ -20,8 +20,13 @@ class LoginGuardController extends JControllerLegacy
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
-		// You should never be here
-		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&view=welcome', false));
+		$this->setRedirect(JRoute::_('index.php?option=com_loginguard&task=methods.display', false));
+
+		// If you're a super user you get to see the Welcome page instead
+		if (JFactory::getUser()->authorise('core.admin'))
+		{
+			$this->setRedirect(JRoute::_('index.php?option=com_loginguard&view=welcome', false));
+		}
 
 		return $this;
 	}

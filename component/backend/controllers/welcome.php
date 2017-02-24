@@ -17,20 +17,23 @@ class LoginGuardControllerWelcome extends JControllerLegacy
 		$this->registerDefaultTask('welcome');
 	}
 
-	public function captive($cachable = false, $urlparams = false)
+	public function welcome($cachable = false, $urlparams = false)
 	{
+		$this->assertSuperUser();
+
 		// Get the view object
 		$document   = JFactory::getDocument();
 		$viewLayout = $this->input->get('layout', 'default', 'string');
-		$view       = $this->getView('captive', 'html', '', array(
+		/** @var LoginGuardViewWelcome $view */
+		$view       = $this->getView('welcome', 'html', '', array(
 			'base_path' => $this->basePath,
 			'layout'    => $viewLayout
 		));
 
 		$view->document = $document;
 
-		/** @var LoginGuardModelCaptive $model */
-		$model = $this->getModel('captive');
+		/** @var LoginGuardModelWelcome $model */
+		$model = $this->getModel('welcome');
 		$view->setModel($model, true);
 
 		// TODO Do Stuff
@@ -39,5 +42,15 @@ class LoginGuardControllerWelcome extends JControllerLegacy
 		$view->display();
 
 		return $this;
+	}
+
+	protected function assertSuperUser()
+	{
+		if (JFactory::getUser()->authorise('core.admin'))
+		{
+			return;
+		}
+
+		throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 	}
 }

@@ -11,6 +11,42 @@ defined('_JEXEC') or die;
 class LoginGuardViewWelcome extends JViewLegacy
 {
 	/**
+	 * Are no published methods detected?
+	 *
+	 * @var   bool
+	 */
+	public $noMethods = false;
+
+	/**
+	 * Are no loginguard plugins installed?
+	 *
+	 * @var   bool
+	 */
+	public $notInstalled = false;
+
+	/**
+	 * Is the GeoIP plugin not installed?
+	 *
+	 * @var   bool
+	 */
+	public $noGeoIP = false;
+
+	/**
+	 * Does the GeoIP database require an update?
+	 *
+	 * @var   bool
+	 */
+	public $geoIPNeedsUpdate = false;
+
+	/**
+	 * Does the GeoIP database require an upgrade from country-only data to city-level data? Only available when you use
+	 * the GeoIP provider plugin v.2.0 or later.
+	 *
+	 * @var   bool
+	 */
+	public $geoIPNeedsUpgrade = false;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -21,11 +57,17 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 */
 	function display($tpl = null)
 	{
-		/** @var LoginGuardModelCaptive $model */
+		/** @var LoginGuardModelWelcome $model */
 		$model = $this->getModel();
 
+		$this->noMethods         = !$model->hasPublishedPlugins();
+		$this->notInstalled      = !$model->hasInstalledPlugins();
+		$this->noGeoIP           = !$model->hasGeoIPPlugin();
+		$this->geoIPNeedsUpdate  = $model->needsGeoIPUpdate();
+		$this->geoIPNeedsUpgrade = $model->needsGeoIPUpgrade();
+
 		// Show a title and the component's Options button
-		JToolbarHelper::title(JText::_('COM_LOGINGUARD'), 'lock');
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'lock');
 		JToolbarHelper::preferences('com_loginguard');
 
 		// Display the view
