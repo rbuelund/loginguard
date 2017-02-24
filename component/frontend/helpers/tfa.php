@@ -167,13 +167,13 @@ abstract class LoginGuardHelperTfa
 		}
 
 		// To edit a different user I must be a User User myself. If I'm not, I can't edit another user!
-		if (!$myUser->authorise('core.manage'))
+		if (!$myUser->authorise('core.admin'))
 		{
 			return false;
 		}
 
 		// Even if I am a Super User I must not be able to edit another Super User.
-		if ($user->authorise('core.manage'))
+		if ($user->authorise('core.admin'))
 		{
 			return false;
 		}
