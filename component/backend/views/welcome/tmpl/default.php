@@ -31,13 +31,12 @@ defined('_JEXEC') or die;
 <h2>
 	<span class="icon icon-power-cord"></span>
 	<span>
-		You have not yet enabled any Akeeba LoginGuard plugins.
+        <?php echo JText::_('COM_LOGINGUARD_ERR_NOPLUGINS_HEAD'); ?>
 	</span>
 </h2>
 <p>
-	Akeeba LoginGuard plugins implement the Second Step Verification methods. Without any available plugins Akeeba LoginGuard will not work at all.
-
-	Please go to Extensions, Plugins and activate some plugins in the <code>loginguard</code> folder.
+	<?php echo JText::_('COM_LOGINGUARD_ERR_PLUGINS_INFO_COMMON'); ?>
+	<?php echo JText::_('COM_LOGINGUARD_ERR_NOPLUGINS_INFO'); ?>
 </p>
 <?php endif; ?>
 
@@ -45,56 +44,55 @@ defined('_JEXEC') or die;
 <h2>
 	<span class="icon icon-warning-2"></span>
 	<span>
-		You have not installed any Akeeba LoginGuard plugins.
+		<?php echo JText::_('COM_LOGINGUARD_ERR_NOTINSTALLEDPLUGINS_HEAD'); ?>
 	</span>
 </h2>
 <p>
-	Akeeba LoginGuard plugins implement the Second Step Verification methods. Without any available plugins Akeeba LoginGuard will not work at all.
-
-	Please install some plugins or try installing Akeeba LoginGuard's ZIP package again, twice in a row, without uninstalling it before or in between.
+	<?php echo JText::_('COM_LOGINGUARD_ERR_PLUGINS_INFO_COMMON'); ?>
+	<?php echo JText::_('COM_LOGINGUARD_ERR_NOTINSTALLEDPLUGINS_INFO'); ?>
 </p>
 <?php endif; ?>
 
 <?php if ($this->noGeoIP): ?>
 <h2>
 	<span class="icon icon-connection"></span>
-	You have not installed the GeoIP plugin
+	<?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_HEAD'); ?>
 </h2>
 <p>
-	Akeeba LoginGuard can display the country and/or city where each authentication method was last used. For that to work you need to install and enable our free of charge System - Akeeba GeoIP provider plugin.
+	<?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BODY'); ?>
 	<br />
 	<a href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank"
 	   class="btn btn-primary">
 		<span class="icon icon-download"></span>
-		Download the plugin
+		<?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BUTTON'); ?>
 	</a>
 </p>
 <?php elseif ($this->geoIPNeedsUpdate): ?>
 <h2>
 	<span class="icon icon-refresh"></span>
-	Update the GeoIP database
+	<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_HEAD'); ?>
 </h2>
 <p>
-	Akeeba LoginGuard can display the country and/or city where each authentication method was last used. That's done using the MaxMind GeoLite2 Country database. You are advised to update it at least once per month. On most servers you can perform the update by clicking the button below. If that doesn't work on your server, please consult our documentation.
+	<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BODY'); ?>
 	<br />
 	<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.updategeoip&' . JFactory::getSession()->getToken() . '=1')?>"
 	   class="btn btn-primary">
 		<span class="icon icon-download"></span>
-		Update the GeoIP database
+		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BUTTON'); ?>
 	</a>
 </p>
 <?php elseif ($this->geoIPNeedsUpgrade): ?>
 	<h2>
 		<span class="icon icon-refresh"></span>
-		Update the GeoIP database
+		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_HEAD'); ?>
 	</h2>
 	<p>
-		Akeeba LoginGuard can currently only display the country where each authentication method was last used. You need to upgrade to the bigger, more detailed, GeoIP database to display city information. Click the button below to upgrade the database. If that doesn't work on your server please consult our documentation.
+		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BODY'); ?>
 		<br />
 		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
 		   class="btn btn-primary">
 			<span class="icon icon-download"></span>
-			Upgrade the GeoIP database
+			<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BUTTON'); ?>
 		</a>
 	</p>
 <?php endif; ?>
