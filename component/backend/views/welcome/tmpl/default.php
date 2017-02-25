@@ -62,7 +62,7 @@ defined('_JEXEC') or die;
 	<?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BODY'); ?>
 	<br />
 	<a href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank"
-	   class="btn btn-primary">
+	   class="btn btn-default">
 		<span class="icon icon-download"></span>
 		<?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BUTTON'); ?>
 	</a>
@@ -76,7 +76,7 @@ defined('_JEXEC') or die;
 	<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BODY'); ?>
 	<br />
 	<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.updategeoip&' . JFactory::getSession()->getToken() . '=1')?>"
-	   class="btn btn-primary">
+	   class="btn btn-default">
 		<span class="icon icon-download"></span>
 		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BUTTON'); ?>
 	</a>
@@ -90,9 +90,26 @@ defined('_JEXEC') or die;
 		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BODY'); ?>
 		<br />
 		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
-		   class="btn btn-primary">
+		   class="btn btn-default">
 			<span class="icon icon-download"></span>
 			<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BUTTON'); ?>
 		</a>
 	</p>
 <?php endif; ?>
+
+<h2>
+	<?php echo JText::_('COM_LOGINGUARD_LBL_MANAGE_HEAD'); ?>
+</h2>
+<p>
+	<?php echo JText::_('COM_LOGINGUARD_LBL_MANAGE_BODY'); ?>
+</p>
+<p>
+    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.display') ?>" class="btn btn-primary btn-large btn-lg">
+        <span class="icon icon-lock"></span>
+	    <?php echo JText::_('COM_LOGINGUARD_BTN_MANAGE_SELF'); ?>
+    </a>
+    <a href="<?php echo JRoute::_('index.php?option=com_users') ?>" class="btn btn-default">
+        <span class="icon icon-users"></span>
+	    <?php echo JText::_('COM_LOGINGUARD_BTN_MANAGE_OTHERS'); ?>
+    </a>
+</p>
