@@ -11,6 +11,20 @@ defined('_JEXEC') or die;
 class LoginGuardViewWelcome extends JViewLegacy
 {
 	/**
+	 * Is the user plugin missing / disabled?
+	 *
+	 * @var   bool
+	 */
+	public $noUserPlugin = false;
+
+	/**
+	 * Is the system plugin missing / disabled?
+	 *
+	 * @var   bool
+	 */
+	public $noSystemPlugin = false;
+
+	/**
 	 * Are no published methods detected?
 	 *
 	 * @var   bool
@@ -65,6 +79,8 @@ class LoginGuardViewWelcome extends JViewLegacy
 		$this->noGeoIP           = !$model->hasGeoIPPlugin();
 		$this->geoIPNeedsUpdate  = $model->needsGeoIPUpdate();
 		$this->geoIPNeedsUpgrade = $model->needsGeoIPUpgrade();
+		$this->noUserPlugin      = !$model->isLoginGuardPluginPublished('user');
+		$this->noSystemPlugin    = !$model->isLoginGuardPluginPublished('system');
 
 		// Show a title and the component's Options button
 		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'lock');

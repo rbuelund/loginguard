@@ -8,14 +8,20 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
+/** @var LoginGuardViewWelcome $this */
+
+/**
+ * Check if the System plugin is published (FATAL)
+ * Check if the User plugin is published (warning)
+ */
 ?>
 
-<?php if ($this->noMethods || $this->notInstalled): ?>
+<?php if ($this->noMethods || $this->notInstalled || $this->noSystemPlugin): ?>
 <div class="alert alert-error">
 	<span class="label label-important"><?php echo JText::_('COM_LOGINGUARD_STATUS_NOTREADY'); ?></span>
 	<?php echo JText::_('COM_LOGINGUARD_STATUS_NOTREADY_INFO'); ?>
 </div>
-<?php elseif ($this->noGeoIP): ?>
+<?php elseif ($this->noGeoIP || $this->noUserPlugin): ?>
 <div class="alert alert-warning">
 	<span class="label label-warning"><?php echo JText::_('COM_LOGINGUARD_STATUS_ALMOSTREADY'); ?></span>
 	<?php echo JText::_('COM_LOGINGUARD_STATUS_ALMOSTREADY_INFO'); ?>
@@ -38,9 +44,7 @@ defined('_JEXEC') or die;
 	<?php echo JText::_('COM_LOGINGUARD_ERR_PLUGINS_INFO_COMMON'); ?>
 	<?php echo JText::_('COM_LOGINGUARD_ERR_NOPLUGINS_INFO'); ?>
 </p>
-<?php endif; ?>
-
-<?php if ($this->noMethods): ?>
+<?php elseif ($this->noMethods): ?>
 <h2>
 	<span class="icon icon-warning-2"></span>
 	<span>
@@ -50,6 +54,30 @@ defined('_JEXEC') or die;
 <p>
 	<?php echo JText::_('COM_LOGINGUARD_ERR_PLUGINS_INFO_COMMON'); ?>
 	<?php echo JText::_('COM_LOGINGUARD_ERR_NOTINSTALLEDPLUGINS_INFO'); ?>
+</p>
+<?php endif; ?>
+
+<?php if ($this->noSystemPlugin): ?>
+<h2>
+    <span class="icon icon-warning-2"></span>
+    <span>
+		<?php echo JText::_('COM_LOGINGUARD_ERR_NOSYSTEM_HEAD'); ?>
+	</span>
+</h2>
+<p>
+	<?php echo JText::_('COM_LOGINGUARD_ERR_NOSYSTEM_INFO'); ?>
+</p>
+<?php endif; ?>
+
+<?php if ($this->noUserPlugin): ?>
+<h2>
+    <span class="icon icon-warning-2"></span>
+    <span>
+		<?php echo JText::_('COM_LOGINGUARD_ERR_NOUSER_HEAD'); ?>
+	</span>
+</h2>
+<p>
+	<?php echo JText::_('COM_LOGINGUARD_ERR_NOUSER_INFO'); ?>
 </p>
 <?php endif; ?>
 

@@ -11,6 +11,33 @@ defined('_JEXEC') or die;
 class LoginGuardModelWelcome extends JModelLegacy
 {
 	/**
+	 * Are there any published LoginGuard plugins in the specified folder?
+	 *
+	 * @return  bool
+	 */
+	public function isLoginGuardPluginPublished($folder)
+	{
+		$db = $this->getDbo();
+		$query = $db->getQuery(true)
+		            ->select('COUNT(*)')
+		            ->from($db->qn('#__extensions'))
+		            ->where($db->qn('type') . ' = ' . $db->q('plugin'))
+		            ->where($db->qn('element') . ' = ' . $db->q('loginguard'))
+		            ->where($db->qn('folder') . ' = ' . $db->q($folder))
+		            ->where($db->qn('enabled') . ' = ' . $db->q(1));
+
+		try
+		{
+			return !empty($db->setQuery($query)->loadResult());
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
+	}
+
+
+	/**
 	 * Are there any published LoginGuard plugins?
 	 *
 	 * @return  bool
