@@ -77,7 +77,7 @@ defined('_JEXEC') or die;
 <p>
 	Akeeba LoginGuard can display the country and/or city where each authentication method was last used. That's done using the MaxMind GeoLite2 Country database. You are advised to update it at least once per month. On most servers you can perform the update by clicking the button below. If that doesn't work on your server, please consult our documentation.
 	<br />
-	<a href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank"
+	<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.updategeoip&' . JFactory::getSession()->getToken() . '=1')?>"
 	   class="btn btn-primary">
 		<span class="icon icon-download"></span>
 		Update the GeoIP database
@@ -91,7 +91,7 @@ defined('_JEXEC') or die;
 	<p>
 		Akeeba LoginGuard can currently only display the country where each authentication method was last used. You need to upgrade to the bigger, more detailed, GeoIP database to display city information. Click the button below to upgrade the database. If that doesn't work on your server please consult our documentation.
 		<br />
-		<a href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank"
+		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
 		   class="btn btn-primary">
 			<span class="icon icon-download"></span>
 			Upgrade the GeoIP database
