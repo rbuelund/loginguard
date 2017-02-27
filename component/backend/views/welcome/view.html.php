@@ -61,6 +61,13 @@ class LoginGuardViewWelcome extends JViewLegacy
 	public $geoIPNeedsUpgrade = false;
 
 	/**
+	 * Do we have to migrate from Joomla's Two Factor Authentication?
+	 *
+	 * @var   bool
+	 */
+	public $needsMigration = false;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -81,6 +88,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 		$this->geoIPNeedsUpgrade = $model->needsGeoIPUpgrade();
 		$this->noUserPlugin      = !$model->isLoginGuardPluginPublished('user');
 		$this->noSystemPlugin    = !$model->isLoginGuardPluginPublished('system');
+		$this->needsMigration    = $model->needsMigration();
 
 		// Show a title and the component's Options button
 		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'lock');

@@ -180,6 +180,13 @@ class LoginGuardModelWelcome extends JModelLegacy
 		return !is_file($cityPath);
 	}
 
+	/**
+	 * Update the MaxMind GeoLite database
+	 *
+	 * @param   bool  $forceCity  Should I forcibly upgrade to a city-level database?
+	 *
+	 * @return  bool
+	 */
 	public function updateGeoIPDb($forceCity = false)
 	{
 		// Load the GeoIP library if it's not already loaded
@@ -201,5 +208,30 @@ class LoginGuardModelWelcome extends JModelLegacy
 		}
 
 		return $geoip->updateDatabase();
+	}
+
+	/**
+	 * Do I need to migrate Joomla Two Factor Authentication information into Akeeba LoginGuard?
+	 *
+	 * @return  bool
+	 */
+	public function needsMigration()
+	{
+		// There is no TFA in Joomla < 3.2
+		if (version_compare(JVERSION, '3.2.0', 'lt'))
+		{
+			return false;
+		}
+
+		// Get the users with Joomla! TFA records
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+		            ->select('COUNT(*)')
+		            ->from($db->qn('#__users'))
+		            ->where($db->qn('otpKey') . ' != ' . $db->q(''))
+		            ->where($db->qn('otep') . ' != ' . $db->q(''));
+		$result = $db->setQuery($query)->loadResult();
+
+		return !empty($result);
 	}
 }

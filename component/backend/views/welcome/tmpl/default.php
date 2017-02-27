@@ -81,6 +81,23 @@ defined('_JEXEC') or die;
 </p>
 <?php endif; ?>
 
+<?php if ($this->needsMigration && !$this->notInstalled && !$this->noMethods && !$this->noSystemPlugin): ?>
+<h2>
+    <span class="icon icon-lock"></span>
+    <span>
+		<?php echo JText::_('COM_LOGINGUARD_LBL_CONVERT_HEAD'); ?>
+	</span>
+</h2>
+<p>
+	<?php echo JText::_('COM_LOGINGUARD_LBL_CONVERT_INFO'); ?>
+    <br />
+    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=convert.convert&' . JFactory::getSession()->getToken() . '=1')?>"
+       class="btn btn-success btn-large btn-lg">
+        <span class="icon icon-apply"></span>
+		<?php echo JText::_('COM_LOGINGUARD_BTN_CONVERT'); ?>
+    </a></p>
+<?php endif; ?>
+
 <?php if ($this->noGeoIP): ?>
 <h2>
 	<span class="icon icon-connection"></span>
