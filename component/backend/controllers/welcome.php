@@ -21,27 +21,7 @@ class LoginGuardControllerWelcome extends JControllerLegacy
 	{
 		$this->assertSuperUser();
 
-		// Get the view object
-		$document   = JFactory::getDocument();
-		$viewLayout = $this->input->get('layout', 'default', 'string');
-		/** @var LoginGuardViewWelcome $view */
-		$view       = $this->getView('welcome', 'html', '', array(
-			'base_path' => $this->basePath,
-			'layout'    => $viewLayout
-		));
-
-		$view->document = $document;
-
-		/** @var LoginGuardModelWelcome $model */
-		$model = $this->getModel('welcome');
-		$view->setModel($model, true);
-
-		// TODO Do Stuff
-
-		// Do not go through $this->display() because it overrides the model, nullifying the whole concept of MVC.
-		$view->display();
-
-		return $this;
+		return $this->display(false, false);
 	}
 
 	/**
