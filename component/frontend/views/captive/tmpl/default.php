@@ -54,7 +54,7 @@ defined('_JEXEC') or die;
             </div>
 	    <?php endif;?>
 
-        <button type="submit" class="btn btn-large btn-lg btn-primary">
+        <button type="submit" class="btn btn-large btn-lg btn-primary" id="loginguard-captive-button-submit">
             <span class="icon icon-rightarrow"></span>
             <span class="glyphicon glyphicon-ok"></span>
 	        <?php echo JText::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
@@ -62,14 +62,14 @@ defined('_JEXEC') or die;
 
         <?php if ($this->isAdmin): ?>
             <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . JSession::getFormToken() . '=1') ?>"
-               class="btn btn-danger">
+               class="btn btn-danger" id="loginguard-captive-button-logout">
                 <span class="icon icon-lock"></span>
                 <span class="glyphicon glyphicon-off"></span>
 		        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
             </a>
         <?php else: ?>
             <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . JSession::getFormToken() . '=1') ?>"
-               class="btn btn-danger">
+               class="btn btn-danger" id="loginguard-captive-button-logout">
                 <span class="icon icon-lock"></span>
                 <span class="glyphicon glyphicon-off"></span>
 		        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
