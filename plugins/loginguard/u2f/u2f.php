@@ -450,7 +450,7 @@ JS;
 	private function _decodeRecordOptions($record)
 	{
 		$options = array(
-			'registrations' => ''
+			'registrations' => array()
 		);
 
 		if (!empty($record->options))
