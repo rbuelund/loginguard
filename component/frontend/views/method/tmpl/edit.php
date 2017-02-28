@@ -107,7 +107,7 @@ if (!empty($this->returnURL))
 		<?php endif; ?>
 		<div class="controls">
 			<input type="<?php echo $this->renderOptions['input_type']; ?>"
-			       class="form-control" id="loginguard-method-edit-title"
+			       class="form-control" id="loginguard-method-code"
 			       name="code"
 			       value="<?php echo $this->escape($this->renderOptions['input_value']) ?>"
 			       placeholder="<?php echo $this->escape($this->renderOptions['placeholder']) ?>">
