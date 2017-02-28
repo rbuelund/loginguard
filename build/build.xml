@@ -55,6 +55,9 @@
 		<copy file="${phing.dir}/templates/plg_loginguard_yubikey.xml" tofile="${dirs.plugins}/loginguard/yubikey/yubikey.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>
+		<copy file="${phing.dir}/templates/plg_loginguard_u2f.xml" tofile="${dirs.plugins}/loginguard/u2f/u2f.xml" overwrite="true">
+			<filterchain refid="manifest-replace-tokens" />
+		</copy>
 
 		<copy file="${phing.dir}/templates/plg_user_loginguard.xml" tofile="${dirs.plugins}/user/loginguard/loginguard.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />

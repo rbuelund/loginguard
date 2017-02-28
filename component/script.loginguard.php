@@ -59,6 +59,7 @@ class Pkg_LoginguardInstallerScript
 		// LoginGuard plugins
 		array('plugin', 'totp',       1, 'loginguard'),
 		array('plugin', 'yubikey',    1, 'loginguard'),
+		array('plugin', 'u2d',        1, 'loginguard'),
 	);
 
 	/**

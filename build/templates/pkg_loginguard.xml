@@ -30,6 +30,7 @@
         <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
         <file type="plugin" group="loginguard" id="totp">plg_loginguard_totp.zip</file>
         <file type="plugin" group="loginguard" id="yubikey">plg_loginguard_yubikey.zip</file>
+        <file type="plugin" group="loginguard" id="u2f">plg_loginguard_u2f.zip</file>
 
         <!-- Plugins: user -->
         <file type="plugin" group="user" id="loginguard">plg_user_loginguard.zip</file>
