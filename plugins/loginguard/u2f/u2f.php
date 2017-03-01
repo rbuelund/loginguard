@@ -146,7 +146,9 @@ class PlgLoginguardU2f extends JPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
+		$currentRecordRegistrations = isset($options['registrations']) ? $options['registrations'] : array();
+
+		$registrations = $this->getRegistrationsFor($record->user_id);
 
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
 		$submitOnClick = '';
@@ -157,7 +159,7 @@ class PlgLoginguardU2f extends JPlugin
 		 * If there are no security keys set up yet I need to show a different message and take a different action when
 		 * my user clicks the submit button.
 		 */
-		if (empty($registrations))
+		if (empty($currentRecordRegistrations))
 		{
 			// Load Javascript
 			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
@@ -455,7 +457,7 @@ JS;
 	/**
 	 * Decodes the options from a #__loginguard_tfa record into an options object.
 	 *
-	 * @param   stdClass  $record
+	 * @param   stdClass|string  $record  The record object or just the JSON-encoded options
 	 *
 	 * @return  array
 	 */
@@ -465,10 +467,19 @@ JS;
 			'registrations' => array()
 		);
 
-		if (!empty($record->options))
+		$recordOptions = null;
+
+		if (is_object($record))
 		{
 			$recordOptions = $record->options;
+		}
+		elseif (is_string($record))
+		{
+			$recordOptions = $record;
+		}
 
+		if (!empty($recordOptions))
+		{
 			if (is_string($recordOptions))
 			{
 				// We need to decode as object. This is required for the U2F library to work proparly.
@@ -548,5 +559,49 @@ JS;
 		{
 			JFactory::getDocument()->addScript('chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js');
 		}
+	}
+
+	/**
+	 * Get all security key registrations for the specified user
+	 *
+	 * @param   int  $user_id  The user ID to look for. Leave empty for the current user.
+	 *
+	 * @return  array
+	 */
+	private function getRegistrationsFor($user_id = null)
+	{
+		if (empty($user_id))
+		{
+			$user_id = JFactory::getUser()->id;
+		}
+
+		$return = array();
+
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->qn('options'))
+			->from($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+			->where($db->qn('method') . ' = ' . $db->q('u2f'));
+		$results = $db->setQuery($query)->loadColumn(0);
+
+		if (empty($results))
+		{
+			return $return;
+		}
+
+		foreach ($results as $result)
+		{
+			$options = $this->_decodeRecordOptions($result);
+
+			if (!isset($options['registrations']) || empty($options['registrations']))
+			{
+				continue;
+			}
+
+			$return = array_merge($return, $options['registrations']);
+		}
+
+		return $return;
 	}
 }

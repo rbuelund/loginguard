@@ -11,7 +11,8 @@ akeeba.LoginGuard = akeeba.LoginGuard || {};
 
 akeeba.LoginGuard.u2f = akeeba.LoginGuard.u2f || {
 	regData: null,
-	authData: null
+	authData: null,
+	handledError: false
 };
 
 /**
@@ -43,29 +44,42 @@ akeeba.LoginGuard.u2f.setUp = function ()
 			return;
 		}
 
+		/**
+		 * Firefox sends two responses with error codes 4 and 1 when the device is already registered. Using this trick
+		 * we only display the relevant error message (4), discarding the secondary generic error.
+		 */
+		if (akeeba.LoginGuard.u2f.handledError)
+		{
+			return;
+		}
+
+		akeeba.LoginGuard.u2f.handledError = true;
+
 		switch (data.errorCode)
 		{
 			case 1:
 			default:
-				alert(Joomla.JText._('PLG_TWOFACTORAUTH_U2F_ERR_JS_OTHER'));
+				alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_OTHER'));
 				break;
 
 			case 2:
-				alert(Joomla.JText._('PLG_TWOFACTORAUTH_U2F_ERR_JS_CANNOTPROCESS'));
+				alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS'));
 				break;
 
 			case 3:
-				alert(Joomla.JText._('PLG_TWOFACTORAUTH_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED'));
+				alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED'));
 				break;
 
 			case 4:
-				alert(Joomla.JText._('PLG_TWOFACTORAUTH_U2F_ERR_JS_INELIGIBLE'));
+				alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE'));
 				break;
 
 			case 5:
-				alert(Joomla.JText._('PLG_TWOFACTORAUTH_U2F_ERR_JS_TIMEOUT'));
+				alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT'));
 				break;
 		}
+
+		akeeba.LoginGuard.u2f.handledError = false;
 	});
 };
 
