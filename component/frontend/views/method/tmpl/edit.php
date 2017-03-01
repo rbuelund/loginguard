@@ -96,7 +96,7 @@ if (!empty($this->returnURL))
 	</div>
 	<?php endif; ?>
 
-	<?php if ($this->renderOptions['field_type'] == 'html'): ?>
+	<?php if ($this->renderOptions['field_type'] == 'custom'): ?>
 	<?php echo $this->renderOptions['html']; ?>
 	<?php else: ?>
 	<div class="control-group form-group">

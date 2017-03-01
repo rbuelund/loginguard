@@ -16,6 +16,7 @@
 	<files>
 		<filename plugin="u2f">u2f.php</filename>
 		<folder>classes</folder>
+		<folder>tmpl</folder>
 	</files>
 
 	<media folder="media" destination="plg_loginguard_u2f">

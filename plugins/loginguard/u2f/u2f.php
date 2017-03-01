@@ -154,6 +154,8 @@ class PlgLoginguardU2f extends JPlugin
 		$submitOnClick = '';
 		$preMessage = JText::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
 		$u2fRegData = json_encode($this->u2f->getRegisterData($registrations));
+		$type = 'input';
+		$html = '';
 
 		/**
 		 * If there are no security keys set up yet I need to show a different message and take a different action when
@@ -175,6 +177,12 @@ window.jQuery(document).ready(function($) {
 
 JS;
 			JFactory::getDocument()->addScriptDeclaration($js);
+
+			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'register');
+			ob_start();
+			include $layoutPath;
+			$html = ob_get_clean();
+			$type = 'custom';
 
 			// Load JS translations
 			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
@@ -208,7 +216,7 @@ JS;
 				'u2fregdata' => $u2fRegData
 			),
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'     => 'input',
+			'field_type'     => $type,
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
 			'input_type'     => 'hidden',
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
@@ -218,7 +226,7 @@ JS;
 			// Label to show above the HTML input box. Leave empty if you don't need it.
 			'label'          => '',
 			// Custom HTML. Only used when field_type = custom.
-			'html'           => '',
+			'html'           => $html,
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
 			'show_submit'    => true,
 			// onclick handler for the submit button (apply the TFA setup)?
@@ -359,7 +367,6 @@ window.jQuery(document).ready(function($) {
 	
 	$(document.getElementById('loginguard-captive-button-submit')).click(function() {
 		akeeba.LoginGuard.u2f.validate();
-		
 		return false;
 	})
 });
@@ -367,19 +374,24 @@ window.jQuery(document).ready(function($) {
 JS;
 		JFactory::getDocument()->addScriptDeclaration($js);
 
+		$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'validate');
+		ob_start();
+		include $layoutPath;
+		$html = ob_get_clean();
+
 		return array(
 			// Custom HTML to display above the TFA form
 			'pre_message'  => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'   => 'input',
+			'field_type'   => 'custom',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'   => 'hidden',
+			'input_type'   => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
 			'placeholder'  => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
 			'label'        => '',
 			// Custom HTML. Only used when field_type = custom.
-			'html'         => '',
+			'html'         => $html,
 			// Custom HTML to display below the TFA form
 			'post_message' => ''
 		);
