@@ -420,7 +420,9 @@ JS;
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 
 		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
-		if ($this->params->get('validateallkeys', 1))
+		$validateAllKeys = $this->params->get('validateallkeys', 1);
+
+		if ($validateAllKeys)
 		{
 			$registrations = $this->getRegistrationsFor($record->user_id);
 		}
@@ -455,14 +457,48 @@ JS;
 		// Validate the U2F signature
 		try
 		{
-			$this->u2f->doAuthenticate($authenticationRequest, $registrations, $authenticateResponse);
+			$registration = $this->u2f->doAuthenticate($authenticationRequest, $registrations, $authenticateResponse);
 		}
 		catch (Exception $e)
 		{
 			return false;
 		}
 
-		// TODO We need to save the registration for this key again
+		// The $registration contains the updated registration for the used security key. But WHICH one?
+		$id = $record->id;
+
+		if ($validateAllKeys)
+		{
+			/**
+			 * @var   int                          $recordId   The ID of the associated record
+			 * @var   \u2flib_server\Registration  $recordReg  The key registration of that record
+			 */
+			foreach ($registrations as $recordId => $recordReg)
+			{
+				if ($recordReg->keyHandle == $registration->keyHandle)
+				{
+					$id = $recordId;
+					break;
+				}
+			}
+		}
+
+		/**
+		 * Save the updated registration to the database.
+		 *
+		 * Why? Every time the security key signs a verification request it increases its internal counter monotonical-
+		 * ly. Every subsequent signing request will have a counter larger than the previous one. If the library sees a
+		 * counter that's lower than the last recorded one we know that we have a cloned security key and we have to
+		 * reject it. This protection only works if we "remember" the last counter encountered, i.e. if we save the
+		 * updated registration after validation.
+		 */
+		$update = (object)array(
+			'id' => $id,
+			'options' => json_encode(array('registrations' => array($registration)))
+		);
+
+		$db = JFactory::getDbo();
+		$db->updateObject('#__loginguard_tfa', $update, array('id'));
 
 		return true;
 	}
@@ -592,11 +628,11 @@ JS;
 
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true)
-			->select($db->qn('options'))
+			->select('*')
 			->from($db->qn('#__loginguard_tfa'))
 			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
 			->where($db->qn('method') . ' = ' . $db->q('u2f'));
-		$results = $db->setQuery($query)->loadColumn(0);
+		$results = $db->setQuery($query)->loadObjectList();
 
 		if (empty($results))
 		{
@@ -612,7 +648,7 @@ JS;
 				continue;
 			}
 
-			$return = array_merge($return, $options['registrations']);
+			$return[$result->id] = $options['registrations'][0];
 		}
 
 		return $return;
