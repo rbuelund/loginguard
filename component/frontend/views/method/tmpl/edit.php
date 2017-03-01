@@ -115,10 +115,9 @@ if (!empty($this->returnURL))
 	</div>
 	<?php endif; ?>
 
-	<?php if (!$this->isAdmin): ?>
 	<div class="control-group">
 		<div class="controls">
-			<?php if ($this->renderOptions['show_submit'] || empty($this->record->id)): ?>
+			<?php if ($this->renderOptions['show_submit']): ?>
 			<button type="submit" class="btn btn-primary"
 				<?php echo $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
 				<span class="icon icon-ok glyphicon glyphicon-ok-circle"></span>
@@ -133,7 +132,6 @@ if (!empty($this->returnURL))
 			</a>
 		</div>
 	</div>
-	<?php endif; ?>
 
 	<?php if (!empty($this->renderOptions['post_message'])): ?>
 		<div class="loginguard-method-edit-post-message">

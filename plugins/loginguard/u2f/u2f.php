@@ -228,7 +228,7 @@ JS;
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => $html,
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
-			'show_submit'    => true,
+			'show_submit'    => false,
 			// onclick handler for the submit button (apply the TFA setup)?
 			'submit_onclick' => $submitOnClick,
 			// Custom HTML to display below the TFA setup form
