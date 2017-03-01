@@ -16,8 +16,12 @@
 	<files>
 		<filename plugin="totp">totp.php</filename>
 		<folder>classes</folder>
-		<folder>images</folder>
 	</files>
+
+	<media folder="media" destination="plg_loginguard_yubikey">
+		<folder>images</folder>
+	</media>
+
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_totp.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_totp.sys.ini</language>

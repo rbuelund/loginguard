@@ -15,8 +15,12 @@
 
 	<files>
 		<filename plugin="yubikey">yubikey.php</filename>
-		<folder>images</folder>
 	</files>
+
+	<media folder="media" destination="plg_loginguard_yubikey">
+		<folder>images</folder>
+	</media>
+
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_yubikey.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_yubikey.sys.ini</language>

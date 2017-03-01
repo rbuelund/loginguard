@@ -54,7 +54,7 @@ class PlgLoginguardFixed extends JPlugin
 			// Short description of this TFA method displayed to the user
 			'shortinfo'     => JText::_('PLG_LOGINGUARD_FIXED_LBL_SHORTINFO'),
 			// URL to the logo image for this method
-			'image'         => 'plugins/loginguard/fixed/images/fixed.svg',
+			'image'         => 'media/plg_loginguard_fixed/images/fixed.svg',
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
