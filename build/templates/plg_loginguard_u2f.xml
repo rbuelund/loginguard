@@ -27,4 +27,23 @@
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_u2f.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_u2f.sys.ini</language>
 	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+						name="validateallkeys"
+						type="radio"
+						label="PLG_LOGINGUARD_U2F_CONFIG_VALIDATEALLKEYS_LABEL"
+						description="PLG_LOGINGUARD_U2F_CONFIG_VALIDATEALLKEYS_DESC"
+						default="1"
+						class="btn-group"
+				>
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+
 </extension>

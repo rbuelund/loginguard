@@ -340,6 +340,13 @@ JS;
 
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
+
+		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
+		if ($this->params->get('validateallkeys', 1))
+		{
+			$registrations = $this->getRegistrationsFor($record->user_id);
+		}
+
 		$u2fAuthData = $this->u2f->getAuthenticateData($registrations);
 		$u2fAuthDataJSON = json_encode($u2fAuthData);
 
@@ -411,6 +418,12 @@ JS;
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
+
+		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
+		if ($this->params->get('validateallkeys', 1))
+		{
+			$registrations = $this->getRegistrationsFor($record->user_id);
+		}
 
 		// Get the authentication response
 		$authenticateResponse = json_decode($code);
