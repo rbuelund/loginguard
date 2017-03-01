@@ -339,13 +339,14 @@ JS;
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 		$u2fAuthData = $this->u2f->getAuthenticateData($registrations);
+		$u2fAuthDataJSON = json_encode($u2fAuthData);
 
 		$session = JFactory::getSession();
-		$session->set('u2f.authentication', $u2fAuthData, 'com_loginguard');
+		$session->set('u2f.authentication', serialize($u2fAuthData), 'com_loginguard');
 
 		$js = <<< JS
 window.jQuery(document).ready(function($) {
-	akeeba.LoginGuard.u2f.regData = $u2fAuthData;
+	akeeba.LoginGuard.u2f.authData = $u2fAuthDataJSON;
 	
 	$(document.getElementById('loginguard-captive-button-submit')).click(function() {
 		akeeba.LoginGuard.u2f.validate();
@@ -428,7 +429,7 @@ JS;
 			return false;
 		}
 
-		$authenticationRequest = json_decode($authenticationRequest);
+		$authenticationRequest = unserialize($authenticationRequest);
 
 		if (empty($authenticationRequest))
 		{
