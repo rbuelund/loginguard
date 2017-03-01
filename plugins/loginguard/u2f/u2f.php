@@ -166,6 +166,14 @@ class PlgLoginguardU2f extends JPlugin
 				'detectDebug' => true
 			), true, false, false, true);
 
+			$js = <<< JS
+window.jQuery(document).ready(function($) {
+	akeeba.LoginGuard.u2f.regData = $u2fRegData;
+});
+
+JS;
+			JFactory::getDocument()->addScriptDeclaration($js);
+
 			// Load JS translations
 			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
 			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
@@ -178,8 +186,7 @@ class PlgLoginguardU2f extends JPlugin
 			$session->set('u2f.request', $u2fRegData, 'com_loginguard');
 
 			// Special button handling
-			$u2fRegDataEncoded = addslashes($u2fRegData);
-			$submitOnClick = "akeeba.LoginGuard.u2f.setUp('$u2fRegDataEncoded'); return false;";
+			$submitOnClick = "akeeba.LoginGuard.u2f.setUp(); return false;";
 
 			// Message to display
 			$preMessage = JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS');
@@ -247,7 +254,7 @@ class PlgLoginguardU2f extends JPlugin
 		}
 
 		// Load the options from the record (if any)
-		$options    = $this->_decodeRecordOptions($record);
+		$options = $this->_decodeRecordOptions($record);
 
 		if (!isset($options['registrations']))
 		{
@@ -255,12 +262,13 @@ class PlgLoginguardU2f extends JPlugin
 		}
 
 		// load the registration request from the session
-		$session = JFactory::getSession();
+		$session    = JFactory::getSession();
 		$u2fRegData = $session->get('u2f.request', null, 'com_loginguard');
+		$session->set('u2f.request', null, 'com_loginguard');
 		$registrationRequest = json_decode($u2fRegData);
 
 		// Load the registration response from the input
-		$code = $input->get('code', null, 'raw');
+		$code             = $input->get('code', null, 'raw');
 		$registerResponse = json_decode($code);
 
 		// If there was no registration request BUT there is a registration response throw an error
@@ -286,7 +294,6 @@ class PlgLoginguardU2f extends JPlugin
 		}
 
 		// The code is valid. Unset the request data from the session and update the options
-		$session->set('u2f.request', null, 'com_loginguard');
 		$options['registrations'][] = $registration;
 
 		// Return the configuration to be serialized
@@ -332,21 +339,23 @@ class PlgLoginguardU2f extends JPlugin
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 		$u2fAuthData = $this->u2f->getAuthenticateData($registrations);
-		$u2fAuthDataEncoded = addslashes($u2fAuthData);
 
 		$session = JFactory::getSession();
 		$session->set('u2f.authentication', $u2fAuthData, 'com_loginguard');
 
 		$js = <<< JS
-window.jQuery(document).load(function($) {
+window.jQuery(document).ready(function($) {
+	akeeba.LoginGuard.u2f.regData = $u2fAuthData;
+	
 	$(document.getElementById('loginguard-captive-button-submit')).click(function() {
-		akeeba.LoginGuard.u2f.validate('$u2fAuthDataEncoded');
+		akeeba.LoginGuard.u2f.validate();
 		
 		return false;
 	})
 });
 
 JS;
+		JFactory::getDocument()->addScriptDeclaration($js);
 
 		return array(
 			// Custom HTML to display above the TFA form
@@ -437,6 +446,8 @@ JS;
 			return false;
 		}
 
+		// TODO We need to save the registration for this key again
+
 		return true;
 	}
 
@@ -459,8 +470,17 @@ JS;
 
 			if (is_string($recordOptions))
 			{
-				$recordOptions = json_decode($recordOptions, true);
+				// We need to decode as object. This is required for the U2F library to work proparly.
+				$recordOptions = json_decode($recordOptions);
 			}
+
+			/**
+			 * However, $options is an array so I need to typecast the generated object to an array. The end result is:
+			 * $recordOptions is an array with one key, 'registrations'
+			 * $recordOptions['registrations'] is a simple (numerically indexed) array. Its contents are objects.
+			 * That's exactly what I wanted.
+			 */
+			$recordOptions = (array)$recordOptions;
 
 			$options = array_merge($options, $recordOptions);
 		}
