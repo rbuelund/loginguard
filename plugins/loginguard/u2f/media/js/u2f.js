@@ -32,7 +32,7 @@ akeeba.LoginGuard.u2f.setUp = function ()
 /**
  * Callback for the U2F register() method
  *
- * @param data
+ * @param   {u2f.RegisterResponse}  data
  */
 akeeba.LoginGuard.u2f.setUpCallback = function (data)
 {
@@ -50,6 +50,11 @@ akeeba.LoginGuard.u2f.setUpCallback = function (data)
     akeeba.LoginGuard.u2f.showError(data.errorCode);
 };
 
+/**
+ * Display an error when the U2F JS API responds with an errorCode
+ *
+ * @param   {int}  errorCode
+ */
 akeeba.LoginGuard.u2f.showError = function(errorCode)
 {
     /**
@@ -98,7 +103,7 @@ akeeba.LoginGuard.u2f.showError = function(errorCode)
 };
 
 /**
- * Ask the U2F key to sign a challenge (authenticate)
+ * Ask the U2F key to sign a challenge (validation)
  */
 akeeba.LoginGuard.u2f.validate = function ()
 {
@@ -111,7 +116,7 @@ akeeba.LoginGuard.u2f.validate = function ()
 /**
  * Callback for the U2F sign() method
  *
- * @param response
+ * @param   {u2f.SignResponse}  response
  */
 akeeba.LoginGuard.u2f.validateCallback = function (response)
 {

@@ -7,15 +7,21 @@
 
 // Prevent direct access
 defined('_JEXEC') or die;
-?>
-<input name="code" value="" id="loginGuardCode" class="form-control input-lg" type="hidden">
 
-<div class="control-group">
-    <div class="controls">
-        <a class="btn btn-primary btn-large btn-lg"
-           onclick="akeeba.LoginGuard.u2f.validate();">
-            <span class="icon icon-lock glyphicon glyphicon-lock"></span>
-		    <?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_VALIDATEKEY'); ?>
-        </a>
+$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
+include $layoutPath;
+
+?>
+<div id="loginguard-u2f-controls">
+    <input name="code" value="" id="loginGuardCode" class="form-control input-lg" type="hidden">
+
+    <div class="control-group">
+        <div class="controls">
+            <a class="btn btn-primary btn-large btn-lg"
+               onclick="akeeba.LoginGuard.u2f.validate();">
+                <span class="icon icon-lock glyphicon glyphicon-lock"></span>
+                <?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_VALIDATEKEY'); ?>
+            </a>
+        </div>
     </div>
 </div>
