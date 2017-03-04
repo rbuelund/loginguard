@@ -36,14 +36,6 @@ akeeba.LoginGuard.u2f.setUp = function ()
  */
 akeeba.LoginGuard.u2f.setUpCallback = function (data)
 {
-    try
-    {
-        console.debug(data);
-    }
-    catch (e)
-    {
-    }
-
     if ((data.errorCode === undefined) || (data.errorCode === 0))
     {
         // Store the U2F reply
