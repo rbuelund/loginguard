@@ -164,6 +164,12 @@ class PlgLoginguardU2f extends JPlugin
 		if (empty($currentRecordRegistrations))
 		{
 			// Load Javascript
+			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+				'version'     => 'auto',
+				'relative'    => true,
+				'detectDebug' => true
+			), true, false, false, true);
+
 			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
 				'version'     => 'auto',
 				'relative'    => true,
@@ -333,6 +339,12 @@ JS;
 		}
 
 		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
+		JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+			'version'     => 'auto',
+			'relative'    => true,
+			'detectDebug' => true
+		), true, false, false, true);
+
 		JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
 			'version'     => 'auto',
 			'relative'    => true,
