@@ -355,18 +355,13 @@ JS;
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED');
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE');
+		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN');
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 
 		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
-		if ($this->params->get('validateallkeys', 1))
-		{
-			$registrations = $this->getRegistrationsFor($record->user_id);
-		}
-
 		$u2fAuthData = $this->u2f->getAuthenticateData($registrations);
 		$u2fAuthDataJSON = json_encode($u2fAuthData);
 
@@ -443,14 +438,6 @@ JS;
 		$options = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 
-		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
-		$validateAllKeys = $this->params->get('validateallkeys', 1);
-
-		if ($validateAllKeys)
-		{
-			$registrations = $this->getRegistrationsFor($record->user_id);
-		}
-
 		// Get the authentication response
 		$authenticateResponse = json_decode($code);
 
@@ -490,22 +477,6 @@ JS;
 
 		// The $registration contains the updated registration for the used security key. But WHICH one?
 		$id = $record->id;
-
-		if ($validateAllKeys)
-		{
-			/**
-			 * @var   int                          $recordId   The ID of the associated record
-			 * @var   \u2flib_server\Registration  $recordReg  The key registration of that record
-			 */
-			foreach ($registrations as $recordId => $recordReg)
-			{
-				if ($recordReg->keyHandle == $registration->keyHandle)
-				{
-					$id = $recordId;
-					break;
-				}
-			}
-		}
 
 		/**
 		 * Save the updated registration to the database.
