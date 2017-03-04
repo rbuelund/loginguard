@@ -17,7 +17,7 @@
 		<filename plugin="fixed">fixed.php</filename>
 	</files>
 
-	<media folder="media" destination="plg_loginguard_yubikey">
+	<media folder="media" destination="plg_loginguard_fixed">
 		<folder>images</folder>
 	</media>
 
