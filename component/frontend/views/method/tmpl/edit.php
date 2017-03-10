@@ -19,6 +19,8 @@ if (!empty($this->returnURL))
 	$cancelURL = $this->escape(base64_decode($this->returnURL));
 }
 
+$isEditExisting = !empty($this->record->id);
+
 ?>
 <form action="index.php" method="post" id="loginguard-method-edit" class="form">
 	<input type="hidden" name="option" value="com_loginguard">
@@ -117,7 +119,7 @@ if (!empty($this->returnURL))
 
 	<div class="control-group">
 		<div class="controls">
-			<?php if ($this->renderOptions['show_submit']): ?>
+			<?php if ($this->renderOptions['show_submit'] || $isEditExisting): ?>
 			<button type="submit" class="btn btn-primary"
 				<?php echo $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
 				<span class="icon icon-ok glyphicon glyphicon-ok-circle"></span>
