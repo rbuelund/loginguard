@@ -28,4 +28,20 @@
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_u2f.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_loginguard_u2f.sys.ini</language>
 	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+						name="helpurl"
+						type="text"
+						label="PLG_LOGINGUARD_U2F_CONFIG_HELPURL_LABEL"
+						description="PLG_LOGINGUARD_U2F_CONFIG_HELPURL_DESC"
+						default=""
+						filter="url"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+
 </extension>

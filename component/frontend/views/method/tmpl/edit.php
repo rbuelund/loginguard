@@ -19,8 +19,6 @@ if (!empty($this->returnURL))
 	$cancelURL = $this->escape(base64_decode($this->returnURL));
 }
 
-$isEditExisting = !empty($this->record->id);
-
 ?>
 <form action="index.php" method="post" id="loginguard-method-edit" class="form">
 	<input type="hidden" name="option" value="com_loginguard">
@@ -40,6 +38,17 @@ $isEditExisting = !empty($this->record->id);
 	<?php endif; ?>
 
 	<?php if (!empty($this->title)): ?>
+    <?php if (!empty($this->renderOptions['help_url'])): ?>
+    <span class="pull-right">
+        <a href="<?php echo $this->renderOptions['help_url'] ?>"
+           class="btn btn-sm btn-small btn-default btn-inverse"
+           target="_blank"
+        >
+            <span class="icon icon-question-sign glyphicon glyphicon-question-sign"></span>
+        </a>
+
+    </span>
+    <?php endif;?>
 	<h3 id="loginguard-method-edit-head">
 		<?php echo JText::_($this->title) ?>
 	</h3>
@@ -119,7 +128,7 @@ $isEditExisting = !empty($this->record->id);
 
 	<div class="control-group">
 		<div class="controls">
-			<?php if ($this->renderOptions['show_submit'] || $isEditExisting): ?>
+			<?php if ($this->renderOptions['show_submit'] || $this->isEditExisting): ?>
 			<button type="submit" class="btn btn-primary"
 				<?php echo $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
 				<span class="icon icon-ok glyphicon glyphicon-ok-circle"></span>

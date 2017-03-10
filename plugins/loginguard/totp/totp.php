@@ -47,6 +47,8 @@ class PlgLoginguardTotp extends JPlugin
 	 */
 	public function onLoginGuardTfaGetMethod()
 	{
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
+
 		return array(
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
@@ -59,7 +61,9 @@ class PlgLoginguardTotp extends JPlugin
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => false
+			'allowMultiple' => false,
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -79,6 +83,8 @@ class PlgLoginguardTotp extends JPlugin
 			return array();
 		}
 
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
+
 		return array(
 			// Custom HTML to display above the TFA form
 			'pre_message'  => '',
@@ -93,7 +99,9 @@ class PlgLoginguardTotp extends JPlugin
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
-			'post_message' => ''
+			'post_message' => '',
+			// URL for help content
+			'help_url'     => $helpURL,
 		);
 	}
 
@@ -118,10 +126,10 @@ class PlgLoginguardTotp extends JPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key = isset($options['key']) ? $options['key'] : '';
+		$key     = isset($options['key']) ? $options['key'] : '';
 
 		// If there's a key in the session use that instead.
-		$session = JFactory::getSession();
+		$session    = JFactory::getSession();
 		$sessionKey = $session->get('totp.key', null, 'com_loginguard');
 
 		if (!empty($sessionKey))
@@ -137,9 +145,10 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// Generate a QR code for the key
-		$user = JFactory::getUser($record->user_id);
+		$user     = JFactory::getUser($record->user_id);
 		$hostname = JUri::getInstance()->toString(array('host'));
-		$qr = $totp->getUrl($user->username, $hostname, $key);
+		$qr       = $totp->getUrl($user->username, $hostname, $key);
+		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
@@ -151,11 +160,11 @@ class PlgLoginguardTotp extends JPlugin
 			// Any tabular data to display (label => custom HTML). See above
 			'tabular_data'   => array(
 				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_KEY') => $key,
-				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR') => "<img src=\"$qr\" />",
+				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<img src=\"$qr\" />",
 			),
 			// Hidden fields to include in the form (name => value)
 			'hidden_data'    => array(
-				'key' => $key
+				'key' => $key,
 			),
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
@@ -175,6 +184,8 @@ class PlgLoginguardTotp extends JPlugin
 			'submit_onclick' => '',
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 

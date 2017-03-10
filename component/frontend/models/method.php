@@ -282,6 +282,8 @@ class LoginGuardModelMethod extends JModelLegacy
 			'submit_onclick' => '',
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
+			// A URL with help content for this method to display to the user
+			'help_url'       => '',
 		);
 
 		$record  = $this->getRecord($user);

@@ -46,6 +46,8 @@ class PlgLoginguardFixed extends JPlugin
 	 */
 	public function onLoginGuardTfaGetMethod()
 	{
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
+
 		return array(
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
@@ -58,7 +60,9 @@ class PlgLoginguardFixed extends JPlugin
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => false
+			'allowMultiple' => false,
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -78,6 +82,8 @@ class PlgLoginguardFixed extends JPlugin
 			return array();
 		}
 
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
+
 		return array(
 			// Custom HTML to display above the TFA form
 			'pre_message'  => JText::_('PLG_LOGINGUARD_FIXED_LBL_PREMESSAGE'),
@@ -92,7 +98,9 @@ class PlgLoginguardFixed extends JPlugin
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
-			'post_message' => JText::_('PLG_LOGINGUARD_FIXED_LBL_POSTMESSAGE')
+			'post_message' => JText::_('PLG_LOGINGUARD_FIXED_LBL_POSTMESSAGE'),
+			// URL for help content
+			'help_url'     => $helpURL,
 		);
 	}
 
@@ -115,6 +123,7 @@ class PlgLoginguardFixed extends JPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
 
 		/**
 		 * Return the parameters used to render the GUI.
@@ -156,6 +165,8 @@ class PlgLoginguardFixed extends JPlugin
 			'submit_onclick' => '',
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => JText::_('PLG_LOGINGUARD_FIXED_LBL_SETUP_POSTMESSAGE'),
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 

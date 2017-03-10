@@ -105,6 +105,8 @@ class PlgLoginguardU2f extends JPlugin
 			return array();
 		}
 
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
+
 		return array(
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
@@ -117,7 +119,9 @@ class PlgLoginguardU2f extends JPlugin
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => true
+			'allowMultiple' => true,
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -145,17 +149,18 @@ class PlgLoginguardU2f extends JPlugin
 		}
 
 		// Load the options from the record (if any)
-		$options = $this->_decodeRecordOptions($record);
+		$options                    = $this->_decodeRecordOptions($record);
 		$currentRecordRegistrations = isset($options['registrations']) ? $options['registrations'] : array();
 
 		$registrations = $this->getRegistrationsFor($record->user_id);
 
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
 		$submitOnClick = '';
-		$preMessage = JText::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
-		$u2fRegData = json_encode($this->u2f->getRegisterData($registrations));
-		$type = 'input';
-		$html = '';
+		$preMessage    = JText::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
+		$u2fRegData    = json_encode($this->u2f->getRegisterData($registrations));
+		$type          = 'input';
+		$html          = '';
+		$helpURL       = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
 
 		/**
 		 * If there are no security keys set up yet I need to show a different message and take a different action when
@@ -167,17 +172,17 @@ class PlgLoginguardU2f extends JPlugin
 			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
 				'version'     => 'auto',
 				'relative'    => true,
-				'detectDebug' => true
+				'detectDebug' => true,
 			), true, false, false, true);
 
 			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
 				'version'     => 'auto',
 				'relative'    => true,
-				'detectDebug' => true
+				'detectDebug' => true,
 			), true, false, false, true);
 
 			$js = <<< JS
-window.jQuery(document).ready(function($) {
+window.jQuery(document).ready(function() {
 	akeeba.LoginGuard.u2f.regData = $u2fRegData;
 });
 
@@ -219,7 +224,7 @@ JS;
 			'tabular_data'   => array(),
 			// Hidden fields to include in the form (name => value)
 			'hidden_data'    => array(
-				'u2fregdata' => $u2fRegData
+				'u2fregdata' => $u2fRegData,
 			),
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => $type,
@@ -239,6 +244,8 @@ JS;
 			'submit_onclick' => $submitOnClick,
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
+			// URL for help content
+			'help_url'       => $helpURL,
 		);
 	}
 
@@ -342,13 +349,13 @@ JS;
 		JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
 			'version'     => 'auto',
 			'relative'    => true,
-			'detectDebug' => true
+			'detectDebug' => true,
 		), true, false, false, true);
 
 		JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
 			'version'     => 'auto',
 			'relative'    => true,
-			'detectDebug' => true
+			'detectDebug' => true,
 		), true, false, false, true);
 
 		// Load JS translations
@@ -358,11 +365,11 @@ JS;
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN');
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
-		$options = $this->_decodeRecordOptions($record);
+		$options       = $this->_decodeRecordOptions($record);
 		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
 
 		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
-		$u2fAuthData = $this->u2f->getAuthenticateData($registrations);
+		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
 		$u2fAuthDataJSON = json_encode($u2fAuthData);
 
 		$session = JFactory::getSession();
@@ -386,6 +393,8 @@ JS;
 		include $layoutPath;
 		$html = ob_get_clean();
 
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
+
 		return array(
 			// Custom HTML to display above the TFA form
 			'pre_message'  => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
@@ -400,7 +409,9 @@ JS;
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => $html,
 			// Custom HTML to display below the TFA form
-			'post_message' => ''
+			'post_message' => '',
+			// URL for help content
+			'help_url'     => $helpURL,
 		);
 	}
 

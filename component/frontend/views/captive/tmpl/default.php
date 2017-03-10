@@ -12,6 +12,16 @@ defined('_JEXEC') or die;
 
 ?>
 <div class="loginguard-captive">
+	<?php if (!empty($this->renderOptions['help_url'])): ?>
+        <span class="pull-right">
+        <a href="<?php echo $this->renderOptions['help_url'] ?>"
+           class="btn btn-sm btn-small btn-default btn-inverse"
+           target="_blank"
+        >
+            <span class="icon icon-question-sign glyphicon glyphicon-question-sign"></span>
+        </a>
+        </span>
+	<?php endif;?>
     <h3 id="loginguard-title">
 	    <?php if (!empty($this->title)): ?>
 	    <?php echo $this->title ?> <small> &ndash;
@@ -35,52 +45,57 @@ defined('_JEXEC') or die;
         <input type="hidden" name="record_id" value="<?php echo $this->record->id ?>">
         <input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">
 
-	    <?php if ($this->renderOptions['field_type'] == 'custom'): ?>
-            <?php echo $this->renderOptions['html']; ?>
-	    <?php else: ?>
-            <div class="form-group">
-                <label for="loginGuardCode" <?php echo $this->renderOptions['label'] ? '' : 'class="hidden" aria-hidden="true"'?>>
-	                <?php echo $this->renderOptions['label'] ?>
-                </label>
-                <input type="<?php echo $this->renderOptions['input_type'] ?>"
-                       name="code"
-                       value=""
-                       <?php if (!empty($this->renderOptions['placeholder'])): ?>
-                       placeholder="<?php echo $this->renderOptions['placeholder'] ?>"
-                       <?php endif; ?>
-                       id="loginGuardCode"
-                       class="form-control input-large"
-                >
-            </div>
-	    <?php endif;?>
+	    <div id="loginguard-captive-form-method-fields">
+		    <?php if ($this->renderOptions['field_type'] == 'custom'): ?>
+			    <?php echo $this->renderOptions['html']; ?>
+		    <?php else: ?>
+                <div class="form-group">
+                    <label for="loginGuardCode" <?php echo $this->renderOptions['label'] ? '' : 'class="hidden" aria-hidden="true"'?>>
+					    <?php echo $this->renderOptions['label'] ?>
+                    </label>
+                    <input type="<?php echo $this->renderOptions['input_type'] ?>"
+                           name="code"
+                           value=""
+					    <?php if (!empty($this->renderOptions['placeholder'])): ?>
+                            placeholder="<?php echo $this->renderOptions['placeholder'] ?>"
+					    <?php endif; ?>
+                           id="loginGuardCode"
+                           class="form-control input-large"
+                    >
+                </div>
+		    <?php endif;?>
+        </div>
 
-        <button type="submit" class="btn btn-large btn-lg btn-primary" id="loginguard-captive-button-submit">
-            <span class="icon icon-rightarrow"></span>
-            <span class="glyphicon glyphicon-ok"></span>
-	        <?php echo JText::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
-        </button>
+        <div id="loginguard-captive-form-standard-buttons">
+            <button type="submit" class="btn btn-large btn-lg btn-primary" id="loginguard-captive-button-submit">
+                <span class="icon icon-rightarrow"></span>
+                <span class="glyphicon glyphicon-ok"></span>
+		        <?php echo JText::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
+            </button>
 
-        <?php if ($this->isAdmin): ?>
-            <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . JSession::getFormToken() . '=1') ?>"
-               class="btn btn-danger" id="loginguard-captive-button-logout">
-                <span class="icon icon-lock"></span>
-                <span class="glyphicon glyphicon-off"></span>
-		        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
-            </a>
-        <?php else: ?>
-            <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . JSession::getFormToken() . '=1') ?>"
-               class="btn btn-danger" id="loginguard-captive-button-logout">
-                <span class="icon icon-lock"></span>
-                <span class="glyphicon glyphicon-off"></span>
-		        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
-            </a>
-        <?php endif; ?>
+	        <?php if ($this->isAdmin): ?>
+                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . JSession::getFormToken() . '=1') ?>"
+                   class="btn btn-danger" id="loginguard-captive-button-logout">
+                    <span class="icon icon-lock"></span>
+                    <span class="glyphicon glyphicon-off"></span>
+			        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
+                </a>
+	        <?php else: ?>
+                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . JSession::getFormToken() . '=1') ?>"
+                   class="btn btn-danger" id="loginguard-captive-button-logout">
+                    <span class="icon icon-lock"></span>
+                    <span class="glyphicon glyphicon-off"></span>
+			        <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
+                </a>
+	        <?php endif; ?>
+        </div>
 
         <?php if (count($this->records) > 1): ?>
-        <br/>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
-            <?php echo JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
-        </a>
+        <div id="loginguard-captive-form-choose-another">
+            <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
+                <?php echo JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
+            </a>
+        </div>
         <?php endif; ?>
     </form>
 

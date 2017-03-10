@@ -60,6 +60,13 @@ class LoginGuardViewMethod extends JViewLegacy
 	public $backupCodes = array();
 
 	/**
+	 * Am I editing an existing method? If it's false then I'm adding a new method.
+	 *
+	 * @var   bool
+	 */
+	public $isEditExisting = false;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -111,10 +118,20 @@ class LoginGuardViewMethod extends JViewLegacy
 			$this->backupCodes = array_merge($backupCodes);
 		}
 
+		// Set up the isEditExisting property.
+		$this->isEditExisting = !empty($this->record->id);
+
 		// Back-end: always show a title in the 'title' module position, not in the page body
 		if ($this->isAdmin)
 		{
 			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
+
+			$helpUrl     = $this->renderOptions['help_url'];
+
+			if (!empty($helpUrl))
+			{
+				JToolbarHelper::help('', false, $helpUrl);
+			}
 
 			$this->title = '';
 		}

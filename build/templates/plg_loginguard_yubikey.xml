@@ -54,6 +54,14 @@
 						rows="5"
 						columns="50"
 					/>
+				<field
+						name="helpurl"
+						type="text"
+						label="PLG_LOGINGUARD_YUBIKEY_CONFIG_HELPURL_LABEL"
+						description="PLG_LOGINGUARD_YUBIKEY_CONFIG_HELPURL_DESC"
+						default=""
+						filter="url"
+				/>
 			</fieldset>
 		</fields>
 	</config>

@@ -17,7 +17,7 @@ include $layoutPath;
 
     <div class="control-group">
         <div class="controls">
-            <a class="btn btn-primary btn-large btn-lg"
+            <a class="btn btn-default btn-large btn-lg"
                onclick="akeeba.LoginGuard.u2f.validate();">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
                 <?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_VALIDATEKEY'); ?>

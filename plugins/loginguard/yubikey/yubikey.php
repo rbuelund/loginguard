@@ -44,6 +44,8 @@ class PlgLoginguardYubikey extends JPlugin
 	 */
 	public function onLoginGuardTfaGetMethod()
 	{
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
+
 		return array(
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
@@ -56,7 +58,9 @@ class PlgLoginguardYubikey extends JPlugin
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => true
+			'allowMultiple' => true,
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -76,6 +80,8 @@ class PlgLoginguardYubikey extends JPlugin
 			return array();
 		}
 
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
+
 		return array(
 			// Custom HTML to display above the TFA form
 			'pre_message'  => '',
@@ -90,7 +96,9 @@ class PlgLoginguardYubikey extends JPlugin
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
-			'post_message' => ''
+			'post_message' => '',
+			// URL for help content
+			'help_url'     => $helpURL,
 		);
 	}
 
@@ -114,6 +122,7 @@ class PlgLoginguardYubikey extends JPlugin
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$keyID   = isset($options['id']) ? $options['id'] : '';
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
@@ -144,6 +153,8 @@ class PlgLoginguardYubikey extends JPlugin
 			'submit_onclick' => '',
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
+			// URL for help content
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -325,11 +336,11 @@ class PlgLoginguardYubikey extends JPlugin
 		shuffle($server_queue);
 
 		$gotResponse = false;
-		$check       = false;
 
-		$http  = JHttpFactory::getHttp();
-		$token = JSession::getFormToken();
-		$nonce = md5($token . uniqid(mt_rand()));
+		$http     = JHttpFactory::getHttp();
+		$token    = JSession::getFormToken();
+		$nonce    = md5($token . uniqid(mt_rand()));
+		$response = null;
 
 		while (!$gotResponse && !empty($server_queue))
 		{
@@ -378,6 +389,11 @@ class PlgLoginguardYubikey extends JPlugin
 				// No response, continue with the next server
 				continue;
 			}
+		}
+
+		if (empty($response))
+		{
+			$gotResponse = false;
 		}
 
 		// No server replied; we can't validate this OTP
@@ -482,6 +498,7 @@ class PlgLoginguardYubikey extends JPlugin
 		}
 
 		// Get the parameters
+		/** @var   array  $vars  I have to explicitly state the type because the Joomla docblock is wrong :( */
 		$vars = $uri->getQuery(true);
 
 		// 'h' is the hash and it doesn't participate in the calculation of itself.
