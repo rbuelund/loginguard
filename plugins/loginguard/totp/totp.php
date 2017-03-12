@@ -83,7 +83,7 @@ class PlgLoginguardTotp extends JPlugin
 			return array();
 		}
 
-		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
 		return array(
 			// Custom HTML to display above the TFA form
@@ -148,7 +148,7 @@ class PlgLoginguardTotp extends JPlugin
 		$user     = JFactory::getUser($record->user_id);
 		$hostname = JUri::getInstance()->toString(array('host'));
 		$qr       = $totp->getUrl($user->username, $hostname, $key);
-		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Fixed-Code');
+		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
