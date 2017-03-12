@@ -113,12 +113,12 @@
 		<loadfile property="github.release.body" file="${dirs.root}/RELEASENOTES.md" />
 
 		<GitHubRelease token="${github.token}" organization="${github.organization}" repository="${github.repository}"
-					   commitish="${version}" tagName="${version}" releaseName="v.{$version}" releaseBody="${github.release.body}" draft="1"
+					   tagName="${version}" releaseName="v.${version}" releaseBody="${github.release.body}" draft="1"
 					   propName="github.release.id" />
 
 		<!-- Upload the release files -->
 		<GitHubAsset token="${github.token}" organization="${github.organization}" repository="${github.repository}"
-					 file="${dirs.release}/pkg_loginguard-{$version}.zip"
+					 file="${dirs.release}/pkg_loginguard-${version}.zip"
 					 releaseId="${github.release.id}" />
 
 		<!-- Publish the release -->
