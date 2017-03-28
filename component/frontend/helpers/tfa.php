@@ -108,7 +108,6 @@ abstract class LoginGuardHelperTfa
 					'help_url'           => '',
 					// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 					'allowEntryBatching' => false,
-
 				), $method);
 			}, self::$allTFAs);
 		}

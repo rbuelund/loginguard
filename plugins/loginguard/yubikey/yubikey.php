@@ -86,21 +86,23 @@ class PlgLoginguardYubikey extends JPlugin
 
 		return array(
 			// Custom HTML to display above the TFA form
-			'pre_message'  => '',
+			'pre_message'        => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'   => 'input',
+			'field_type'         => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'   => 'text',
+			'input_type'         => 'text',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => '',
+			'placeholder'        => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
+			'label'              => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
-			'html'         => '',
+			'html'               => '',
 			// Custom HTML to display below the TFA form
-			'post_message' => '',
+			'post_message'       => '',
 			// URL for help content
-			'help_url'     => $helpURL,
+			'help_url'           => $helpURL,
+			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
+			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
 		);
 	}
 
