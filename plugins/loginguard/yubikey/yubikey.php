@@ -48,19 +48,21 @@ class PlgLoginguardYubikey extends JPlugin
 
 		return array(
 			// Internal code of this TFA method
-			'name'          => $this->tfaMethodName,
+			'name'               => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
+			'display'            => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
+			'shortinfo'          => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
 			// URL to the logo image for this method
-			'image'         => 'media/plg_loginguard_yubikey/images/yubikey.svg',
+			'image'              => 'media/plg_loginguard_yubikey/images/yubikey.svg',
 			// Are we allowed to disable it?
-			'canDisable'    => true,
+			'canDisable'         => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => true,
+			'allowMultiple'      => true,
 			// URL for help content
-			'help_url' => $helpURL,
+			'help_url'           => $helpURL,
+			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
+			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
 		);
 	}
 

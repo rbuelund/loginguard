@@ -82,7 +82,35 @@ abstract class LoginGuardHelperTfa
 
 		if (is_null(self::$allTFAs))
 		{
+			// Get all the plugin results
 			self::$allTFAs = self::runPlugins('onLoginGuardTfaGetMethod', array(), $dispatcher);
+			// Normalize the results
+			self::$allTFAs = array_map(function ($method) {
+				if (!is_array($method))
+				{
+					$method = array();
+				}
+
+				return array_merge(array(
+					// Internal code of this TFA method
+					'name'               => '',
+					// User-facing name for this TFA method
+					'display'            => '',
+					// Short description of this TFA method displayed to the user
+					'shortinfo'          => '',
+					// URL to the logo image for this method
+					'image'              => '',
+					// Are we allowed to disable it?
+					'canDisable'         => true,
+					// Are we allowed to have multiple instances of it per user?
+					'allowMultiple'      => false,
+					// URL for help content
+					'help_url'           => '',
+					// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
+					'allowEntryBatching' => false,
+
+				), $method);
+			}, self::$allTFAs);
 		}
 
 		return self::$allTFAs;
