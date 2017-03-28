@@ -245,36 +245,37 @@ class PlgLoginguardYubikey extends JPlugin
 			return false;
 		}
 
-		// Load the options from the record (if any)
-		$options = $this->_decodeRecordOptions($record);
-		$keyID = isset($options['id']) ? $options['id'] : '';
-
-		// If there is no key in the options throw an error
-		if (empty($keyID))
+		if ($this->params->get('allowEntryBatching', 1))
 		{
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true)
+				            ->select('*')
+				            ->from($db->qn('#__loginguard_tfa'))
+				            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+				            ->where($db->qn('method') . ' = ' . $db->q($record->method));
+				$records = $db->setQuery($query)->loadObjectList();
+			}
+			catch (Exception $e)
+			{
+				$records = array();
+			}
+
+			// Loop all records, stop if at least one matches
+			foreach ($records as $aRecord)
+			{
+				if ($this->validateAgainstRecord($aRecord, $code))
+				{
+					return true;
+				}
+			}
+
+			// None of the records succeeded? Return false.
 			return false;
 		}
 
-		// If the submitted code is empty throw an error
-		if (empty($code))
-		{
-			return false;
-		}
-
-		// If the submitted code length is wrong throw an error
-		if (strlen($code) != 44)
-		{
-			return false;
-		}
-
-		// If the submitted code's key ID does not match the stored throw an error
-		if (substr($code, 0, 12) != $keyID)
-		{
-			return false;
-		}
-
-		// Check the OTP code for validity
-		return $this->validateYubikeyOtp($code);
+		return $this->validateAgainstRecord($record, $code);
 	}
 
 	/**
@@ -550,5 +551,45 @@ class PlgLoginguardYubikey extends JPlugin
 		 * Append the value under key h to the message.
 		 */
 		$uri->setVar('h', $h);
+	}
+
+	/**
+	 * @param $record
+	 * @param $code
+	 *
+	 * @return bool
+	 */
+	private function validateAgainstRecord($record, $code)
+	{
+// Load the options from the record (if any)
+		$options = $this->_decodeRecordOptions($record);
+		$keyID   = isset($options['id']) ? $options['id'] : '';
+
+		// If there is no key in the options throw an error
+		if (empty($keyID))
+		{
+			return false;
+		}
+
+		// If the submitted code is empty throw an error
+		if (empty($code))
+		{
+			return false;
+		}
+
+		// If the submitted code length is wrong throw an error
+		if (strlen($code) != 44)
+		{
+			return false;
+		}
+
+		// If the submitted code's key ID does not match the stored throw an error
+		if (substr($code, 0, 12) != $keyID)
+		{
+			return false;
+		}
+
+		// Check the OTP code for validity
+		return $this->validateYubikeyOtp($code);
 	}
 }
