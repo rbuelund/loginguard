@@ -109,19 +109,21 @@ class PlgLoginguardU2f extends JPlugin
 
 		return array(
 			// Internal code of this TFA method
-			'name'          => $this->tfaMethodName,
+			'name'               => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
+			'display'            => JText::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_U2F_LBL_SHORTINFO'),
+			'shortinfo'          => JText::_('PLG_LOGINGUARD_U2F_LBL_SHORTINFO'),
 			// URL to the logo image for this method
-			'image'         => 'media/plg_loginguard_u2f/images/u2f.svg',
+			'image'              => 'media/plg_loginguard_u2f/images/u2f.svg',
 			// Are we allowed to disable it?
-			'canDisable'    => true,
+			'canDisable'         => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple' => true,
+			'allowMultiple'      => true,
 			// URL for help content
-			'help_url' => $helpURL,
+			'help_url'           => $helpURL,
+			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
+			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
 		);
 	}
 
@@ -365,8 +367,8 @@ JS;
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN');
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
-		$options       = $this->_decodeRecordOptions($record);
-		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
+		// Load the options from the record (if any), or from the entire method if the allowEntryBatching flag is set.
+		$registrations = $this->getRegistrations($record);
 
 		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
 		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
@@ -397,21 +399,23 @@ JS;
 
 		return array(
 			// Custom HTML to display above the TFA form
-			'pre_message'  => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
+			'pre_message'        => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'   => 'custom',
+			'field_type'         => 'custom',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'   => '',
+			'input_type'         => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => '',
+			'placeholder'        => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => '',
+			'label'              => '',
 			// Custom HTML. Only used when field_type = custom.
-			'html'         => $html,
+			'html'               => $html,
 			// Custom HTML to display below the TFA form
-			'post_message' => '',
+			'post_message'       => '',
 			// URL for help content
-			'help_url'     => $helpURL,
+			'help_url'           => $helpURL,
+			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
+			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
 		);
 	}
 
@@ -445,9 +449,8 @@ JS;
 			return false;
 		}
 
-		// Load the options from the record (if any)
-		$options = $this->_decodeRecordOptions($record);
-		$registrations = isset($options['registrations']) ? $options['registrations'] : array();
+		// Load the options from the record (if any), or from the entire method if the allowEntryBatching flag is set.
+		$registrations = $this->getRegistrations($record);
 
 		// Get the authentication response
 		$authenticateResponse = json_decode($code);
@@ -658,5 +661,51 @@ JS;
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Get the security key registrations for a given record. If the allowEntryBatching flag is 0 (No) we only return
+	 * the key registrations for the given record. If the allowEntryBatching flag is 1 (Yes) we return the combined key
+	 * registrations for all security key records of the user ID found in the $record object.
+	 *
+	 * @param   stdClass  $record  The LoginGuard record
+	 *
+	 * @return  array  Security key registrations for use by the U2F library
+	 */
+	private function getRegistrations($record)
+	{
+		$options       = $this->_decodeRecordOptions($record);
+
+		if ($this->params->get('allowEntryBatching', 1) == 0)
+		{
+			return isset($options['registrations']) ? $options['registrations'] : array();
+		}
+
+		$registrations = array();
+
+		try
+		{
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true)
+			            ->select('*')
+			            ->from($db->qn('#__loginguard_tfa'))
+			            ->where($db->qn('user_id') . ' = ' . $db->q($record->user_id))
+			            ->where($db->qn('method') . ' = ' . $db->q($record->method));
+			$records = $db->setQuery($query)->loadObjectList();
+		}
+		catch (Exception $e)
+		{
+			$records = array();
+		}
+
+		// Loop all records, stop if at least one matches
+		foreach ($records as $aRecord)
+		{
+			$recordOptions       = $this->_decodeRecordOptions($aRecord);
+			$recordRegistrations = isset($recordOptions['registrations']) ? $recordOptions['registrations'] : array();
+			$registrations       = array_merge($registrations, $recordRegistrations);
+		}
+
+		return $registrations;
 	}
 }

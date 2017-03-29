@@ -46,6 +46,20 @@ class LoginGuardViewCaptive extends JViewLegacy
 	public $isAdmin = false;
 
 	/**
+	 * Does the currently selected method allow authenticating against all of its records?
+	 *
+	 * @var   bool
+	 */
+	public $allowEntryBatching = false;
+
+	/**
+	 * All enabled TFA methods (plugins)
+	 *
+	 * @var   array
+	 */
+	public $tfaMethods;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -63,6 +77,7 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$this->isAdmin         = LoginGuardHelperTfa::isAdminPage();
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
+		$this->tfaMethods      = LoginGuardHelperTfa::getTfaMethods();
 
 		if (!empty($this->records))
 		{
@@ -99,7 +114,8 @@ class LoginGuardViewCaptive extends JViewLegacy
 			}
 		}
 
-		$this->renderOptions   = $model->loadCaptiveRenderOptions($this->record);
+		$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
+		$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
 
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
