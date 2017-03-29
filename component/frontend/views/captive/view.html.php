@@ -53,6 +53,13 @@ class LoginGuardViewCaptive extends JViewLegacy
 	public $allowEntryBatching = false;
 
 	/**
+	 * All enabled TFA methods (plugins)
+	 *
+	 * @var   array
+	 */
+	public $tfaMethods;
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -70,6 +77,7 @@ class LoginGuardViewCaptive extends JViewLegacy
 		$this->isAdmin         = LoginGuardHelperTfa::isAdminPage();
 		$this->records         = $this->get('records');
 		$this->record          = $this->get('record');
+		$this->tfaMethods      = LoginGuardHelperTfa::getTfaMethods();
 
 		if (!empty($this->records))
 		{

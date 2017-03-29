@@ -83,15 +83,18 @@ abstract class LoginGuardHelperTfa
 		if (is_null(self::$allTFAs))
 		{
 			// Get all the plugin results
-			self::$allTFAs = self::runPlugins('onLoginGuardTfaGetMethod', array(), $dispatcher);
+			$temp = self::runPlugins('onLoginGuardTfaGetMethod', array(), $dispatcher);
 			// Normalize the results
-			self::$allTFAs = array_map(function ($method) {
+			self::$allTFAs = array();
+
+			foreach ($temp as $method)
+			{
 				if (!is_array($method))
 				{
-					$method = array();
+					continue;
 				}
 
-				return array_merge(array(
+				$method = array_merge(array(
 					// Internal code of this TFA method
 					'name'               => '',
 					// User-facing name for this TFA method
@@ -109,7 +112,14 @@ abstract class LoginGuardHelperTfa
 					// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 					'allowEntryBatching' => false,
 				), $method);
-			}, self::$allTFAs);
+
+				if (empty($method['name']))
+				{
+					continue;
+				}
+
+				self::$allTFAs[$method['name']] = $method;
+			}
 		}
 
 		return self::$allTFAs;
@@ -130,7 +140,8 @@ abstract class LoginGuardHelperTfa
 			$query = $db->getQuery(true)
 			            ->select('*')
 			            ->from($db->qn('#__loginguard_tfa'))
-			            ->where($db->qn('user_id') . ' = ' . $db->q($user_id));
+			            ->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+						->order($db->qn('method') . ' ASC');
 
 			try
 			{
