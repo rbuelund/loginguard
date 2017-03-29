@@ -26,11 +26,7 @@ defined('_JEXEC') or die;
 	    <?php if (!empty($this->title)): ?>
 	    <?php echo $this->title ?> <small> &ndash;
 	    <?php endif; ?>
-        <?php if (!$this->allowEntryBatching): ?>
         <?php echo $this->escape($this->record->title) ?>
-        <?php else: ?>
-        <?php echo $this->escape($this->getModel()->translateMethodName($this->record->method)) ?>
-        <?php endif; ?>
 	    <?php if (!empty($this->title)): ?>
         </small>
         <?php endif; ?>

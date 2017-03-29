@@ -10,8 +10,6 @@ defined('_JEXEC') or die;
 
 /** @var LoginGuardViewCaptive $this */
 
-$shownMethods = array();
-
 ?>
 <div id="loginguard-select">
     <h3 id="loginguard-select-heading">
@@ -23,29 +21,15 @@ $shownMethods = array();
         </p>
     </div>
 
-	<?php foreach ($this->records as $record):
-    if (!array_key_exists($record->method, $this->tfaMethods)) continue;
-    if ($this->tfaMethods[$record->method]['allowEntryBatching'] && in_array($record->method, $shownMethods)) continue;
-    $shownMethods[] = $record->method;
-    $methodName = $this->getModel()->translateMethodName($record->method);
-    ?>
+	<?php foreach ($this->records as $record):?>
     <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>" class="loginguard-method">
         <img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
-        <?php if (!$this->tfaMethods[$record->method]['allowEntryBatching']): ?>
         <span class="loginguard-method-title">
             <?php echo $this->escape($record->title) ?>
         </span>
         <span class="loginguard-method-name">
-            <?php echo $methodName ?>
+            <?php echo $this->getModel()->translateMethodName($record->method) ?>
         </span>
-        <?php else: ?>
-            <span class="loginguard-method-title">
-            <?php echo $methodName ?>
-        </span>
-            <span class="loginguard-method-name">
-            <?php echo $methodName ?>
-        </span>
-        <?php endif; ?>
     </a>
 	<?php endforeach; ?>
 </div>

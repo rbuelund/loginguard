@@ -48,21 +48,19 @@ class PlgLoginguardYubikey extends JPlugin
 
 		return array(
 			// Internal code of this TFA method
-			'name'               => $this->tfaMethodName,
+			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'            => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
+			'display'       => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'          => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
+			'shortinfo'     => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
 			// URL to the logo image for this method
-			'image'              => 'media/plg_loginguard_yubikey/images/yubikey.svg',
+			'image'         => 'media/plg_loginguard_yubikey/images/yubikey.svg',
 			// Are we allowed to disable it?
-			'canDisable'         => true,
+			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
-			'allowMultiple'      => true,
+			'allowMultiple' => true,
 			// URL for help content
-			'help_url'           => $helpURL,
-			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'help_url' => $helpURL,
 		);
 	}
 
@@ -86,23 +84,21 @@ class PlgLoginguardYubikey extends JPlugin
 
 		return array(
 			// Custom HTML to display above the TFA form
-			'pre_message'        => '',
+			'pre_message'  => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'         => 'input',
+			'field_type'   => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'         => 'text',
+			'input_type'   => 'text',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'        => '',
+			'placeholder'  => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'              => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
+			'label'        => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
-			'html'               => '',
+			'html'         => '',
 			// Custom HTML to display below the TFA form
-			'post_message'       => '',
+			'post_message' => '',
 			// URL for help content
-			'help_url'           => $helpURL,
-			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'help_url'     => $helpURL,
 		);
 	}
 
@@ -245,37 +241,36 @@ class PlgLoginguardYubikey extends JPlugin
 			return false;
 		}
 
-		if ($this->params->get('allowEntryBatching', 1))
+		// Load the options from the record (if any)
+		$options = $this->_decodeRecordOptions($record);
+		$keyID = isset($options['id']) ? $options['id'] : '';
+
+		// If there is no key in the options throw an error
+		if (empty($keyID))
 		{
-			try
-			{
-				$db = JFactory::getDbo();
-				$query = $db->getQuery(true)
-				            ->select('*')
-				            ->from($db->qn('#__loginguard_tfa'))
-				            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-				            ->where($db->qn('method') . ' = ' . $db->q($record->method));
-				$records = $db->setQuery($query)->loadObjectList();
-			}
-			catch (Exception $e)
-			{
-				$records = array();
-			}
-
-			// Loop all records, stop if at least one matches
-			foreach ($records as $aRecord)
-			{
-				if ($this->validateAgainstRecord($aRecord, $code))
-				{
-					return true;
-				}
-			}
-
-			// None of the records succeeded? Return false.
 			return false;
 		}
 
-		return $this->validateAgainstRecord($record, $code);
+		// If the submitted code is empty throw an error
+		if (empty($code))
+		{
+			return false;
+		}
+
+		// If the submitted code length is wrong throw an error
+		if (strlen($code) != 44)
+		{
+			return false;
+		}
+
+		// If the submitted code's key ID does not match the stored throw an error
+		if (substr($code, 0, 12) != $keyID)
+		{
+			return false;
+		}
+
+		// Check the OTP code for validity
+		return $this->validateYubikeyOtp($code);
 	}
 
 	/**
@@ -551,45 +546,5 @@ class PlgLoginguardYubikey extends JPlugin
 		 * Append the value under key h to the message.
 		 */
 		$uri->setVar('h', $h);
-	}
-
-	/**
-	 * @param $record
-	 * @param $code
-	 *
-	 * @return bool
-	 */
-	private function validateAgainstRecord($record, $code)
-	{
-// Load the options from the record (if any)
-		$options = $this->_decodeRecordOptions($record);
-		$keyID   = isset($options['id']) ? $options['id'] : '';
-
-		// If there is no key in the options throw an error
-		if (empty($keyID))
-		{
-			return false;
-		}
-
-		// If the submitted code is empty throw an error
-		if (empty($code))
-		{
-			return false;
-		}
-
-		// If the submitted code length is wrong throw an error
-		if (strlen($code) != 44)
-		{
-			return false;
-		}
-
-		// If the submitted code's key ID does not match the stored throw an error
-		if (substr($code, 0, 12) != $keyID)
-		{
-			return false;
-		}
-
-		// Check the OTP code for validity
-		return $this->validateYubikeyOtp($code);
 	}
 }
