@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-class LoginGuardTOTPBase32
+class LoginGuardBase32
 {
 	/**
 	 * CSRFC3548

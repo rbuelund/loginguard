@@ -8,13 +8,13 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-JLoader::register('LoginGuardTOTPBase32', __DIR__ . '/base32.php');
+JLoader::register('LoginGuardBase32', __DIR__ . '/base32.php');
 
 /**
  * This class provides an RFC6238-compliant Time-based One Time Passwords,
  * compatible with Google Authenticator (with PassCodeLength = 6 and TimePeriod = 30).
  */
-class LoginGuardTOTPAuthenticator
+class LoginGuardAuthenticator
 {
 	/**
 	 * Passcode length, in characters
@@ -47,7 +47,7 @@ class LoginGuardTOTPAuthenticator
 	/**
 	 * The base32 helper class
 	 *
-	 * @var   LoginGuardTOTPBase32
+	 * @var   LoginGuardBase32
 	 */
 	private $_base32 = null;
 
@@ -56,11 +56,11 @@ class LoginGuardTOTPAuthenticator
 	 * in the last paragraph of §5.2 of RFC6238. It's up to you to ensure that the same user/device does not retry
 	 * validation within the same Time Step.
 	 *
-	 * @param   int                   $timeStep        The Time Step (in seconds). Use 30 to be compatible with Google
+	 * @param   int              $timeStep             The Time Step (in seconds). Use 30 to be compatible with Google
 	 *                                                 Authenticator.
-	 * @param   int                   $passCodeLength  The generated passcode length. Default: 6 digits.
-	 * @param   int                   $secretLength    The length of the secret key. Default: 10 bytes (80 bits).
-	 * @param   LoginGuardTOTPBase32  $base32          The base32 en/decrypter
+	 * @param   int              $passCodeLength       The generated passcode length. Default: 6 digits.
+	 * @param   int              $secretLength         The length of the secret key. Default: 10 bytes (80 bits).
+	 * @param   LoginGuardBase32 $base32               The base32 en/decrypter
 	 */
 	public function __construct($timeStep = 30, $passCodeLength = 6, $secretLength = 10, $base32=null)
 	{
@@ -72,7 +72,7 @@ class LoginGuardTOTPAuthenticator
 
 		if (is_null($base32))
 		{
-			$this->_base32 = new LoginGuardTOTPBase32();
+			$this->_base32 = new LoginGuardBase32();
 		}
 	}
 

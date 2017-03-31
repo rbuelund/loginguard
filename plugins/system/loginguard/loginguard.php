@@ -118,7 +118,7 @@ class PlgSystemLoginguard extends JPlugin
 			$app->input->set('format', 'html');
 			$app->input->set('layout', null);
 
-			if ($view == 'captive')
+			if (in_array($view, array('ajax', 'captive')))
 			{
 				return;
 			}

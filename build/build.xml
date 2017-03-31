@@ -49,6 +49,9 @@
 		<copy file="${phing.dir}/templates/plg_loginguard_fixed.xml" tofile="${dirs.plugins}/loginguard/fixed/fixed.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>
+		<copy file="${phing.dir}/templates/plg_loginguard_pushbullet.xml" tofile="${dirs.plugins}/loginguard/pushbullet/pushbullet.xml" overwrite="true">
+			<filterchain refid="manifest-replace-tokens" />
+		</copy>
 		<copy file="${phing.dir}/templates/plg_loginguard_totp.xml" tofile="${dirs.plugins}/loginguard/totp/totp.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>

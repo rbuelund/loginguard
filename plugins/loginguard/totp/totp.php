@@ -8,7 +8,10 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-JLoader::register('LoginGuardTOTPAuthenticator', __DIR__ . '/classes/authenticator.php');
+if (!class_exists('LoginGuardAuthenticator', true))
+{
+	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+}
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Time-based One Time Password"
@@ -122,7 +125,7 @@ class PlgLoginguardTotp extends JPlugin
 			return array();
 		}
 
-		$totp = new LoginGuardTOTPAuthenticator();
+		$totp = new LoginGuardAuthenticator();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -241,7 +244,7 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new LoginGuardTOTPAuthenticator();
+		$totp = new LoginGuardAuthenticator();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
@@ -293,7 +296,7 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new LoginGuardTOTPAuthenticator();
+		$totp = new LoginGuardAuthenticator();
 		return $totp->checkCode($key, $code);
 	}
 

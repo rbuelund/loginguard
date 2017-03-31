@@ -15,7 +15,6 @@
 
 	<files>
 		<filename plugin="totp">totp.php</filename>
-		<folder>classes</folder>
 	</files>
 
 	<media folder="media" destination="plg_loginguard_totp">
