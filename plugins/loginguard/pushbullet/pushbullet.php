@@ -458,7 +458,7 @@ class PlgLoginguardPushbullet extends JPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => '',
+			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
 			'[SITEURL]'  => JUri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
