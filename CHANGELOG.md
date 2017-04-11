@@ -1,3 +1,10 @@
+# 1.1.0
+
+**New features**
+
+* Send authentication code by push message (using PushBullet)
+* Send authentication code by mobile text message (using SMSAPI.com)
+
 # 1.0.0
 
 **New features**
