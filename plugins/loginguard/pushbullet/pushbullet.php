@@ -260,7 +260,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = isset($options['key']) ? $options['key'] : '';
-		$token   = isset($options['toke']) ? $options['tokens'] : '';
+		$token   = isset($options['token']) ? $options['token'] : '';
 
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
