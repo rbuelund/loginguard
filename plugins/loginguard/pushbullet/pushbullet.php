@@ -122,7 +122,7 @@ class PlgLoginguardPushbullet extends JPlugin
 	 */
 	public function onLoginGuardTfaGetSetup($record)
 	{
-		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
+		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
