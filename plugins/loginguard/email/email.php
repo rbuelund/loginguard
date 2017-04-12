@@ -8,47 +8,24 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-use SMSApi\Client;
-use SMSApi\Api\SmsFactory;
-
 if (!class_exists('LoginGuardAuthenticator', true))
 {
 	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
 }
 
-// Load the SMSAPI library
-if (!class_exists('SMSApi\\Client', true))
-{
-	require_once __DIR__ . '/classes/Autoload.php';
-}
-
 /**
- * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by SMS (SMSAPI.com)"
+ * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
- * Requires entering a 6-digit code sent to the user through a text message. These codes change automatically every 5 minutes.
+ * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30 seconds.
  */
-class PlgLoginguardSmsapi extends JPlugin
+class PlgLoginguardEmail extends JPlugin
 {
-	/**
-	 * The SMSAPI.com username.
-	 *
-	 * @var   string
-	 */
-	public $username;
-
-	/**
-	 * The SMSAPI.com API Password in MD5.
-	 *
-	 * @var   string
-	 */
-	public $passwordMD5;
-
 	/**
 	 * The TFA method name handled by this plugin
 	 *
 	 * @var   string
 	 */
-	private $tfaMethodName = 'smsapi';
+	private $tfaMethodName = 'email';
 
 	/**
 	 * Constructor. Loads the language files as well.
@@ -62,13 +39,6 @@ class PlgLoginguardSmsapi extends JPlugin
 	{
 		parent::__construct($subject, $config);
 
-		// Load the API parameters
-		/** @var \Joomla\Registry\Registry $params */
-		$params = $this->params;
-
-		$this->username = $params->get('username', null);
-		$this->passwordMD5 = $params->get('password', null);
-
 		// Load the language files
 		$this->loadLanguage();
 	}
@@ -80,23 +50,17 @@ class PlgLoginguardSmsapi extends JPlugin
 	 */
 	public function onLoginGuardTfaGetMethod()
 	{
-		// This plugin is disabled if you haven't configured it yet
-		if (empty($this->passwordMD5) || empty($this->username))
-		{
-			return false;
-		}
-
-		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/SMSAPI');
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		return array(
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_DISPLAYEDAS'),
+			'display'       => JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SHORTINFO'),
+			'shortinfo'     => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SHORTINFO'),
 			// URL to the logo image for this method
-			'image'         => 'media/plg_loginguard_smsapi/images/smsapi.svg',
+			'image'         => 'media/plg_loginguard_email/images/email.svg',
 			// Are we allowed to disable it?
 			'canDisable'    => true,
 			// Are we allowed to have multiple instances of it per user?
@@ -117,7 +81,7 @@ class PlgLoginguardSmsapi extends JPlugin
 	 */
 	public function onLoginGuardTfaGetSetup($record)
 	{
-		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/SMSAPI');
+		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -128,74 +92,30 @@ class PlgLoginguardSmsapi extends JPlugin
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = isset($options['key']) ? $options['key'] : '';
-		$phone   = isset($options['phone']) ? $options['phone'] : '';
 
-		// If there's a key or phone number in the session use that instead.
+		// If there's a key in the session use that instead.
 		$session = JFactory::getSession();
-		$key     = $session->get('smsapi.key', $key, 'com_loginguard');
-		$phone   = $session->get('smsapi.phone', $phone, 'com_loginguard');
+		$key     = $session->get('emailcode.key', $key, 'com_loginguard');
 
 		// Initialize objects
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new LoginGuardAuthenticator();
 
 		// If there's still no key in the options, generate one and save it in the session
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('smsapi.key', $key, 'com_loginguard');
+			$session->set('emailcode.key', $key, 'com_loginguard');
 		}
 
-		$session->set('smsapi.user_id', $record->user_id, 'com_loginguard');
+		$session->set('emailcode.user_id', $record->user_id, 'com_loginguard');
 
-		// If there is no phone we need to show the phone entry page
-		if (empty($phone))
-		{
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'smsapi', 'phone');
-			ob_start();
-			include $layoutPath;
-			$html = ob_get_clean();
-
-			return array(
-				// Default title if you are setting up this TFA method for the first time
-				'default_title'  => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_DISPLAYEDAS'),
-				// Custom HTML to display above the TFA setup form
-				'pre_message'    => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SETUP_INSTRUCTIONS'),
-				// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
-				'table_heading'  => '',
-				// Any tabular data to display (label => custom HTML). See above
-				'tabular_data'   => array(),
-				// Hidden fields to include in the form (name => value)
-				'hidden_data'    => array(),
-				// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
-				'field_type'     => 'custom',
-				// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-				'input_type'     => '',
-				// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
-				'input_value'    => '',
-				// Placeholder text for the HTML input box. Leave empty if you don't need it.
-				'placeholder'    => '',
-				// Label to show above the HTML input box. Leave empty if you don't need it.
-				'label'          => '',
-				// Custom HTML. Only used when field_type = custom.
-				'html'           => $html,
-				// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
-				'show_submit'    => false,
-				// onclick handler for the submit button (apply the TFA setup)?
-				'submit_onclick' => '',
-				// Custom HTML to display below the TFA setup form
-				'post_message'   => '',
-				// URL for help content
-				'help_url' => $helpURL,
-			);
-
-		}
-
-		// We have a phone and a key. Send a push message with a new code and ask the user to enter it.
-		$this->sendCode($key, $phone);
+		// Send an email message with a new code and ask the user to enter it.
+		$user = JFactory::getUser($record->user_id);
+		$this->sendCode($key, $user);
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_DISPLAYEDAS'),
+			'default_title'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
 			'pre_message'    => '',
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
@@ -213,9 +133,9 @@ class PlgLoginguardSmsapi extends JPlugin
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'    => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SETUP_LABEL'),
+			'label'          => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -255,28 +175,15 @@ class PlgLoginguardSmsapi extends JPlugin
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = isset($options['key']) ? $options['key'] : '';
-		$phone   = isset($options['phone']) ? $options['phone'] : '';
 
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('smsapi.key', null, 'com_loginguard');
-		}
-
-		// If there is no key in the options fetch one from the session
-		if (empty($phone))
-		{
-			$phone = $session->get('smsapi.phone', null, 'com_loginguard');
+			$key = $session->get('emailcode.key', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
 		if (empty($key))
-		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
-		}
-
-		// If there is still no phone in the options throw an error
-		if (empty($phone))
 		{
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
@@ -293,12 +200,12 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new LoginGuardAuthenticator();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_SMSAPI_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(JText::_('PLG_LOGINGUARD_EMAIL_ERR_INVALID_CODE'), 500);
 		}
 
 		// The code is valid. Unset the key from the session.
@@ -307,7 +214,6 @@ class PlgLoginguardSmsapi extends JPlugin
 		// Return the configuration to be serialized
 		return array(
 			'key'   => $key,
-			'phone' => $phone
 		);
 	}
 
@@ -330,11 +236,11 @@ class PlgLoginguardSmsapi extends JPlugin
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = isset($options['key']) ? $options['key'] : '';
-		$phone   = isset($options['phone']) ? $options['phone'] : '';
-		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/SMSAPI');
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
-		// Send a push message with a new code and ask the user to enter it.
-		$this->sendCode($key, $phone);
+		// Send an email message with a new code and ask the user to enter it.
+		$user = JFactory::getUser($record->user_id);
+		$this->sendCode($key, $user);
 
 		return array(
 			// Custom HTML to display above the TFA form
@@ -344,9 +250,9 @@ class PlgLoginguardSmsapi extends JPlugin
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
 			'input_type'   => 'text',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SETUP_LABEL'),
+			'label'        => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
@@ -391,7 +297,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new LoginGuardAuthenticator();
 		return $totp->checkCode($key, $code);
 	}
 
@@ -406,7 +312,6 @@ class PlgLoginguardSmsapi extends JPlugin
 	{
 		$options = array(
 			'key'   => '',
-			'phone' => ''
 		);
 
 		if (!empty($record->options))
@@ -425,17 +330,16 @@ class PlgLoginguardSmsapi extends JPlugin
 	}
 
 	/**
-	 * Creates a new TOTP code based on secret key $key and sends it to the user via SMSAPI to the phone number $token
+	 * Creates a new TOTP code based on secret key $key and sends it to the user via email.
 	 *
 	 * @param   string  $key    The TOTP secret key
-	 * @param   string  $phone  The phone number with the international prefix
 	 * @param   JUser   $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
-	 * @throws  Exception  If something goes wrong
+	 * @throws  LoginGuardPushbulletApiException  If something goes wrong
 	 */
-	public function sendCode($key, $phone, JUser $user = null)
+	public function sendCode($key, JUser $user = null)
 	{
 		// Make sure we have a user
 		if (!is_object($user) || !($user instanceof JUser))
@@ -444,12 +348,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// Get the API objects
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
-
-		$client = new Client($this->username);
-		$client->setPasswordHash($this->passwordMD5);
-		$smsapi = new SmsFactory;
-		$smsapi->setClient($client);
+		$totp = new LoginGuardAuthenticator();
 
 		// Create the list of variable replacements
 		$code = $totp->getCode($key);
@@ -463,65 +362,17 @@ class PlgLoginguardSmsapi extends JPlugin
 			'[FULLNAME]' => $user->name,
 		);
 
-		// Get the title and body of the push message
-		$message = JText::_('PLG_LOGINGUARD_SMSAPI_MESSAGE');
-		$message = str_ireplace(array_keys($replacements), array_values($replacements), $message);
+		// Get the title and body of the e-mail message
+		$subject = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_SUBJECT');
+		$subject = str_ireplace(array_keys($replacements), array_values($replacements), $subject);
+		$body = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_BODY');
+		$body = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
-		// Send the text using the default Sender
-		$actionSend = $smsapi->actionSend();
-		$actionSend->setTo($phone);
-		$actionSend->setText($message);
-
-		$response = $actionSend->execute();
+		// Send email
+		$mailer = JFactory::getMailer();
+		$mailer->setSubject($subject);
+		$mailer->setBody($body);
+		$mailer->addRecipient($user->email, $user->name);
+		$mailer->Send();
 	}
-
-	/**
-	 * Handle the callback.
-	 *
-	 * When the user enters their phone number they are redirected to this callback. This callback stores the necessary
-	 * parameters to the session and redirects the user back to the setup page.
-	 *
-	 * @param   string  $method  The 2SV method used during the callback.
-	 *
-	 * @return  bool  Only returns false when this plugin is not supposed to handle the request. Redirects the
-	 *                application otherwise (no return value).
-	 */
-	public function onLoginGuardCallback($method)
-	{
-		if ($method != $this->tfaMethodName)
-		{
-			return false;
-		}
-
-		$app   = JFactory::getApplication();
-		$input = $app->input;
-
-		// Do I have a phone variable?
-		$phone = $input->getString('phone', null);
-
-		if (empty($phone))
-		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
-		}
-
-		$phone = preg_replace("/[^0-9]/", "", $phone);
-
-		// Set the phone to the session
-		$session = JFactory::getSession();
-		$session->set('smsapi.phone', $phone, 'com_loginguard');
-
-		// Get the User ID for the editor page
-		$user_id = $session->get('smsapi.user_id', null, 'com_loginguard');
-		$session->set('smsapi.user_id', null, 'com_loginguard');
-
-		// Redirect to the editor page
-		$userPart    = empty($user_id) ? '' : ('&user_id=' . $user_id);
-		$redirectURL = 'index.php?option=com_loginguard&task=method.add&method=smsapi' . $userPart;
-
-		$app->redirect($redirectURL);
-
-		// Just to make IDEs happy. The application is closed above during the redirection.
-		return false;
-	}
-
 }

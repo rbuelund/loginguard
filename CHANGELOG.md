@@ -2,6 +2,7 @@
 
 **New features**
 
+* Send authentication code by email
 * Send authentication code by push message (using PushBullet)
 * Send authentication code by mobile text message (using SMSAPI.com)
 

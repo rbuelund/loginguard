@@ -27,6 +27,7 @@
         <file type="plugin" group="system" id="loginguard">plg_system_loginguard.zip</file>
 
         <!-- Plugins: loginguard -->
+        <file type="plugin" group="loginguard" id="email">plg_loginguard_email.zip</file>
         <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
         <file type="plugin" group="loginguard" id="pushbullet">plg_loginguard_pushbullet.zip</file>
         <file type="plugin" group="loginguard" id="smsapi">plg_loginguard_smsapi.zip</file>
