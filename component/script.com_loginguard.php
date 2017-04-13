@@ -168,11 +168,6 @@ class Com_LoginguardInstallerScript
 		?>
 		<h2>Welcome to Akeeba LoginGuard</h2>
 
-		<div style="margin: 1em; font-size: 14pt; background-color: #fffff9; color: black">
-			You can download translation files <a href="http://cdn.akeebabackup.com/language/loginguard/index.html">directly
-				from our CDN page</a>.
-		</div>
-
 		<fieldset>
 			<p>
 				By installing this component you are implicitly accepting
