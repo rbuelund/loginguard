@@ -6,6 +6,9 @@
 * Send authentication code by push message (using PushBullet)
 * Send authentication code by mobile text message (using SMSAPI.com)
 
+**Bug fixes**
+* The query disappears from the URL after authenticating the second factor
+
 # 1.0.0
 
 **New features**

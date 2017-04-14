@@ -146,7 +146,7 @@ class PlgSystemLoginguard extends JPlugin
 
 			if (empty($return_url) || !JUri::isInternal($return_url))
 			{
-				$session->set('return_url', JUri::current(), 'com_loginguard');
+				$session->set('return_url', JUri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
 			}
 
 			// Redirect
