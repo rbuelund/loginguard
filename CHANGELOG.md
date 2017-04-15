@@ -8,7 +8,9 @@
 * Don't ask for 2SV when the Remember Me plugin logs you back in
 
 **Bug fixes**
+
 * The query disappears from the URL after authenticating the second factor
+* You can see the first time setup page after logging out
 
 # 1.0.0
 

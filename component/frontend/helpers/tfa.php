@@ -195,6 +195,12 @@ abstract class LoginGuardHelperTfa
 			return true;
 		}
 
+		// Guests can't have TFA
+		if ($user->guest)
+		{
+			return false;
+		}
+
 		// Get the currently logged in used
 		$myUser = JFactory::getUser();
 
