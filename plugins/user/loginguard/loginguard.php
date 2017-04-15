@@ -120,7 +120,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure this user does not already have 2SV enabled
-		if ($this->needsTFA($user))
+		if ($this->needsTFA($user, $options['responseType']))
 		{
 			return;
 		}
@@ -147,10 +147,31 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Does the current user need to complete 2FA authentication before allowed to access the site?
 	 *
+	 * @param   JUser   $user          The user object we are checking
+	 * @param   string  $responseType  The login response type (optional)
+	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user)
+	private function needsTFA(JUser $user, $responseType = null)
 	{
+		/**
+		 * If the login type is silent (cookie, social login / single sign-on, gmail, ldap) we will not ask for 2SV. The
+		 * login risk has already been managed by the external authentication method. For your reference, the
+		 * authentication response types are as follows:
+		 *
+		 * - Joomla: username and password login
+		 * - Cookie: "Remember Me" cookie with a secure, single use token and other safeguards for the user session
+		 * - GMail: login with GMail credentials (probably no longer works)
+		 * - LDAP: Joomla's LDAP plugin
+		 * - SocialLogin: Akeeba Social Login (login with Facebook etc)
+		 */
+		$silentResponses = array('cookie', 'gmail', 'ldap', 'sociallogin');
+
+		if (is_string($responseType) && !empty($responseType) && in_array(strtolower($responseType), $silentResponses))
+		{
+			return false;
+		}
+
 		// Get the user's TFA records
 		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
 

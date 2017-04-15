@@ -5,6 +5,7 @@
 * Send authentication code by email
 * Send authentication code by push message (using PushBullet)
 * Send authentication code by mobile text message (using SMSAPI.com)
+* Don't ask for 2SV when the Remember Me plugin logs you back in
 
 **Bug fixes**
 * The query disappears from the URL after authenticating the second factor
