@@ -370,12 +370,41 @@ JS;
 		// Load the options from the record (if any), or from the entire method if the allowEntryBatching flag is set.
 		$registrations = $this->getRegistrations($record);
 
-		// If "Validate against all registered keys" is enabled we need to load all keys, not just the current one.
-		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
-		$u2fAuthDataJSON = json_encode($u2fAuthData);
-
+		/**
+		 * The following code looks stupid. An explanation is in order.
+		 *
+		 * What we normally want to do is save the authentication data returned by getAuthenticateData into the session.
+		 * This is what is sent to the U2F key through the Javascript API and signed. The signature is posted back to
+		 * the form as the "code" which is read by onLoginGuardTfaValidate. That method will read the authentication
+		 * data from the session and pass it along with the key registration data (from the database) and the
+		 * authentication response (the "code" submitted in the form) to the U2F library for validation.
+		 *
+		 * Validation will work as long as the challenge recorded in the encrypted AUTHENTICATION RESPONSE matches, upon
+		 * decryption, the challenge recorded in the AUTHENTICATION DATA.
+		 *
+		 * I observed that for whatever stupid reason the browser was sometimes sending TWO requests to the server's
+		 * captive login page but only rendered the FIRST. This meant that the authentication data sent to the key had
+		 * already been overwritten in the session by the "invisible" second request. As a result the challenge would
+		 * not match and we'd get a validation error.
+		 *
+		 * The code below will attempt to read the authentication data from the session first. If it exists it will NOT
+		 * try to replace it (technically it replaces it with a copy of the same data - same difference!). If nothing
+		 * exists in the session, however, it WILL store the (random seeded) result of the getAuthenticateData method.
+		 * Therefore the first request to the captive login page will store a new set of authentication data whereas the
+		 * second, "invisible", request will just reuse the same data as the first request, fixing the observed issue in
+		 * a way that doesn't compromise security.
+		 *
+		 * In case you are wondering, yes, the data is removed from the session in the onLoginGuardTfaValidate method.
+		 * In fact it's the first thing we do after reading it, preventing constant reuse of the same set of challenges.
+		 *
+		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
+		 */
 		$session = JFactory::getSession();
-		$session->set('u2f.authentication', serialize($u2fAuthData), 'com_loginguard');
+		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
+		$u2fAuthData     = $session->get('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
+		$u2fAuthData     = unserialize(base64_decode($u2fAuthData));
+		$u2fAuthDataJSON = json_encode($u2fAuthData);
+		$session->set('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
 		$js = <<< JS
 window.jQuery(document).ready(function($) {
@@ -471,7 +500,7 @@ JS;
 			return false;
 		}
 
-		$authenticationRequest = unserialize($authenticationRequest);
+		$authenticationRequest = unserialize(base64_decode($authenticationRequest));
 
 		if (empty($authenticationRequest))
 		{
