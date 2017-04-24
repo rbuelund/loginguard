@@ -26,3 +26,4 @@ We strongly recommend using the latest published Joomla! version and PHP 7.0 or 
 * The query disappears from the URL after authenticating the second factor
 * You can see the first time setup page after logging out
 * Some browser and server combinations end up with the browser sending double requests to the captive login page making U2F authentication all but impossible.
+* Missing file
