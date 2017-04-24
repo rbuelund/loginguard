@@ -95,75 +95,6 @@ class plgUserLoginguard extends JPlugin
 		return true;
 	}
 
-	public function onUserAfterSave($data, $isNew, $result, $error)
-	{
-		$userId	= JArrayHelper::getValue($data, 'id', 0, 'int');
-
-		if ($userId && $result && isset($data['ats']) && (count($data['ats'])))
-		{
-            $db = JFactory::getDbo();
-
-            $query = $db->getQuery(true)
-                        ->delete($db->qn('#__user_profiles'))
-                        ->where($db->qn('user_id').' = '.$db->q($userId))
-                        ->where($db->qn('profile_key').' LIKE '.$db->q('ats.%', false));
-
-            $db->setQuery($query)->execute();
-
-            $order	= 1;
-
-            $query = $db->getQuery(true)
-                        ->insert($db->qn('#__user_profiles'))
-                        ->columns(array($db->qn('user_id'), $db->qn('profile_key'), $db->qn('profile_value'), $db->qn('ordering')));
-
-            foreach ($data['ats'] as $k => $v)
-            {
-                $query->values($userId.', '.$db->quote('ats.'.$k).', '.$db->quote($v).', '.$order++);
-            }
-
-            $db->setQuery($query)->execute();
-		}
-
-		return true;
-	}
-
-    /**
-     * Remove all user profile information for the given user ID
-     *
-     * Method is called after user data is deleted from the database
-     *
-     * @param    array $user Holds the user data
-     * @param    boolean $success True if user was succesfully stored in the database
-     * @param    string $msg Message
-     *
-     * @return bool
-     *
-     * @throws Exception
-     */
-	public function onUserAfterDelete($user, $success, $msg)
-	{
-		if (!$success)
-        {
-			return false;
-		}
-
-		$userId	= JArrayHelper::getValue($user, 'id', 0, 'int');
-
-		if ($userId)
-		{
-            $db = JFactory::getDbo();
-
-            $query = $db->getQuery(true)
-                        ->delete($db->qn('#__user_profiles'))
-                        ->where($db->qn('user_id').' = '.$db->q($userId))
-                        ->where($db->qn('profile_key').' LIKE '.$db->q('ats.%', false));
-
-            $db->setQuery($query)->execute();
-		}
-
-		return true;
-	}
-
 	/**
 	 * Runs after successful login of the user. Used to redirect the user to a page where they can set up their Two Step
 	 * Verification after logging in.
@@ -189,7 +120,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure this user does not already have 2SV enabled
-		if ($this->needsTFA($user))
+		if ($this->needsTFA($user, $options['responseType']))
 		{
 			return;
 		}
@@ -216,10 +147,31 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Does the current user need to complete 2FA authentication before allowed to access the site?
 	 *
+	 * @param   JUser   $user          The user object we are checking
+	 * @param   string  $responseType  The login response type (optional)
+	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user)
+	private function needsTFA(JUser $user, $responseType = null)
 	{
+		/**
+		 * If the login type is silent (cookie, social login / single sign-on, gmail, ldap) we will not ask for 2SV. The
+		 * login risk has already been managed by the external authentication method. For your reference, the
+		 * authentication response types are as follows:
+		 *
+		 * - Joomla: username and password login
+		 * - Cookie: "Remember Me" cookie with a secure, single use token and other safeguards for the user session
+		 * - GMail: login with GMail credentials (probably no longer works)
+		 * - LDAP: Joomla's LDAP plugin
+		 * - SocialLogin: Akeeba Social Login (login with Facebook etc)
+		 */
+		$silentResponses = array('cookie', 'gmail', 'ldap', 'sociallogin');
+
+		if (is_string($responseType) && !empty($responseType) && in_array(strtolower($responseType), $silentResponses))
+		{
+			return false;
+		}
+
 		// Get the user's TFA records
 		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
 

@@ -172,13 +172,15 @@ class LoginGuardModelCaptive extends JModelLegacy
 	public function loadCaptiveRenderOptions($record, $dispatcher = null)
 	{
 		$renderOptions = array(
-			'pre_message'  => '',
-			'field_type'   => 'input',
-			'input_type'   => 'text',
-			'placeholder'  => '',
-			'label'        => '',
-			'html'         => '',
-			'post_message' => ''
+			'pre_message'        => '',
+			'field_type'         => 'input',
+			'input_type'         => 'text',
+			'placeholder'        => '',
+			'label'              => '',
+			'html'               => '',
+			'post_message'       => '',
+			'help_url'           => '',
+			'allowEntryBatching' => false,
 		);
 
 		if (empty($record))

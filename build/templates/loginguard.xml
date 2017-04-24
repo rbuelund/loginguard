@@ -51,6 +51,7 @@
 			<folder>sql</folder>
 
 			<filename>access.xml</filename>
+			<filename>cacert.pem</filename>
 			<filename>config.xml</filename>
 			<filename>controller.php</filename>
 			<filename>index.html</filename>

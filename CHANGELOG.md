@@ -1,3 +1,18 @@
+# 1.1.0
+
+**New features**
+
+* Send authentication code by email
+* Send authentication code by push message (using PushBullet)
+* Send authentication code by mobile text message (using SMSAPI.com)
+* Don't ask for 2SV when the Remember Me plugin logs you back in
+
+**Bug fixes**
+
+* The query disappears from the URL after authenticating the second factor
+* You can see the first time setup page after logging out
+* Some browser and server combinations end up with the browser sending double requests to the captive login page making U2F authentication all but impossible.
+
 # 1.0.0
 
 **New features**
