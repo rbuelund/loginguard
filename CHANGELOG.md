@@ -1,3 +1,9 @@
+# 1.1.1
+
+**Bug fixes**
+
+* Missing file
+
 # 1.1.0
 
 **New features**

@@ -46,9 +46,10 @@
 		<!-- Back-end files -->
 		<files folder="backend">
 			<folder>controllers</folder>
+			<folder>helpers</folder>
 			<folder>models</folder>
-			<folder>views</folder>
 			<folder>sql</folder>
+			<folder>views</folder>
 
 			<filename>access.xml</filename>
 			<filename>cacert.pem</filename>
