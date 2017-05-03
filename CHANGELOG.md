@@ -2,13 +2,14 @@
 
 **Other changes**
 
-* Improved static media versioning
+* Improved static media versioning.
 
 **Bug fixes**
 
-* Missing file
+* Missing file.
 * PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
 * Disabling method batching doesn't display each authentication method separately in the captive page. 
+* Backup Codes not shown in the authentication method selection page. 
 
 # 1.1.1
 
