@@ -378,17 +378,21 @@ JS;
 			return array();
 		}
 
+		// Get the media version
+		JLoader::register('LoginGuardHelperVersion', JPATH_SITE . '/components/com_loginguard/helpers/version.php');
+		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
+
 		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
 		if (version_compare(JVERSION, '3.6.999', 'le'))
 		{
 			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'     => 'auto',
+				'version'     => $mediaVersion,
 				'relative'    => true,
 				'detectDebug' => true,
 			), true, false, false, true);
 
 			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'     => 'auto',
+				'version'     => $mediaVersion,
 				'relative'    => true,
 				'detectDebug' => true,
 			), true, false, false, true);
@@ -397,7 +401,7 @@ JS;
 		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
 		{
 			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'       => 'auto',
+				'version'       => $mediaVersion,
 				'relative'      => true,
 				'detectDebug'   => true,
 				'framework'     => true,
@@ -409,7 +413,7 @@ JS;
 			));
 
 			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'       => 'auto',
+				'version'       => $mediaVersion,
 				'relative'      => true,
 				'detectDebug'   => true,
 				'framework'     => true,

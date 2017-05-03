@@ -135,12 +135,31 @@ class LoginGuardViewCaptive extends JViewLegacy
 			$this->title = '';
 		}
 
+		// Get the media version
+		JLoader::register('LoginGuardHelperVersion', JPATH_SITE . '/components/com_loginguard/helpers/version.php');
+		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
+
 		// Include CSS
-		JHtml::_('stylesheet', 'com_loginguard/captive.min.css', array(
-			'version'     => 'auto',
-			'relative'    => true,
-			'detectDebug' => true
-		), true, false, false, true);
+		if (version_compare(JVERSION, '3.6.999', 'le'))
+		{
+			JHtml::_('stylesheet', 'com_loginguard/captive.min.css', array(
+				'version'     => $mediaVersion,
+				'relative'    => true,
+				'detectDebug' => true
+			), true, false, false, true);
+		}
+		else
+		{
+			JHtml::_('stylesheet', 'com_loginguard/captive.min.css', array(
+				'version'       => $mediaVersion,
+				'relative'      => true,
+				'detectDebug'   => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'type' => 'text/css',
+			));
+		}
 
 		// Display the view
 		return parent::display($tpl);

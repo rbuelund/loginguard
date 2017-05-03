@@ -1,9 +1,19 @@
-# 1.1.1
+# 1.2.0
+
+**Other changes**
+
+* Improved static media versioning
 
 **Bug fixes**
 
 * Missing file
 * PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
+
+# 1.1.1
+
+**Bug fixes**
+
+* Missing file
 
 # 1.1.0
 
