@@ -170,18 +170,49 @@ class PlgLoginguardU2f extends JPlugin
 		 */
 		if (empty($currentRecordRegistrations))
 		{
-			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'     => 'auto',
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
+			if (version_compare(JVERSION, '3.6.999', 'le'))
+			{
+				// Load Javascript
+				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+					'version'     => 'auto',
+					'relative'    => true,
+					'detectDebug' => true,
+				), true, false, false, true);
 
-			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'     => 'auto',
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
+				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+					'version'     => 'auto',
+					'relative'    => true,
+					'detectDebug' => true,
+				), true, false, false, true);
+			}
+			// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+			else
+			{
+				// Load Javascript
+				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+					'version'       => 'auto',
+					'relative'      => true,
+					'detectDebug'   => true,
+					'framework'     => true,
+					'pathOnly'      => false,
+					'detectBrowser' => true,
+				), array(
+					'defer' => false,
+					'async' => false,
+				));
+
+				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+					'version'       => 'auto',
+					'relative'      => true,
+					'detectDebug'   => true,
+					'framework'     => true,
+					'pathOnly'      => false,
+					'detectBrowser' => true,
+				), array(
+					'defer' => false,
+					'async' => false,
+				));
+			}
 
 			$js = <<< JS
 window.jQuery(document).ready(function() {
@@ -348,17 +379,47 @@ JS;
 		}
 
 		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
-		JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-			'version'     => 'auto',
-			'relative'    => true,
-			'detectDebug' => true,
-		), true, false, false, true);
+		if (version_compare(JVERSION, '3.6.999', 'le'))
+		{
+			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+				'version'     => 'auto',
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
 
-		JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-			'version'     => 'auto',
-			'relative'    => true,
-			'detectDebug' => true,
-		), true, false, false, true);
+			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+				'version'     => 'auto',
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
+		}
+		else
+		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+		{
+			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+
+			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+		}
 
 		// Load JS translations
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');

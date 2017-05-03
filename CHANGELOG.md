@@ -3,6 +3,7 @@
 **Bug fixes**
 
 * Missing file
+* PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
 
 # 1.1.0
 
