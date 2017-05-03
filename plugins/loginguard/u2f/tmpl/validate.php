@@ -15,10 +15,10 @@ include $layoutPath;
 <div id="loginguard-u2f-controls">
     <input name="code" value="" id="loginGuardCode" class="form-control input-lg" type="hidden">
 
-    <div class="control-group">
+    <div class="control-group" id="loginguard-u2f-button">
         <div class="controls">
             <a class="btn btn-default btn-large btn-lg"
-               onclick="akeeba.LoginGuard.u2f.validate();">
+               onclick="akeebaLoginGuardU2FOnClick();">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
                 <?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_VALIDATEKEY'); ?>
             </a>

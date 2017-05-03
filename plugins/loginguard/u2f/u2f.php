@@ -472,13 +472,25 @@ JS;
 		$session->set('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
 		$js = <<< JS
+		
+function akeebaLoginGuardU2FOnClick()
+{
+	    window.jQuery('#loginguard-u2f-button').hide();
+		akeeba.LoginGuard.u2f.validate();
+
+		return false;
+}
+		
 window.jQuery(document).ready(function($) {
 	akeeba.LoginGuard.u2f.authData = $u2fAuthDataJSON;
 	
-	$(document.getElementById('loginguard-captive-button-submit')).click(function() {
-		akeeba.LoginGuard.u2f.validate();
-		return false;
-	})
+	$('#loginguard-captive-button-submit').click(function() {
+	    akeebaLoginGuardU2FOnClick();
+	});
+	
+	setTimeout(function() {
+	    akeebaLoginGuardU2FOnClick();
+	}, 250);
 });
 
 JS;
