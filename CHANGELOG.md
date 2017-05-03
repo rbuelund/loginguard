@@ -8,6 +8,7 @@
 
 * Missing file
 * PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
+* Disabling method batching doesn't display each authentication method separately in the captive page. 
 
 # 1.1.1
 
