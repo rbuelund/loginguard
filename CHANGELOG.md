@@ -4,6 +4,7 @@
 
 * Improved static media versioning.
 * Security Key (U2F) plugin: start the U2F validation request immediately, without having to press the button on the screen.
+* Security Key (U2F) plugin: do not show the confusing Validate button.
 
 **Bug fixes**
 

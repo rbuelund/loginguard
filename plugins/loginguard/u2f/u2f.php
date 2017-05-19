@@ -518,6 +518,8 @@ JS;
 			'html'               => $html,
 			// Custom HTML to display below the TFA form
 			'post_message'       => '',
+			// Should I hide the submit button? Useful if you need to render your own buttons or use a method which is meant to auto-submit upon doing a certain action.
+			'hide_submit'        => true,
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
