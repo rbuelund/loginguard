@@ -179,6 +179,7 @@ class LoginGuardModelCaptive extends JModelLegacy
 			'label'              => '',
 			'html'               => '',
 			'post_message'       => '',
+			'hide_submit'        => false,
 			'help_url'           => '',
 			'allowEntryBatching' => false,
 		);

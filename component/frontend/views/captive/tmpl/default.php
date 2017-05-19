@@ -71,7 +71,8 @@ defined('_JEXEC') or die;
         </div>
 
         <div id="loginguard-captive-form-standard-buttons">
-            <button type="submit" class="btn btn-large btn-lg btn-primary" id="loginguard-captive-button-submit">
+            <button type="submit" class="btn btn-large btn-lg btn-primary" id="loginguard-captive-button-submit"
+                    style="<?php echo $this->renderOptions['hide_submit'] ? 'display: none' : '' ?>">
                 <span class="icon icon-rightarrow"></span>
                 <span class="glyphicon glyphicon-ok"></span>
 		        <?php echo JText::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
