@@ -33,6 +33,32 @@ if (!empty($view))
 	$app->input->set('task', $task);
 }
 
+// Get the media version
+JLoader::register('LoginGuardHelperVersion', JPATH_SITE . '/components/com_loginguard/helpers/version.php');
+$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
+
+// Include CSS
+if (version_compare(JVERSION, '3.6.999', 'le'))
+{
+	JHtml::_('stylesheet', 'com_loginguard/backend.min.css', array(
+		'version'     => $mediaVersion,
+		'relative'    => true,
+		'detectDebug' => true
+	), true, false, false, true);
+}
+else
+{
+	JHtml::_('stylesheet', 'com_loginguard/backend.min.css', array(
+		'version'       => $mediaVersion,
+		'relative'      => true,
+		'detectDebug'   => true,
+		'pathOnly'      => false,
+		'detectBrowser' => true,
+	), array(
+		'type' => 'text/css',
+	));
+}
+
 // Get an instance of the LoginGuard controller
 $controller = JControllerLegacy::getInstance('LoginGuard');
 

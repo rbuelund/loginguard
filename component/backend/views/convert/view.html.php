@@ -22,7 +22,7 @@ class LoginGuardViewConvert extends JViewLegacy
 	function display($tpl = null)
 	{
 		// Show a title and the component's Options button
-		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_CONVERT') . '</small>', 'lock');
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_CONVERT') . '</small>', 'loginguard');
 
 		if ($this->getLayout() != 'done')
 		{
