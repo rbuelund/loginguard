@@ -53,7 +53,9 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
-		if (!LoginGuardHelperTfa::isAdminPage() && (JFactory::getApplication()->input->getCmd('layout', 'default') != 'edit'))
+		$layout = JFactory::getApplication()->input->getCmd('layout', 'default');
+
+		if (!LoginGuardHelperTfa::isAdminPage() && !in_array($layout, array('edit', 'default')))
 		{
 			return true;
 		}
@@ -90,6 +92,27 @@ class plgUserLoginguard extends JPlugin
 
 		// Add the fields to the form.
 		JForm::addFormPath(dirname(__FILE__) . '/loginguard');
+
+		// Special handling for profile overview page
+		if ($layout == 'default')
+		{
+			$tfaMethods = LoginGuardHelperTfa::getUserTfaRecords($id);
+
+			/**
+			 * We cannot pass a boolean or integer; if it's false/0 Joomla! will display "No information entered". We
+			 * cannot use a list field to display it in a human readable format, Joomla! just dumps the raw value if you
+			 * use such a field. So all I can do is pass raw text. Um, whatever.
+			 */
+			$data->loginguard = array(
+				'hastfa' => (count($tfaMethods) > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
+			);
+
+			$form->loadFile('list', false);
+
+			return true;
+		}
+
+		// Profile edit page
 		$form->loadFile('loginguard', false);
 
 		return true;
