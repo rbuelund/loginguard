@@ -91,7 +91,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 		$this->needsMigration    = $model->needsMigration();
 
 		// Show a title and the component's Options button
-		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'lock');
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'loginguard');
 		JToolbarHelper::help('', false, 'https://github.com/akeeba/loginguard/wiki');
 		JToolbarHelper::preferences('com_loginguard');
 

@@ -24,14 +24,20 @@ $shownMethods = array();
     </div>
 
 	<?php foreach ($this->records as $record):
-    if (!array_key_exists($record->method, $this->tfaMethods)) continue;
-    if ($this->tfaMethods[$record->method]['allowEntryBatching'] && in_array($record->method, $shownMethods)) continue;
-    $shownMethods[] = $record->method;
+    if (!array_key_exists($record->method, $this->tfaMethods) && ($record->method != 'backupcodes')) continue;
+    $allowEntryBatching = isset($this->tfaMethods[$record->method]) ? $this->tfaMethods[$record->method]['allowEntryBatching'] : false;
+
+    if ($this->allowEntryBatching)
+    {
+	    if ($allowEntryBatching && in_array($record->method, $shownMethods)) continue;
+	    $shownMethods[] = $record->method;
+    }
+
     $methodName = $this->getModel()->translateMethodName($record->method);
     ?>
     <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>" class="loginguard-method">
         <img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
-        <?php if (!$this->tfaMethods[$record->method]['allowEntryBatching']): ?>
+        <?php if (!$this->allowEntryBatching || !$allowEntryBatching): ?>
         <span class="loginguard-method-title">
             <?php echo $this->escape($record->title) ?>
         </span>

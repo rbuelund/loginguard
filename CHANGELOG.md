@@ -1,3 +1,24 @@
+# 1.2.1
+
+(placholder)
+
+# 1.2.0
+
+**Other changes**
+
+* Improved static media versioning.
+* Security Key (U2F) plugin: start the U2F validation request immediately, without having to press the button on the screen.
+* Security Key (U2F) plugin: do not show the confusing Validate button.
+* Show TFA status in the Profile status page (before editing).
+
+**Bug fixes**
+
+* Missing file.
+* PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
+* Disabling method batching doesn't display each authentication method separately in the captive page. 
+* Backup Codes not shown in the authentication method selection page.
+* Workaround for Joomla! Bug 16147 (https://github.com/joomla/joomla-cms/issues/16147) - Cannot access component after installation when cache is enabled
+
 # 1.1.1
 
 **Bug fixes**
