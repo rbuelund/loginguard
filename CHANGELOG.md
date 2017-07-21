@@ -1,6 +1,8 @@
 # 1.2.1
 
-(placholder)
+**Other changes**
+
+* Make the intent of Backup Codes more obvious
 
 # 1.2.0
 
