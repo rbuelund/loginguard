@@ -116,7 +116,9 @@ class LoginGuardViewMethods extends JViewLegacy
 		/** @var LoginGuardModelBackupcodes $model */
 		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 
-		if ($activeRecords && empty($model->getBackupCodes($this->user)))
+		$backupCodes = $model->getBackupCodes($this->user);
+
+		if ($activeRecords && empty($backupCodes))
 		{
 			$model->regenerateBackupCodes($this->user);
 		}
