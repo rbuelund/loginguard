@@ -19,7 +19,7 @@ defined('_JEXEC') or die;
 	<?php endif; ?>
 	<div id="loginguard-methods-list-instructions">
 		<p>
-			<span class="icon icon-help glyphicon glyphicon-info"></span>
+			<span class="icon icon-help glyphicon glyphicon-info-sign"></span>
 			<?php echo JText::_('COM_LOGINGUARD_LBL_FIRSTTIME_INSTRUCTIONS'); ?>
 		</p>
 		<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.dontshowthisagain' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id . '&' . JFactory::getSession()->getToken() . '=1')?>"
