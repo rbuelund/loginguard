@@ -96,6 +96,8 @@ $model = $this->getModel();
                                     </span>
 									<?php endif; ?>
                                 </div>
+
+                                <div class="clearfix"></div>
                             </div>
 						<?php endforeach; ?>
                     </div>
