@@ -3,6 +3,7 @@
 **Other changes**
 
 * Make the intent of Backup Codes more obvious
+* Auto-focus the two step verification field 
 
 # 1.2.0
 
