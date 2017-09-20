@@ -92,7 +92,7 @@ class LoginGuardViewMethods extends JViewLegacy
 					continue;
 				}
 
-				$activeRecords += $methodActiveRecords;
+				$activeRecords   += $methodActiveRecords;
 				$this->tfaActive = true;
 
 				foreach ($method['active'] as $record)
@@ -116,7 +116,9 @@ class LoginGuardViewMethods extends JViewLegacy
 		/** @var LoginGuardModelBackupcodes $model */
 		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 
-		if ($activeRecords && empty($model->getBackupCodes($this->user)))
+		$backupCodes = $model->getBackupCodes($this->user);
+
+		if ($activeRecords && empty($backupCodes))
 		{
 			$model->regenerateBackupCodes($this->user);
 		}
@@ -126,13 +128,13 @@ class LoginGuardViewMethods extends JViewLegacy
 		if (!is_null($backupCodesRecord))
 		{
 			$this->methods['backupcodes'] = array(
-				'name' => 'backupcodes',
-				'display' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
-				'shortinfo' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
-				'image' => 'media/com_loginguard/images/emergency.svg',
-				'canDisable' => false,
+				'name'          => 'backupcodes',
+				'display'       => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
+				'shortinfo'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
+				'image'         => 'media/com_loginguard/images/emergency.svg',
+				'canDisable'    => false,
 				'allowMultiple' => false,
-				'active' => array($backupCodesRecord)
+				'active'        => array($backupCodesRecord),
 			);
 		}
 
@@ -146,7 +148,7 @@ class LoginGuardViewMethods extends JViewLegacy
 			JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
 				'version'     => $mediaVersion,
 				'relative'    => true,
-				'detectDebug' => true
+				'detectDebug' => true,
 			), true, false, false, true);
 		}
 		else

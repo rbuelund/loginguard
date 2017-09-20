@@ -39,7 +39,7 @@ $shownMethods = array();
         <img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
         <?php if (!$this->allowEntryBatching || !$allowEntryBatching): ?>
         <span class="loginguard-method-title">
-            <?php echo $this->escape($record->title) ?>
+            <?php echo $record->title; ?>
         </span>
         <span class="loginguard-method-name">
             <?php echo $methodName ?>

@@ -1,6 +1,14 @@
 # 1.2.1
 
-(placholder)
+**Other changes**
+
+* Make the intent of Backup Codes more obvious
+* Auto-focus the two step verification field
+* Do not escape the LoginGuard method title (allows for title formatting, e.g. with the backup codes method) 
+
+**Bug fixes**
+
+* The emergency backup codes could be reused
 
 # 1.2.0
 

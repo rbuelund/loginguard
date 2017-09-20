@@ -61,6 +61,18 @@ $model = $this->getModel();
                                     </div>
                                 </div>
 
+                                <?php if ($methodName == 'backupcodes'): ?>
+                                <div class="loginguard-methods-list-method-backupcodes-preview row-fluid">
+                                    <div class="span10 col-sm-10">
+                                        <div class="alert alert-info">
+                                            <span class="icon icon-info-circle"></span>
+		                                    <?php echo JText::sprintf('COM_LOGINGUARD_LBL_BACKUPCODES_PRINT_PROMPT', JRoute::_('index.php?option=com_loginguard&task=method.edit&id=' . (int) $record->id . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <?php endif; ?>
+
                                 <div class="clearfix"></div>
 
                                 <div class="loginguard-methods-list-method-record-lastused row-fluid">
@@ -84,6 +96,8 @@ $model = $this->getModel();
                                     </span>
 									<?php endif; ?>
                                 </div>
+
+                                <div class="clearfix"></div>
                             </div>
 						<?php endforeach; ?>
                     </div>

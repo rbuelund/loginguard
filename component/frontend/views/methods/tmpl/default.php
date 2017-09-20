@@ -33,7 +33,7 @@ defined('_JEXEC') or die;
 	<?php endif; ?>
 	<div id="loginguard-methods-list-instructions">
 		<p>
-			<span class="icon icon-info glyphicon glyphicon-info"></span>
+			<span class="icon icon-info glyphicon glyphicon-info-sign"></span>
 			<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_INSTRUCTIONS'); ?>
 		</p>
 	</div>

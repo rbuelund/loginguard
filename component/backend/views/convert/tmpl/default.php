@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
 <h1><?php echo JText::_('COM_LOGINGUARD_HEAD_CONVERT'); ?></h1>
 
 <div class="alert alert-info">
-    <span class="icon icon-info glyphicon glyphicon-info"></span>
+    <span class="icon icon-info glyphicon glyphicon-info-sign"></span>
 	<?php echo JText::_('COM_LOGINGUARD_CONVERT_INFO'); ?>
 </div>
 

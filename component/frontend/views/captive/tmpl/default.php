@@ -52,7 +52,17 @@ defined('_JEXEC') or die;
 	    <div id="loginguard-captive-form-method-fields">
 		    <?php if ($this->renderOptions['field_type'] == 'custom'): ?>
 			    <?php echo $this->renderOptions['html']; ?>
-		    <?php else: ?>
+		    <?php else:
+                $js = <<< JS
+; // Fix broken third party Javascript...
+window.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('loginGuardCode').focus();
+});
+
+JS;
+		        $this->document->addScriptDeclaration($js);
+
+            ?>
                 <div class="form-group">
                     <label for="loginGuardCode" <?php echo $this->renderOptions['label'] ? '' : 'class="hidden" aria-hidden="true"'?>>
 					    <?php echo $this->renderOptions['label'] ?>
