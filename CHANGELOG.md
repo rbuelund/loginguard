@@ -3,7 +3,8 @@
 **Other changes**
 
 * Make the intent of Backup Codes more obvious
-* Auto-focus the two step verification field 
+* Auto-focus the two step verification field
+* Do not escape the LoginGuard method title (allows for title formatting, e.g. with the backup codes method) 
 
 # 1.2.0
 
