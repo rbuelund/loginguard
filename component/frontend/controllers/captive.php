@@ -109,6 +109,22 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 			/** @var LoginGuardModelBackupcodes $codesModel */
 			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
 			$results = array($codesModel->isBackupCode($code, $user));
+			/**
+			 * This is required! Do not remove!
+			 *
+			 * There is a saveRecord() call below. It saves the in-memory TFA record to the database. That includes the options
+			 * key which contains the configuration of the method. For backup codes, these are the actual codes you can use.
+			 * When we check for a backup code validity we also "burn" it, i.e. we remove it from the options table and save
+			 * that to the database. However, this DOES NOT update the $record here. Therefore the call to saveRecord() would
+			 * overwrite the database contents with a record that _includes_ the backup code we had just burned. As a result the
+			 * single use backup codes end up being multiple use.
+			 *
+			 * By doing a getRecord() here, right after we have "burned" any correct backup codes, we resolve this issue. The
+			 * loaded record will reflect the database contents where the options DO NOT include the code we just used.
+			 * Therefore the call to saveRecord() will result in the correct database state, i.e. the used backup code being
+			 * removed.
+			 */
+			$record = $model->getRecord();
 		}
 
 		if (is_array($results) && !empty($results))
