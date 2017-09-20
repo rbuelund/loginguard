@@ -16,6 +16,7 @@
         <targetplatform name="joomla" version="3.5"/>
         <targetplatform name="joomla" version="3.6"/>
         <targetplatform name="joomla" version="3.7"/>
+        <targetplatform name="joomla" version="3.8"/>
 
         <php_minimum>5.3.3</php_minimum>
 
@@ -25,6 +26,7 @@
         <ars-phpcompat version="5.6"/>
         <ars-phpcompat version="7.0"/>
         <ars-phpcompat version="7.1"/>
+        <ars-phpcompat version="7.2"/>
 
         <name>Akeeba LoginGuard package</name>
         <description>Akeeba LoginGuard - A real Two Step Verification system for Joomla!</description>
