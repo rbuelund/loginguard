@@ -1,3 +1,9 @@
+# 1.2.2
+
+**Bug fixes**
+
+* PHP Notice when the user does not any backup codes (it can only happen if you tamper with the database).
+
 # 1.2.1
 
 **Other changes**
