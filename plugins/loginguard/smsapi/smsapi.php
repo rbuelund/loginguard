@@ -5,15 +5,66 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
-
+use FOF30\Encrypt\Totp;
 use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
 
-if (!class_exists('LoginGuardAuthenticator', true))
+// Prevent direct access
+defined('_JEXEC') or die;
+
+// Minimum PHP version check
+if (!version_compare(PHP_VERSION, '5.4.0', '>='))
 {
-	require_once JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php';
+	return;
+}
+
+/**
+ * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
+ */
+if (function_exists('eaccelerator_info'))
+{
+	$isBrokenCachingEnabled = true;
+
+	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
+	{
+		$isBrokenCachingEnabled = false;
+	}
+
+	if ($isBrokenCachingEnabled)
+	{
+		/**
+		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
+		 * the plugin class isn't defined, so Joomla cannot possibly use it.
+		 *
+		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
+		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
+		 *
+		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
+		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
+		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
+		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
+		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
+		 * with the plugin.
+		 */
+		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
+		}
+
+		return;
+	}
+}
+
+// Make sure Akeeba LoginGuard is installed
+if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
+{
+	return;
+}
+
+// Load FOF
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	return;
 }
 
 // Load the SMSAPI library
@@ -60,6 +111,17 @@ class PlgLoginguardSmsapi extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
+		/**
+		 * Required to work around eAccelerator on PHP 5.4 and later.
+		 *
+		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
+		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
+		 */
+		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			return;
+		}
+
 		parent::__construct($subject, $config);
 
 		// Load the API parameters
@@ -136,7 +198,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		$phone   = $session->get('smsapi.phone', $phone, 'com_loginguard');
 
 		// Initialize objects
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new Totp(180, 6, 10);
 
 		// If there's still no key in the options, generate one and save it in the session
 		if (empty($key))
@@ -293,7 +355,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new Totp(180, 6, 10);
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
@@ -391,7 +453,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new Totp(180, 6, 10);
 		return $totp->checkCode($key, $code);
 	}
 
@@ -444,7 +506,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		}
 
 		// Get the API objects
-		$totp = new LoginGuardAuthenticator(180, 6, 10);
+		$totp = new Totp(180, 6, 10);
 
 		$client = new Client($this->username);
 		$client->setPasswordHash($this->passwordMD5);
