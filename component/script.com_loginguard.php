@@ -45,8 +45,28 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	protected $minimumJoomlaVersion = '3.4.0';
 
 	protected $removeFilesAllVersions = [
-	        'files' => [],
-	        'folders' => []
+	        'files' => [
+                // Obsolete Joomla! core MVC files from version 1.x
+		        'administrator/components/com_loginguard/controller.php',
+		        'components/com_loginguard/controller.php',
+
+                // Obsolete cacert.pem from version 1.x; we are now using the one in FOF
+		        'components/com_loginguard/cacert.pem',
+            ],
+	        'folders' => [
+		        // Obsolete Joomla! core MVC files from version 1.x
+                'administrator/components/com_loginguard/controllers',
+                'administrator/components/com_loginguard/helpers',
+                'administrator/components/com_loginguard/models',
+                'administrator/components/com_loginguard/views',
+		        'administrator/components/com_loginguard/sql/mysql',
+		        'administrator/components/com_loginguard/sql/postgresql',
+		        'administrator/components/com_loginguard/sql/sqlazure',
+                'components/com_loginguard/controllers',
+                'components/com_loginguard/helpers',
+                'components/com_loginguard/models',
+                'components/com_loginguard/views',
+            ]
     ];
 
 	/**
