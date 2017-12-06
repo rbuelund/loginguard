@@ -15,12 +15,12 @@
 
 	<!-- Public front end files -->
 	<files folder="frontend">
-		<folder>controllers</folder>
-		<folder>helpers</folder>
-		<folder>models</folder>
-		<folder>views</folder>
+		<folder>Controller</folder>
+		<folder>Dispatcher</folder>
+		<folder>Helper</folder>
+		<folder>Model</folder>
+		<folder>View</folder>
 
-		<filename>controller.php</filename>
 		<filename>index.html</filename>
 		<filename>loginguard.php</filename>
 	</files>
@@ -45,16 +45,16 @@
 
 		<!-- Back-end files -->
 		<files folder="backend">
-			<folder>controllers</folder>
-			<folder>helpers</folder>
-			<folder>models</folder>
+			<folder>Controller</folder>
+			<folder>Dispatcher</folder>
+			<folder>Helper</folder>
+			<folder>Model</folder>
+			<folder>View</folder>
+
 			<folder>sql</folder>
-			<folder>views</folder>
 
 			<filename>access.xml</filename>
-			<filename>cacert.pem</filename>
 			<filename>config.xml</filename>
-			<filename>controller.php</filename>
 			<filename>index.html</filename>
 			<filename>loginguard.php</filename>
 		</files>
@@ -66,29 +66,6 @@
 		</languages>
 	</administration>
 
-	<!-- Handle the database installation and updates -->
-	<install>
-		<sql>
-			<file driver="mysql" charset="utf8">sql/mysql/install.sql</file>
-			<file driver="postgresql" charset="utf8">sql/postgresql/install.sql</file>
-			<file driver="sqlazure" charset="utf8">sql/sqlazure/install.sql</file>
-		</sql>
-	</install>
-	<uninstall>
-		<sql>
-			<file driver="mysql" charset="utf8">sql/mysql/uninstall.sql</file>
-			<file driver="postgresql" charset="utf8">sql/postgresql/uninstall.sql</file>
-			<file driver="sqlazure" charset="utf8">sql/sqlazure/uninstall.sql</file>
-		</sql>
-	</uninstall>
-	<update>
-		<schemas>
-			<schemapath type="mysql">sql/mysql/updates</schemapath>
-			<schemapath type="postgresql">sql/postgresql/updates</schemapath>
-			<schemapath type="sqlazure">sql/sqlazure/updates</schemapath>
-		</schemas>
-	</update>
-	
 	<!-- Installation / uninstallation script file -->
 	<scriptfile>script.com_loginguard.php</scriptfile>
 </extension>
