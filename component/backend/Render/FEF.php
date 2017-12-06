@@ -31,7 +31,7 @@ class FEF extends Joomla3
 	{
 		$mediaVersion = $this->container->mediaVersion;
 
-		$this->container->template->addCSS('media://com_akeeba/css/fef.min.css', $mediaVersion);
+		$this->container->template->addCSS("media://{$this->container->componentName}/css/fef.min.css", $mediaVersion);
 
 		parent::preRender($view, $task);
 	}
