@@ -5,9 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
+use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 
+// Prevent direct access
 defined('_JEXEC') or die;
 
 // Minimum PHP version check
@@ -107,6 +108,14 @@ class PlgLoginguardPushbullet extends JPlugin
 	private $tfaMethodName = 'pushbullet';
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -128,6 +137,9 @@ class PlgLoginguardPushbullet extends JPlugin
 		}
 
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		// Load the PushBullet API parameters
 		/** @var \Joomla\Registry\Registry $params */
@@ -578,9 +590,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		$token = $input->getString('token', null);
 
 		// If I have no token and it's the front-end I have received a token in the URL fragment from PushBullet
-		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
-
-		if (empty($token) && !LoginGuardHelperTfa::isAdminPage())
+		if (empty($token) && !$this->container->platform->isBackend())
 		{
 			// The returned URL has a code query string parameter I need to use to retrieve a token
 			$code  = $input->getString('code', null);

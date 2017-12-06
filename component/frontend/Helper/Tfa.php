@@ -5,20 +5,29 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Helper;
 
-JLoader::import('joomla.plugin.helper');
+// Protect from unauthorized access
+use Exception;
+use FOF30\Container\Container;
+use Joomla\CMS\User\User;
+use JUser;
+use stdClass;
+
+defined('_JEXEC') or die();
 
 /**
- * Helper functions for TFA handling
+ * Two Factor Authentication helper class for Akeeba LoginGuard
+ *
+ * @since       2.0.0
  */
-abstract class LoginGuardHelperTfa
+abstract class Tfa
 {
 	/**
 	 * Cache of TFA records per user
 	 *
 	 * @var   array
+	 * @since 1.0.0
 	 */
 	protected static $recordsPerUser = array();
 
@@ -26,66 +35,50 @@ abstract class LoginGuardHelperTfa
 	 * Cache of all currently active TFAs
 	 *
 	 * @var   array|null
+	 * @since 1.0.0
 	 */
 	protected static $allTFAs = null;
 
 	/**
-	 * Are we inside the administrator application
+	 * The LoginGuard's container object
 	 *
-	 * @var   bool
+	 * @var   Container
+	 * @since 2.0.0
 	 */
-	protected static $isAdmin = null;
+	protected static $container = null;
 
 	/**
-	 * Execute plugins and fetch back an array with their return values.
+	 * Get a reference to LoginGuard's container object
 	 *
-	 * @param   string  $event       The event (trigger) name, e.g. onBeforeScratchMyEar
-	 * @param   array   $data        A hash array of data sent to the plugins as part of the trigger
-	 * @param   object  $dispatcher  An events dispatcher, typically descending from JEventDispatcher.
+	 * @return  Container
 	 *
-	 * @return  array  A simple array containing the results of the plugins triggered
+	 * @since   2.0.0
 	 */
-	public static function runPlugins($event, $data, $dispatcher = null)
+	protected static function getContainer()
 	{
-		if (is_null($dispatcher))
+		if (empty(self::$container))
 		{
-			$app = JFactory::getApplication();
-
-			if (method_exists($app, 'triggerEvent'))
-			{
-				return $app->triggerEvent($event, $data);
-			}
-
-			if (class_exists('JEventDispatcher'))
-			{
-				$dispatcher = JEventDispatcher::getInstance();
-			}
-			else
-			{
-				$dispatcher = JDispatcher::getInstance();
-			}
+			self::$container = Container::getInstance('com_loginguard');
 		}
 
-		return $dispatcher->trigger($event, $data);
+		return self::$container;
 	}
 
 	/**
 	 * Get a list of all of the TFA methods
 	 *
-	 * @param   object  $dispatcher  An events dispatcher, typically descending from JEventDispatcher.
-	 *
 	 * @return  array
 	 */
-	public static function getTfaMethods($dispatcher = null)
+	public static function getTfaMethods()
 	{
-		JPluginHelper::importPlugin('loginguard');
+		self::getContainer()->platform->importPlugin('loginguard');
 
 		if (is_null(self::$allTFAs))
 		{
 			// Get all the plugin results
-			$temp = self::runPlugins('onLoginGuardTfaGetMethod', array(), $dispatcher);
-			// Normalize the results
-			self::$allTFAs = array();
+			$temp = self::getContainer()->platform->runPlugins('onLoginGuardTfaGetMethod', []);
+
+			self::$allTFAs = [];
 
 			foreach ($temp as $method)
 			{
@@ -94,7 +87,7 @@ abstract class LoginGuardHelperTfa
 					continue;
 				}
 
-				$method = array_merge(array(
+				$method = array_merge([
 					// Internal code of this TFA method
 					'name'               => '',
 					// User-facing name for this TFA method
@@ -111,7 +104,7 @@ abstract class LoginGuardHelperTfa
 					'help_url'           => '',
 					// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 					'allowEntryBatching' => false,
-				), $method);
+				], $method);
 
 				if (empty($method['name']))
 				{
@@ -136,12 +129,12 @@ abstract class LoginGuardHelperTfa
 	{
 		if (!isset(self::$recordsPerUser[$user_id]))
 		{
-			$db = JFactory::getDbo();
+			$db = self::getContainer()->db;
 			$query = $db->getQuery(true)
-			            ->select('*')
-			            ->from($db->qn('#__loginguard_tfa'))
-			            ->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-						->order($db->qn('method') . ' ASC');
+				->select('*')
+				->from($db->qn('#__loginguard_tfa'))
+				->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+				->order($db->qn('method') . ' ASC');
 
 			try
 			{
@@ -157,37 +150,15 @@ abstract class LoginGuardHelperTfa
 	}
 
 	/**
-	 * Are we inside an administrator page?
-	 *
-	 * @param   JApplicationCms  $app  The current CMS application which tells us if we are inside an admin page
-	 *
-	 * @return  bool
-	 */
-	public static function isAdminPage(JApplicationCms $app = null)
-	{
-		if (is_null(self::$isAdmin))
-		{
-			if (is_null($app))
-			{
-				$app = JFactory::getApplication();
-			}
-
-			self::$isAdmin = version_compare(JVERSION, '3.7.0', 'ge') ? $app->isClient('administrator') : $app->isAdmin();
-		}
-
-		return self::$isAdmin;
-	}
-
-	/**
 	 * Is the current user allowed to edit the TFA configuration of $user? To do so I must either be editing my own
 	 * account OR I have to be a Super User editing a non-superuser's account. Important to note: nobody can edit the
 	 * accounts of Super Users except themselves. Therefore make damn sure you keep those backup codes safe!
 	 *
-	 * @param   JUser  $user  The user you want to know if we're allowed to edit
+	 * @param   JUser|User  $user  The user you want to know if we're allowed to edit
 	 *
 	 * @return  bool
 	 */
-	public static function canEditUser(JUser $user = null)
+	public static function canEditUser($user = null)
 	{
 		// I can edit myself
 		if (empty($user))
@@ -202,7 +173,7 @@ abstract class LoginGuardHelperTfa
 		}
 
 		// Get the currently logged in used
-		$myUser = JFactory::getUser();
+		$myUser = self::getContainer()->platform->getUser();
 
 		// Same user? I can edit myself
 		if ($myUser->id == $user->id)

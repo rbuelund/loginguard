@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use FOF30\Container\Container;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
@@ -78,6 +81,14 @@ class PlgSystemLoginguard extends JPlugin
 	public $enabled = true;
 
 	/**
+	 * The component's container
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -100,9 +111,18 @@ class PlgSystemLoginguard extends JPlugin
 
 		parent::__construct($subject, $config);
 
-		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
-
-		if (!class_exists('LoginGuardHelperTfa'))
+		try
+		{
+			if (!JComponentHelper::isInstalled('com_loginguard') || !JComponentHelper::isEnabled('com_loginguard'))
+			{
+				$this->enabled = false;
+			}
+			else
+			{
+				$this->container = Container::getInstance('com_loginguard');
+			}
+		}
+		catch (Exception $e)
 		{
 			$this->enabled = false;
 		}
@@ -250,7 +270,7 @@ class PlgSystemLoginguard extends JPlugin
 	private function needsTFA(JUser $user)
 	{
 		// Get the user's TFA records
-		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+		$records = Tfa::getUserTfaRecords($user->id);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
 		if (empty($records))
@@ -259,7 +279,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Let's get a list of all currently active TFA methods
-		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+		$tfaMethods = Tfa::getTfaMethods();
 
 		// If not TFA method is active we can't really display a captive login page.
 		if (empty($tfaMethods))
