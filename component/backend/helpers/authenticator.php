@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-JLoader::register('LoginGuardBase32', __DIR__ . '/base32.php');
+require_once __DIR__ . '/base32.php';
 
 /**
  * This class provides an RFC6238-compliant Time-based One Time Passwords,

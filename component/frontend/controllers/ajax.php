@@ -124,7 +124,7 @@ class LoginGuardControllerAjax extends JControllerLegacy
 		// Trigger the onLoginGuardAjax plugin event
 		if (!class_exists('LoginGuardHelperTfa', true))
 		{
-			JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+			require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
 		}
 
 		JPluginHelper::importPlugin('loginguard');

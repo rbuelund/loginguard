@@ -10,7 +10,7 @@ defined('_JEXEC') or die;
 
 if (!class_exists('LoginGuardAuthenticator', true))
 {
-	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+	require_once JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php';
 }
 
 /**

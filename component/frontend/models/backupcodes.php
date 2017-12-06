@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
 
 /**
  * Model for managing backup codes

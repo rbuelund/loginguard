@@ -9,4 +9,4 @@
 defined('_JEXEC') or die;
 
 // Use the class from the front-end
-JLoader::register('LoginGuardControllerAjax', JPATH_SITE . '/components/com_loginguard/controllers/ajax.php');
+require_once JPATH_SITE . '/components/com_loginguard/controllers/ajax.php';

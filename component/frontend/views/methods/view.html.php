@@ -139,7 +139,7 @@ class LoginGuardViewMethods extends JViewLegacy
 		}
 
 		// Get the media version
-		JLoader::register('LoginGuardHelperVersion', JPATH_SITE . '/components/com_loginguard/helpers/version.php');
+		require_once JPATH_SITE . '/components/com_loginguard/helpers/version.php';
 		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
 
 		// Include CSS

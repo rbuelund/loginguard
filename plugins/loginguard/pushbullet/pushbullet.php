@@ -10,12 +10,12 @@ defined('_JEXEC') or die;
 
 if (!class_exists('LoginGuardAuthenticator', true))
 {
-	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+	require_once JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php';
 }
 
 if (!class_exists('LoginGuardPushbulletApi', true))
 {
-	JLoader::register('LoginGuardPushbulletApi', __DIR__ . '/classes/pushbullet.php');
+	require_once __DIR__ . '/classes/pushbullet.php';
 }
 
 /**
@@ -515,7 +515,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		$token = $input->getString('token', null);
 
 		// If I have no token and it's the front-end I have received a token in the URL fragment from PushBullet
-		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
 
 		if (empty($token) && !LoginGuardHelperTfa::isAdminPage())
 		{

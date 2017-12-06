@@ -14,7 +14,7 @@ if (class_exists('JFormFieldModulePositions'))
 }
 
 JHtml::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_modules/helpers/html');
-JLoader::register('ModulesHelper', JPATH_ADMINISTRATOR . '/components/com_modules/helpers/modules.php');
+require_once JPATH_ADMINISTRATOR . '/components/com_modules/helpers/modules.php';
 
 JFormHelper::loadFieldClass('groupedlist');
 

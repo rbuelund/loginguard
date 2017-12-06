@@ -13,7 +13,7 @@ use SMSApi\Api\SmsFactory;
 
 if (!class_exists('LoginGuardAuthenticator', true))
 {
-	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+	require_once JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php';
 }
 
 // Load the SMSAPI library

@@ -379,7 +379,7 @@ JS;
 		}
 
 		// Get the media version
-		JLoader::register('LoginGuardHelperVersion', JPATH_SITE . '/components/com_loginguard/helpers/version.php');
+		require_once JPATH_SITE . '/components/com_loginguard/helpers/version.php';
 		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
 
 		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button

@@ -95,7 +95,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		// Validate the code
 		$user = JFactory::getUser();
 
-		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
 		$results     = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
 		$isValidCode = false;
 
@@ -168,7 +168,7 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 
 		if (!class_exists('LoginGuardModelMethod'))
 		{
-			JLoader::register('LoginGuardModelMethod', __DIR__ . '/../models/method.php');
+			require_once __DIR__ . '/../models/method.php';
 		}
 
 		$methodModel = new LoginGuardModelMethod();

@@ -9,4 +9,4 @@
 defined('_JEXEC') or die;
 
 // Use the class from the front-end
-JLoader::register('LoginGuardModelBackupcodes', JPATH_SITE . '/components/com_loginguard/models/backupcodes.php');
+require_once JPATH_SITE . '/components/com_loginguard/models/backupcodes.php';
