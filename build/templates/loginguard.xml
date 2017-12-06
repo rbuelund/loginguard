@@ -49,12 +49,15 @@
 			<folder>Dispatcher</folder>
 			<folder>Helper</folder>
 			<folder>Model</folder>
+			<folder>Render</folder>
+			<folder>Toolbar</folder>
 			<folder>View</folder>
 
 			<folder>sql</folder>
 
 			<filename>access.xml</filename>
 			<filename>config.xml</filename>
+			<filename>fof.xml</filename>
 			<filename>index.html</filename>
 			<filename>loginguard.php</filename>
 		</files>

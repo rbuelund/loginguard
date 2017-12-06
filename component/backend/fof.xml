@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * @package   AkeebaLoginGuard
+ * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+-->
+<fof>
+    <common>
+        <container>
+            <option name="componentNamespace">Akeeba\LoginGuard</option>
+            <option name="factoryClass">FOF30\Factory\BasicFactory</option>
+            <option name="scaffolding">0</option>
+            <option name="saveScaffolding">0</option>
+            <option name="rendererClass">Akeeba\LoginGuard\Admin\Render\FEF</option>
+        </container>
+    </common>
+</fof>
