@@ -34,7 +34,7 @@ class PlgSystemLoginguard extends JPlugin
 	{
 		parent::__construct($subject, $config);
 
-		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
+		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
 
 		if (!class_exists('LoginGuardHelperTfa'))
 		{
@@ -77,7 +77,13 @@ class PlgSystemLoginguard extends JPlugin
 		try
 		{
 			$app = JFactory::getApplication();
-			$app->loadIdentity();
+
+			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
+			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
+			{
+				$app->loadIdentity();
+			}
+
 			$user = $app->getIdentity();
 		}
 		catch (\Exception $e)
