@@ -39,6 +39,8 @@ class Dispatcher extends BaseDispatcher
 
 		// Load the FOF language
 		$lang = $this->container->platform->getLanguage();
+		$lang->load('lib_fof30', JPATH_SITE, 'en-GB', true, true);
+		$lang->load('lib_fof30', JPATH_SITE, null, true, false);
 		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, 'en-GB', true, true);
 		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, null, true, false);
 
