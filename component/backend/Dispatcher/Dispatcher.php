@@ -104,7 +104,7 @@ class Dispatcher extends BaseDispatcher
 	 */
 	protected function getDefaultView()
 	{
-		$view = 'Methods';
+		$view = $this->defaultView;
 		$task = 'default';
 
 		// If you're a super user you get to see the Welcome page instead
