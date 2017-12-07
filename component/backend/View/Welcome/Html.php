@@ -5,15 +5,21 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Admin\View\Welcome;
 
-class LoginGuardViewWelcome extends JViewLegacy
+use Akeeba\LoginGuard\Admin\Model\Welcome;
+use FOF30\View\DataView\Html as BaseView;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
+class Html extends BaseView
 {
 	/**
 	 * Is the user plugin missing / disabled?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $noUserPlugin = false;
 
@@ -21,6 +27,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Is the system plugin missing / disabled?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $noSystemPlugin = false;
 
@@ -28,6 +35,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Are no published methods detected?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $noMethods = false;
 
@@ -35,6 +43,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Are no loginguard plugins installed?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $notInstalled = false;
 
@@ -42,6 +51,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Is the GeoIP plugin not installed?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $noGeoIP = false;
 
@@ -49,6 +59,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Does the GeoIP database require an update?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $geoIPNeedsUpdate = false;
 
@@ -57,6 +68,7 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * the GeoIP provider plugin v.2.0 or later.
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $geoIPNeedsUpgrade = false;
 
@@ -64,21 +76,13 @@ class LoginGuardViewWelcome extends JViewLegacy
 	 * Do we have to migrate from Joomla's Two Factor Authentication?
 	 *
 	 * @var   bool
+	 * @since 1.0.0
 	 */
 	public $needsMigration = false;
 
-	/**
-	 * Execute and display a template script.
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  mixed  A string if successful, otherwise an Error object.
-	 *
-	 * @see     JViewLegacy::loadTemplate()
-	 */
-	function display($tpl = null)
+	public function onBeforeWelcome()
 	{
-		/** @var LoginGuardModelWelcome $model */
+		/** @var Welcome $model */
 		$model = $this->getModel();
 
 		$this->noMethods         = !$model->hasPublishedPlugins();
@@ -89,13 +93,5 @@ class LoginGuardViewWelcome extends JViewLegacy
 		$this->noUserPlugin      = !$model->isLoginGuardPluginPublished('user');
 		$this->noSystemPlugin    = !$model->isLoginGuardPluginPublished('system');
 		$this->needsMigration    = $model->needsMigration();
-
-		// Show a title and the component's Options button
-		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . ': <small>' . JText::_('COM_LOGINGUARD_HEAD_WELCOME') . '</small>', 'loginguard');
-		JToolbarHelper::help('', false, 'https://github.com/akeeba/loginguard/wiki');
-		JToolbarHelper::preferences('com_loginguard');
-
-		// Display the view
-		return parent::display($tpl);
 	}
 }

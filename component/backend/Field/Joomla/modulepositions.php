@@ -20,6 +20,8 @@ JFormHelper::loadFieldClass('groupedlist');
 
 /**
  * ModulePositions Field class for the Joomla Framework.
+ *
+ * @since   1.0.0
  */
 class JFormFieldModulePositions extends JFormFieldGroupedList
 {
@@ -35,7 +37,8 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 	 *
 	 * @return  array  The field option objects as a nested array in groups.
 	 *
-	 * @since   11.1
+	 * @since   1.0.0
+	 *
 	 * @throws  UnexpectedValueException
 	 */
 	public function getGroups()

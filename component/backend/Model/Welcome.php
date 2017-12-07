@@ -5,30 +5,44 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Admin\Model;
 
-class LoginGuardModelWelcome extends JModelLegacy
+use Exception;
+use FOF30\Model\Model;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
+/**
+ * Model for the Welcome page
+ *
+ * @since       2.0.0
+ */
+class Welcome extends Model
 {
 	/**
 	 * Are there any published LoginGuard plugins in the specified folder?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function isLoginGuardPluginPublished($folder)
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('COUNT(*)')
-		            ->from($db->qn('#__extensions'))
-		            ->where($db->qn('type') . ' = ' . $db->q('plugin'))
-		            ->where($db->qn('element') . ' = ' . $db->q('loginguard'))
-		            ->where($db->qn('folder') . ' = ' . $db->q($folder))
-		            ->where($db->qn('enabled') . ' = ' . $db->q(1));
+			->select('COUNT(*)')
+			->from($db->qn('#__extensions'))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('element') . ' = ' . $db->q('loginguard'))
+			->where($db->qn('folder') . ' = ' . $db->q($folder))
+			->where($db->qn('enabled') . ' = ' . $db->q(1));
 
 		try
 		{
-			return !empty($db->setQuery($query)->loadResult());
+			$result = $db->setQuery($query)->loadResult();
+
+			return !empty($result);
 		}
 		catch (Exception $e)
 		{
@@ -41,20 +55,24 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * Are there any published LoginGuard plugins?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function hasPublishedPlugins()
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('COUNT(*)')
-		            ->from($db->qn('#__extensions'))
-		            ->where($db->qn('type') . ' = ' . $db->q('plugin'))
-		            ->where($db->qn('folder') . ' = ' . $db->q('loginguard'))
-		            ->where($db->qn('enabled') . ' = ' . $db->q(1));
+			->select('COUNT(*)')
+			->from($db->qn('#__extensions'))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q('loginguard'))
+			->where($db->qn('enabled') . ' = ' . $db->q(1));
 
 		try
 		{
-			return !empty($db->setQuery($query)->loadResult());
+			$result = $db->setQuery($query)->loadResult();
+
+			return !empty($result);
 		}
 		catch (Exception $e)
 		{
@@ -66,10 +84,12 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * Are there any installed LoginGuard plugins?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function hasInstalledPlugins()
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
 			->select('COUNT(*)')
 			->from($db->qn('#__extensions'))
@@ -78,7 +98,9 @@ class LoginGuardModelWelcome extends JModelLegacy
 
 		try
 		{
-			return !empty($db->setQuery($query)->loadResult());
+			$result = $db->setQuery($query)->loadResult();
+
+			return !empty($result);
 		}
 		catch (Exception $e)
 		{
@@ -90,28 +112,30 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * Is the Akeeba GeoIP Provider plugin installed?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function hasGeoIPPlugin()
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 
 		$query = $db->getQuery(true)
-		            ->select('COUNT(*)')
-		            ->from($db->qn('#__extensions'))
-		            ->where($db->qn('type') . ' = ' . $db->q('plugin'))
-		            ->where($db->qn('folder') . ' = ' . $db->q('system'))
-		            ->where($db->qn('element') . ' = ' . $db->q('akgeoip'));
+			->select('COUNT(*)')
+			->from($db->qn('#__extensions'))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q('system'))
+			->where($db->qn('element') . ' = ' . $db->q('akgeoip'));
 
 		try
 		{
 			$result = $db->setQuery($query)->loadResult();
+
+			return !empty($result);
 		}
 		catch (Exception $e)
 		{
 			return false;
 		}
-
-		return !empty($result);
 	}
 
 	/**
@@ -120,6 +144,8 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * @param   integer  $maxAge  The maximum age of the db in days (default: 30)
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function needsGeoIPUpdate($maxAge = 30)
 	{
@@ -161,6 +187,8 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * Do I need to upgrade the GeoIP database to city level?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function needsGeoIPUpgrade()
 	{
@@ -186,6 +214,8 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * @param   bool  $forceCity  Should I forcibly upgrade to a city-level database?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function updateGeoIPDb($forceCity = false)
 	{
@@ -214,6 +244,8 @@ class LoginGuardModelWelcome extends JModelLegacy
 	 * Do I need to migrate Joomla Two Factor Authentication information into Akeeba LoginGuard?
 	 *
 	 * @return  bool
+	 *
+	 * @since   1.0.0
 	 */
 	public function needsMigration()
 	{
@@ -224,12 +256,12 @@ class LoginGuardModelWelcome extends JModelLegacy
 		}
 
 		// Get the users with Joomla! TFA records
-		$db    = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('COUNT(*)')
-		            ->from($db->qn('#__users'))
-		            ->where($db->qn('otpKey') . ' != ' . $db->q(''))
-		            ->where($db->qn('otep') . ' != ' . $db->q(''));
+			->select('COUNT(*)')
+			->from($db->qn('#__users'))
+			->where($db->qn('otpKey') . ' != ' . $db->q(''))
+			->where($db->qn('otep') . ' != ' . $db->q(''));
 		$result = $db->setQuery($query)->loadResult();
 
 		return !empty($result);
