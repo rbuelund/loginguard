@@ -5,26 +5,39 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Admin\Model;
+
+use FOF30\Model\Model;
+use FOFEncryptAes;
+use JFactory;
+use JText;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
 
 /**
- * A model responsible for converting Joomla's Two Factor Authenticator entries into Akeeba LoginGuard's Two Step
- * Verification entries.
+ * Model for the Convert view
+ *
+ * @since       2.0.0
  */
-class LoginGuardModelConvert extends JModelLegacy
+class Convert extends Model
 {
 	/**
 	 * The site's secret key
 	 *
-	 * @var  string
+	 * @var   string
+	 * @since 2.0.0
 	 */
 	protected $secret = '';
 
 	/**
+	 * Converts Joomla! 2FA to Akeeba LoginGuard
+	 *
 	 * @param   int  $limit  How many records to process at once. Around 25 should be safe in most cases.
 	 *
 	 * @return  bool  True if we converted any users, false if we're done converting users
+	 *
+	 * @since   1.0.0
 	 */
 	public function convert($limit = 25)
 	{
@@ -41,12 +54,12 @@ class LoginGuardModelConvert extends JModelLegacy
 		}
 
 		// Get the users with Joomla! TFA records
-		$db    = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('*')
-		            ->from($db->qn('#__users'))
-		            ->where($db->qn('otpKey') . ' != ' . $db->q(''))
-		            ->where($db->qn('otep') . ' != ' . $db->q(''));
+			->select('*')
+			->from($db->qn('#__users'))
+			->where($db->qn('otpKey') . ' != ' . $db->q(''))
+			->where($db->qn('otep') . ' != ' . $db->q(''));
 		$users = $db->setQuery($query, 0, $limit)->loadObjectList();
 
 		// There are no more users with TFA configured, let's stop here
@@ -62,6 +75,7 @@ class LoginGuardModelConvert extends JModelLegacy
 		foreach ($users as $user)
 		{
 			list($otpMethod, $otpKey) = explode(':', $user->otpKey, 2);
+
 			$otpKey     = $this->decryptTFAString($secret, $otpKey);
 			$otep       = $this->decryptTFAString($secret, $user->otep);
 			$methodName = 'convert' . ucfirst($otpMethod);
@@ -78,7 +92,7 @@ class LoginGuardModelConvert extends JModelLegacy
 			$update = (object) array(
 				'id'     => $user->id,
 				'otpKey' => '',
-				'otep'   => ''
+				'otep'   => '',
 			);
 			$db->updateObject('#__users', $update, array('id'));
 		}
@@ -91,6 +105,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * instead.
 	 *
 	 * @return  string
+	 *
+	 * @since   1.0.0
 	 */
 	private function getSecret()
 	{
@@ -110,6 +126,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @param   string  $secret  The secret key to set in the model.
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	public function setSecret($secret)
 	{
@@ -121,15 +139,17 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * you don't need them any more.
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	public function disableTFA()
 	{
-		$db    = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->update($db->qn('#__extensions'))
-		            ->set($db->qn('enabled') . ' = ' . $db->q('0'))
-		            ->where($db->qn('type') . ' = ' . $db->q('plugin'))
-		            ->where($db->qn('folder') . ' = ' . $db->q('twofactorauth'));
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled') . ' = ' . $db->q('0'))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q('twofactorauth'));
 
 		$db->setQuery($query)->execute();
 	}
@@ -141,6 +161,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @param   int     $user_id  The ID of the user for this method
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	private function convertEmergencyCodes($json, $user_id)
 	{
@@ -154,8 +176,8 @@ class LoginGuardModelConvert extends JModelLegacy
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->getDbo();
-		$jDate  = JDate::getInstance();
+		$db     = $this->container->db;
+		$jDate  = $this->container->platform->getDate();
 		$object = (object) array(
 			'user_id'    => $user_id,
 			'title'      => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
@@ -185,6 +207,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @param   int     $user_id  The ID of the user for this method
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	private function convertYubikey($json, $user_id)
 	{
@@ -198,8 +222,8 @@ class LoginGuardModelConvert extends JModelLegacy
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->getDbo();
-		$jDate  = JDate::getInstance();
+		$db     = $this->container->db;
+		$jDate  = $this->container->platform->getDate();
 		$object = (object) array(
 			'user_id'    => $user_id,
 			'title'      => 'YubiKey ' . $config['yubikey'],
@@ -212,10 +236,10 @@ class LoginGuardModelConvert extends JModelLegacy
 
 		// Delete any other record with the same user_id, method and options
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__loginguard_tfa'))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-		            ->where($db->qn('method') . ' = ' . $db->q('yubikey'))
-		            ->where($db->qn('options') . ' = ' . $db->q($object->options));
+			->delete($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+			->where($db->qn('method') . ' = ' . $db->q('yubikey'))
+			->where($db->qn('options') . ' = ' . $db->q($object->options));
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
@@ -230,6 +254,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @param   int     $user_id  The ID of the user for this method
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	private function convertTotp($json, $user_id)
 	{
@@ -244,8 +270,8 @@ class LoginGuardModelConvert extends JModelLegacy
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->getDbo();
-		$jDate  = JDate::getInstance();
+		$db     = $this->container->db;
+		$jDate  = $this->container->platform->getDate();
 		$object = (object) array(
 			'user_id'    => $user_id,
 			'title'      => 'Authenticator',
@@ -258,10 +284,10 @@ class LoginGuardModelConvert extends JModelLegacy
 
 		// Delete any other record with the same user_id, method and options
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__loginguard_tfa'))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-		            ->where($db->qn('method') . ' = ' . $db->q('totp'))
-		            ->where($db->qn('options') . ' = ' . $db->q($object->options));
+			->delete($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+			->where($db->qn('method') . ' = ' . $db->q('totp'))
+			->where($db->qn('options') . ' = ' . $db->q($object->options));
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
@@ -277,6 +303,8 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @param   int     $user_id  The ID of the user for this method
 	 *
 	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	private function convertYubikeytotp($json, $user_id)
 	{
@@ -323,11 +351,18 @@ class LoginGuardModelConvert extends JModelLegacy
 	 * @return  string  Decrypted, but JSON-encoded, information
 	 *
 	 * @see     https://github.com/joomla/joomla-cms/pull/12497
+	 *
+	 * @since   1.0.0
 	 */
 	private function decryptTFAString($secret, $stringToDecrypt)
 	{
+		if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+		{
+			throw new RuntimeException('Two Factor Authentication conversion is not yet implemented for Joomla! 4.');
+		}
+
 		// If encryption is not supported we return the original string
-		if (!FOFEncryptAes::isSupported())
+		if (version_compare(JVERSION, '3.99999.99999', 'lt') && !FOFEncryptAes::isSupported())
 		{
 			return $stringToDecrypt;
 		}

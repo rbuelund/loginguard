@@ -22,7 +22,7 @@ defined('_JEXEC') or die();
  *
  * @package     Akeeba\LoginGuard\Admin\Controller
  *
- * @since       version
+ * @since       2.0.0
  */
 class Welcome extends Controller
 {
