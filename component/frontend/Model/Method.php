@@ -5,20 +5,35 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Model;
 
-require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use Exception;
+use FOF30\Model\Model;
+use FOF30\Utils\Ip;
+use JBrowser;
+use JLoader;
+use Joomla\CMS\User\User;
+use JText;
+use JUser;
+use RuntimeException;
+use stdClass;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
 
 /**
  * Two Step Verification method management model
+ *
+ * @since       2.0.0
  */
-class LoginGuardModelMethod extends JModelLegacy
+class Method extends Model
 {
 	/**
 	 * List of TFA methods
 	 *
-	 * @var  array
+	 * @var   array
+	 * @since 2.0.0
 	 */
 	protected $tfaMethods = null;
 
@@ -26,15 +41,15 @@ class LoginGuardModelMethod extends JModelLegacy
 	 * Is the specified TFA method available?
 	 *
 	 * @param   string  $method      The method to check.
-	 * @param   object  $dispatcher  The Joomla event dispatcher. Leave null to use the current application's dispatcher.
 	 *
 	 * @return  bool
+	 * @since   2.0.0
 	 */
-	public function methodExists($method, $dispatcher = null)
+	public function methodExists($method)
 	{
 		if (!is_array($this->tfaMethods))
 		{
-			$this->populateTfaMethods($dispatcher);
+			$this->populateTfaMethods();
 		}
 
 		return isset($this->tfaMethods[$method]);
@@ -44,13 +59,13 @@ class LoginGuardModelMethod extends JModelLegacy
 	 * Get the specified TFA method's record
 	 *
 	 * @param   string  $method      The method to retrieve.
-	 * @param   object  $dispatcher  The Joomla event dispatcher. Leave null to use the current application's dispatcher.
 	 *
 	 * @return  array
+	 * @since   2.0.0
 	 */
-	public function getMethod($method, $dispatcher = null)
+	public function getMethod($method)
 	{
-		if (!$this->methodExists($method, $dispatcher))
+		if (!$this->methodExists($method))
 		{
 			return array(
 				'name'          => $method,
@@ -68,32 +83,32 @@ class LoginGuardModelMethod extends JModelLegacy
 	/**
 	 * Get the specified TFA record. It will return a fake default record when no record ID is specified.
 	 *
-	 * @param   JUser  $user  The user record. Null to use the currently logged in user.
+	 * @param   JUser|User  $user  The user record. Null to use the currently logged in user.
 	 *
 	 * @return  object
+	 * @since   2.0.0
 	 */
-	public function getRecord(JUser $user = null)
+	public function getRecord($user = null)
 	{
 		if (is_null($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		$defaultRecord = $this->getDefaultRecord($user);
-
-		$id = (int) $this->getState('id', 0);
+		$id            = (int) $this->getState('id', 0);
 
 		if ($id <= 0)
 		{
 			return $defaultRecord;
 		}
 
-		$db    = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('*')
-		            ->from($db->qn('#__loginguard_tfa'))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-		            ->where($db->qn('id') . ' = ' . $db->q($id));
+			->select('*')
+			->from($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+			->where($db->qn('id') . ' = ' . $db->q($id));
 		try
 		{
 			$record = $db->setQuery($query)->loadObject();
@@ -119,13 +134,14 @@ class LoginGuardModelMethod extends JModelLegacy
 	 * @return  void
 	 *
 	 * @throws  RuntimeException  When the database insert / update fails (thrown from JDatabaseDriver in recent Joomla! versions)
+	 * @since   2.0.0
 	 */
 	public function saveRecord(&$record)
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 
 		// Get existing records for this user EXCEPT the current record
-		$records = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+		$records = Tfa::getUserTfaRecords($record->user_id);
 
 		if ($record->id)
 		{
@@ -198,14 +214,13 @@ class LoginGuardModelMethod extends JModelLegacy
 		{
 			// Update the Created On, UA and IP columns
 			JLoader::import('joomla.environment.browser');
-			$jNow    = JDate::getInstance();
+			$jNow    = $this->container->platform->getDate();
 			$browser = JBrowser::getInstance();
-			$session = JFactory::getSession();
-			$ip      = $session->get('session.client.address');
+			$ip      = $this->container->platform->getSessionVar('session.client.address');
 
 			if (empty($ip))
 			{
-				$ip = $_SERVER['REMOTE_ADDR'];
+				$ip = Ip::getIp();
 			}
 
 			$record->created_on = $jNow->toSql();
@@ -233,27 +248,27 @@ class LoginGuardModelMethod extends JModelLegacy
 				require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
 			}
 
-			/** @var LoginGuardModelBackupcodes $model */
-			$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
-			$user = JFactory::getUser($record->user_id);
+			/** @var BackupCodes $model */
+			$model = $this->container->factory->model('BackupCodes')->tmpInstance();
+			$user  = $this->container->platform->getUser($record->user_id);
 			$model->regenerateBackupCodes($user);
 		}
 	}
 
 	/**
 	 * @param   JUser   $user        The user record. Null to use the currently logged in user.
-	 * @param   object  $dispatcher  The Joomla events dispatcher for plugins. Null to use the system default.
 	 *
 	 * @return  array
+	 * @since   2.0.0
 	 */
-	public function getRenderOptions(JUser $user = null, $dispatcher = null)
+	public function getRenderOptions(JUser $user = null)
 	{
 		if (is_null($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
-		$renderOptions = array(
+		$renderOptions = [
 			// Default title if you are setting up this TFA method for the first time
 			'default_title'  => '',
 			// Custom HTML to display above the TFA setup form
@@ -284,10 +299,10 @@ class LoginGuardModelMethod extends JModelLegacy
 			'post_message'   => '',
 			// A URL with help content for this method to display to the user
 			'help_url'       => '',
-		);
+		];
 
 		$record  = $this->getRecord($user);
-		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaGetSetup', array($record), $dispatcher);
+		$results = $this->container->platform->runPlugins('onLoginGuardTfaGetSetup', [$record]);
 
 		if (empty($results))
 		{
@@ -307,12 +322,20 @@ class LoginGuardModelMethod extends JModelLegacy
 		return $renderOptions;
 	}
 
-	public function deleteRecord($id, JUser $user = null)
+	/**
+	 * Delete a TFA method record
+	 *
+	 * @param   int         $id
+	 * @param   JUser|User  $user
+	 *
+	 * @since   2.0.0
+	 */
+	public function deleteRecord($id, $user = null)
 	{
 		// Make sure we have a valid user
 		if (is_null($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// The user must be a registered user, not a guest
@@ -337,15 +360,15 @@ class LoginGuardModelMethod extends JModelLegacy
 		}
 
 		// Try to delete the record
-		$db    = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__loginguard_tfa'))
-		            ->where($db->qn('id') . ' = ' . $db->q($id))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id));
+			->delete($db->qn('#__loginguard_tfa'))
+			->where($db->qn('id') . ' = ' . $db->q($id))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
 		$db->setQuery($query)->execute();
 
 		// We will need the list of records later on
-		$allRecords = LoginGuardHelperTfa::getUserTfaRecords($record->user_id);
+		$allRecords = Tfa::getUserTfaRecords($record->user_id);
 
 		// If the record was the default set a new default
 		if ($record->default && !empty($records))
@@ -404,6 +427,7 @@ class LoginGuardModelMethod extends JModelLegacy
 	 * Return the title to use for the page
 	 *
 	 * @return  string
+	 * @since   2.0.0
 	 */
 	public function getPageTitle()
 	{
@@ -416,12 +440,12 @@ class LoginGuardModelMethod extends JModelLegacy
 	/**
 	 * Populate the list of TFA methods
 	 *
-	 * @param   object  $dispatcher
+	 * @since   2.0.0
 	 */
-	private function populateTfaMethods($dispatcher)
+	private function populateTfaMethods()
 	{
 		$this->tfaMethods = array();
-		$tfaMethods       = LoginGuardHelperTfa::getTfaMethods($dispatcher);
+		$tfaMethods       = Tfa::getTfaMethods();
 
 		if (empty($tfaMethods))
 		{
@@ -445,16 +469,18 @@ class LoginGuardModelMethod extends JModelLegacy
 	}
 
 	/**
-	 * @param   JUser   $user        The user record. Null to use the current user.
-	 * @param   object  $dispatcher  The Joomla events dispatcher for plugins. Null to use the system default.
+	 * Get the default TFA method for the user
+	 *
+	 * @param   JUser|User  $user  The user record. Null to use the current user.
 	 *
 	 * @return  object
+	 * @since   2.0.0
 	 */
-	protected function getDefaultRecord(JUser $user = null, $dispatcher = null)
+	protected function getDefaultRecord($user = null)
 	{
 		if (is_null($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		$method = $this->getState('method');
@@ -462,7 +488,7 @@ class LoginGuardModelMethod extends JModelLegacy
 
 		if (is_null($this->tfaMethods))
 		{
-			$this->populateTfaMethods($dispatcher);
+			$this->populateTfaMethods();
 		}
 
 		if ($method && isset($this->tfaMethods[$method]))
@@ -481,4 +507,5 @@ class LoginGuardModelMethod extends JModelLegacy
 
 		return $record;
 	}
+
 }

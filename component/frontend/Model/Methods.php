@@ -5,28 +5,45 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Model;
 
-require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use DateInterval;
+use DateTimeZone;
+use Exception;
+use FOF30\Model\Model;
+use FOF30\Utils\Ip;
+use JBrowser;
+use JLoader;
+use Joomla\CMS\User\User;
+use JText;
+use JUser;
+use RuntimeException;
+use stdClass;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
 
 /**
  * Two Step Verification methods list page's model
+ *
+ * @since       2.0.0
  */
-class LoginGuardModelMethods extends JModelLegacy
+class Methods extends Model
 {
 	/**
 	 * Returns a list of all available and their currently active records for given user.
 	 *
-	 * @param   JUser  $user  The user object. Skip to use the current user.
+	 * @param   JUser|User  $user  The user object. Skip to use the current user.
 	 *
 	 * @return  array
+	 * @since   2.0.0
 	 */
 	public function getMethods($user = null)
 	{
 		if (!is_object($user) || !($user instanceof JUser))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		if ($user->guest)
@@ -35,7 +52,7 @@ class LoginGuardModelMethods extends JModelLegacy
 		}
 
 		// Get an associative array of TFA methods
-		$rawMethods = LoginGuardHelperTfa::getTfaMethods();
+		$rawMethods = Tfa::getTfaMethods();
 		$methods    = array();
 
 		foreach ($rawMethods as $method)
@@ -45,7 +62,7 @@ class LoginGuardModelMethods extends JModelLegacy
 		}
 
 		// Put the user TFA records into the methods array
-		$userTfaRecords = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+		$userTfaRecords = Tfa::getUserTfaRecords($user->id);
 
 		if (!empty($userTfaRecords))
 		{
@@ -66,18 +83,19 @@ class LoginGuardModelMethods extends JModelLegacy
 	/**
 	 * Delete all Two Step Verification methods for the given user.
 	 *
-	 * @param   JUser  $user  The user object to reset TSV for. Null to use the current user.
+	 * @param   JUser|User  $user  The user object to reset TSV for. Null to use the current user.
 	 *
 	 * @return  void
 	 *
 	 * @throws  RuntimeException  When the user is invalid or a database error has occurred.
+	 * @since   2.0.0
 	 */
-	public function deleteAll(JUser $user = null)
+	public function deleteAll($user = null)
 	{
 		// Make sure we have a user object
 		if (is_null($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// If the user object is a guest (who can't have TSV) we abort with an error
@@ -86,7 +104,7 @@ class LoginGuardModelMethods extends JModelLegacy
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
-		$db = $this->getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
 			->delete($db->qn('#__loginguard_tfa'))
 			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
@@ -107,7 +125,7 @@ class LoginGuardModelMethods extends JModelLegacy
 	{
 		// The timestamp is given in UTC. Make sure Joomla! parses it as such.
 		$utcTimeZone = new DateTimeZone('UTC');
-		$jDate       = JDate::getInstance($dateTimeText, $utcTimeZone);
+		$jDate       = $this->container->platform->getDate($dateTimeText, $utcTimeZone);
 		$unixStamp   = $jDate->toUnix();
 
 		// I'm pretty sure we didn't have TFA in Joomla back in 1970 ;)
@@ -117,7 +135,7 @@ class LoginGuardModelMethods extends JModelLegacy
 		}
 
 		// I need to display the date in the user's local timezone. That's how you do it.
-		$user   = JFactory::getUser();
+		$user   = $this->container->platform->getUser();
 		$userTZ = $user->getParam('timezone', 'UTC');
 		$tz     = new DateTimeZone($userTZ);
 		$jDate->setTimezone($tz);
@@ -130,7 +148,7 @@ class LoginGuardModelMethods extends JModelLegacy
 		if ($unixStamp > (time() - (72 * 3600)))
 		{
 			// Is this timestamp today?
-			$jNow = JDate::getInstance();
+			$jNow = $this->container->platform->getDate();
 			$jNow->setTimezone($tz);
 			$checkNow  = $jNow->format('Ymd', true);
 			$checkDate = $jDate->format('Ymd', true);
@@ -166,6 +184,7 @@ class LoginGuardModelMethods extends JModelLegacy
 	 * @param   string  $ua  A User-Agent string
 	 *
 	 * @return  string  Human readable format, e.g. "Chrome on Windows"
+	 * @since   2.0.0
 	 */
 	public function formatBrowser($ua)
 	{
@@ -177,7 +196,7 @@ class LoginGuardModelMethods extends JModelLegacy
 		JLoader::import('joomla.environment.browser');
 		$jBrowser = JBrowser::getInstance($ua);
 		$platform = $jBrowser->getPlatform();
-		$browser = $jBrowser->getBrowser();
+		$browser  = $jBrowser->getBrowser();
 
 		// Let's make sure we have the correct platform
 		if (strpos($ua, '; Android') !== false)
@@ -285,6 +304,7 @@ class LoginGuardModelMethods extends JModelLegacy
 	 * @param   string  $ip  The IPv4/IPv6 address of the visitor.
 	 *
 	 * @return  string  Human readable format e.g. "on 123.123.123.123", "from Germany", or "from Tokyo, Japan"
+	 * @since   2.0.0
 	 */
 	public function formatIp($ip)
 	{
@@ -326,15 +346,16 @@ class LoginGuardModelMethods extends JModelLegacy
 	 * @param   bool   $flag  True to set the flag, false to unset it (it will be set to 0, actually)
 	 *
 	 * @return  void
+	 * @since   2.0.0
 	 */
 	public function setFlag(JUser $user, $flag = true)
 	{
-		$db = $this->getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select($db->qn('profile_value'))
-		            ->from($db->qn('#__user_profiles'))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-		            ->where($db->qn('profile_key') . ' = ' . $db->q('loginguard.dontshow'));
+			->select($db->qn('profile_value'))
+			->from($db->qn('#__user_profiles'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+			->where($db->qn('profile_key') . ' = ' . $db->q('loginguard.dontshow'));
 
 		try
 		{

@@ -5,45 +5,57 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Model;
 
-require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
+use Exception;
+use FOF30\Model\Model;
+use JCrypt;
+use Joomla\CMS\User\User;
+use JUser;
+use stdClass;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
 
 /**
- * Model for managing backup codes
+ * A model to handle the emergency backup code
+ *
+ * @since       2.0.0
  */
-class LoginGuardModelBackupcodes extends JModelLegacy
+class BackupCodes extends Model
 {
 	/**
 	 * Caches the backup codes per user ID
 	 *
-	 * @var  array
+	 * @var   array
+	 * @since 2.0.0
 	 */
 	protected $cache = array();
 
 	/**
 	 * Get the backup codes record for the specified user
 	 *
-	 * @param   JUser  $user  The user in question. Use null for the currently logged in user.
+	 * @param   JUser|User  $user  The user in question. Use null for the currently logged in user.
 	 *
 	 * @return  stdClass|null  Record object or null if none is found
+	 *
+	 * @since   2.0.0
 	 */
-	public function getBackupCodesRecord(JUser $user = null)
+	public function getBackupCodesRecord($user = null)
 	{
 		// Make sure I have a user
 		if (empty($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// Try to load the record
-		$db = $this->getDbo();
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select('*')
-		            ->from($db->qn('#__loginguard_tfa'))
-		            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-		            ->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
+			->select('*')
+			->from($db->qn('#__loginguard_tfa'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+			->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
 
 		try
 		{
@@ -62,16 +74,18 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	 * Returns the backup codes for the specified user. Cached values will be preferentially returned, therefore you
 	 * MUST go through this model's methods ONLY when dealing with backup codes.
 	 *
-	 * @param   JUser  $user  The user for which you want the backup codes
+	 * @param   JUser|User  $user  The user for which you want the backup codes
 	 *
 	 * @return  array|null  The backup codes, or null if they do not exist
+	 *
+	 * @since   2.0.0
 	 */
-	public function getBackupCodes(JUser $user = null)
+	public function getBackupCodes($user = null)
 	{
 		// Make sure I have a user
 		if (empty($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// If there is no cached record load it from the database
@@ -79,10 +93,10 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 		{
 			// Intiialize (null = no record exists)
 			$this->cache[$user->id] = null;
-			$json = null;
+			$json                   = null;
 
 			// Try to load the record
-			$db = $this->getDbo();
+			$db    = $this->container->db;
 			$query = $db->getQuery(true)
 				->select($db->qn('options'))
 				->from($db->qn('#__loginguard_tfa'))
@@ -111,14 +125,16 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	 * Generate a new set of backup codes for the specified user. The generated codes are immediately saved to the
 	 * database and the internal cache is updated.
 	 *
-	 * @param   JUser  $user  Which user to generate codes for?
+	 * @param   JUser|User  $user  Which user to generate codes for?
+	 *
+	 * @since   2.0.0
 	 */
-	public function regenerateBackupCodes(JUser $user = null)
+	public function regenerateBackupCodes($user = null)
 	{
 		// Make sure I have a user
 		if (empty($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// Generate backup codes
@@ -147,6 +163,8 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	 *
 	 * @see  https://github.com/ircmaxell/PHP-CryptLib/blob/master/lib/CryptLib/Random/Generator.php
 	 * @see  http://blog.ircmaxell.com/2011/07/random-number-generation-in-php.html
+	 *
+	 * @since   2.0.0
 	 */
 	protected function getRandomInteger($min = 0, $max = PHP_INT_MAX)
 	{
@@ -209,6 +227,8 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	 * @param   JUser   $user  The user to check against
 	 *
 	 * @return  bool
+	 *
+	 * @since   2.0.0
 	 */
 	public function isBackupCode($code, JUser $user = null)
 	{
@@ -290,34 +310,38 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 	 *
 	 * @param   array  $codes  An array of exactly 10 elements
 	 * @param   JUser  $user   The user for which to save the backup codes
+	 *
+	 * @return  bool
+	 *
+	 * @since   2.0.0
 	 */
 	public function saveBackupCodes(array $codes, JUser $user = null)
 	{
 		// Make sure I have a user
 		if (empty($user))
 		{
-			$user = JFactory::getUser();
+			$user = $this->container->platform->getUser();
 		}
 
 		// Try to load existing backup codes
 		$existingCodes = $this->getBackupCodes($user);
-		$db            = $this->getDbo();
+		$db            = $this->container->db;
 		$query         = $db->getQuery(true);
-		$jNow          = JDate::getInstance();
+		$jNow          = $this->container->platform->getDate();
 		$json          = json_encode($codes);
 
 		if (is_null($existingCodes))
 		{
 			// If the backup codes is null insert a new record
 			$query->insert($db->qn('#__loginguard_tfa'))
-			      ->columns(array(
-				      $db->qn('user_id'),
-				      $db->qn('title'),
-				      $db->qn('method'),
-				      $db->qn('default'),
-				      $db->qn('created_on'),
-				      $db->qn('options'),
-			      ))->values(
+				->columns(array(
+					$db->qn('user_id'),
+					$db->qn('title'),
+					$db->qn('method'),
+					$db->qn('default'),
+					$db->qn('created_on'),
+					$db->qn('options'),
+				))->values(
 					$db->q($user->id) . ', ' .
 					$db->q('Backup Codes') . ', ' .
 					$db->q('backupcodes') . ', ' .
@@ -353,4 +377,5 @@ class LoginGuardModelBackupcodes extends JModelLegacy
 
 		return true;
 	}
+
 }

@@ -5,83 +5,99 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Controller;
 
-class LoginGuardControllerCaptive extends JControllerLegacy
+use Akeeba\LoginGuard\Site\Model\BackupCodes;
+use Akeeba\LoginGuard\Site\Model\Captive as CaptiveModel;
+use Akeeba\LoginGuard\Site\Model\Method;
+use Exception;
+use FOF30\Container\Container;
+use FOF30\Controller\Controller;
+use FOF30\Utils\Ip;
+use JBrowser;
+use JLoader;
+use JRoute;
+use JText;
+use JUri;
+use RuntimeException;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
+/**
+ * Controller for the captive login view
+ *
+ * @since       2.0.0
+ */
+class Captive extends Controller
 {
-	public function __construct(array $config = array())
+	/**
+	 * Constructor. Sets up the default task
+	 *
+	 * @param   Container  $container
+	 * @param   array      $config
+	 *
+	 * @since   2.0.0
+	 */
+	public function __construct(Container $container, array $config = array())
 	{
-		parent::__construct($config);
-
-		$this->registerDefaultTask('captive');
-	}
-
-	public function captive($cachable = false, $urlparams = false)
-	{
-		// Set the default view name and format
-		$id       = $this->input->getInt('user_id', 0);
-
-		// Get the view object
-		$document   = JFactory::getDocument();
-		$viewLayout = $this->input->get('layout', 'default', 'string');
-		$view       = $this->getView('captive', 'html', '', array(
-			'base_path' => $this->basePath,
-			'layout'    => $viewLayout
-		));
-
-		$view->document = $document;
-
-		// If we're already logged in go to the site's home page
-		if (JFactory::getSession()->get('tfa_checked', 0, 'com_loginguard') == 1)
+		if (!isset($config['default_task']))
 		{
-			$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
-			JFactory::getApplication()->redirect($url);
+			$config['default_task'] = 'captive';
 		}
 
-		// Pass the model to the view
-		/** @var LoginGuardModelCaptive $model */
-		$model = $this->getModel('captive');
-		$view->setModel($model, true);
+		parent::__construct($container, $config);
+	}
+
+	/**
+	 * Display the captive login page
+	 *
+	 * @since   2.0.0
+	 */
+	public function captive()
+	{
+		// If we're already logged in go to the site's home page
+		if ($this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard') == 1)
+		{
+			$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+			$this->setRedirect($url);
+
+			return;
+		}
 
 		// kill all modules on the page
-		$model->killAllModules();
+		try
+		{
+			/** @var CaptiveModel $model */
+			$model = $this->getModel();
+			$model->killAllModules();
+		}
+		catch (Exception $e)
+		{
+			// If we can't kill the modules we can still survive.
+		}
 
 		// Pass the TFA record ID to the model
 		$record_id = $this->input->getInt('record_id', null);
 		$model->setState('record_id', $record_id);
-
-		// Do not go through $this->display() because it overrides the model, nullifying the whole concept of MVC.
-		$view->display();
-
-		return $this;
 	}
-
 
 	/**
 	 * Validate the TFA code entered by the user
 	 *
-	 * @param   bool   $cachable       Can this view be cached
-	 * @param   array  $urlparameters  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 * @since   2.0.0
 	 *
-	 * @return  self   The current JControllerLegacy object to support chaining.
+	 * @throws  \Exception
 	 */
-	public function validate($cachable = false, $urlparameters = array())
+	public function validate()
 	{
-		// CSRF Check
-		$token = JSession::getFormToken();
-		$value = $this->input->post->getInt($token, 0);
-
-		if ($value != 1)
-		{
-			die(JText::_('JINVALID_TOKEN'));
-		}
+		$this->csrfProtection();
 
 		// Get the TFA parameters from the request
 		$record_id = $this->input->getInt('record_id', null);
 		$code      = $this->input->get('code', null, 'raw');
-		/** @var LoginGuardModelCaptive $model */
-		$model = $this->getModel('Captive', 'LoginGuardModel');
+		/** @var CaptiveModel $model */
+		$model = $this->getModel();
 
 		// Validate the TFA record
 		$model->setState('record_id', $record_id);
@@ -93,22 +109,17 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		}
 
 		// Validate the code
-		$user = JFactory::getUser();
+		$user = $this->container->platform->getUser();
 
-		require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
-		$results     = LoginGuardHelperTfa::runPlugins('onLoginGuardTfaValidate', array($record, $user, $code));
+		$results     = $this->container->platform->runPlugins('onLoginGuardTfaValidate', [$record, $user, $code]);
 		$isValidCode = false;
 
 		if ($record->method == 'backupcodes')
 		{
-			if (!class_exists('LoginGuardModelBackupcodes'))
-			{
-				require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
-			}
+			/** @var BackupCodes $codesModel */
+			$codesModel = $this->getModel('BackupCodes');
+			$results = [$codesModel->isBackupCode($code, $user)];
 
-			/** @var LoginGuardModelBackupcodes $codesModel */
-			$codesModel = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
-			$results = array($codesModel->isBackupCode($code, $user));
 			/**
 			 * This is required! Do not remove!
 			 *
@@ -147,31 +158,26 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
 			$this->setRedirect($captiveURL, $message, 'error');
 
-			return $this;
+			return;
 		}
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');
-		$jNow    = JDate::getInstance();
+		$jNow    = $this->container->platform->getDate();
 		$browser = JBrowser::getInstance();
-		$session = JFactory::getSession();
-		$ip      = $session->get('session.client.address');
+		$ip      = $this->container->platform->getSessionVar('session.client.address');
 
 		if (empty($ip))
 		{
-			$ip = $_SERVER['REMOTE_ADDR'];
+			$ip = Ip::getIp();
 		}
 
 		$record->last_used = $jNow->toSql();
 		$record->ua        = $browser->getAgentString();
 		$record->ip        = $ip;
 
-		if (!class_exists('LoginGuardModelMethod'))
-		{
-			require_once __DIR__ . '/../models/method.php';
-		}
-
-		$methodModel = new LoginGuardModelMethod();
+		/** @var Method $methodModel */
+		$methodModel = $this->getModel('Method');
 
 		try
 		{
@@ -183,11 +189,10 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		}
 
 		// Flag the user as fully logged in
-		$session = JFactory::getSession();
-		$session->set('tfa_checked', 1, 'com_loginguard');
+		$this->container->platform->setSessionVar('tfa_checked', 1, 'com_loginguard');
 
 		// Get the return URL stored by the plugin in the session
-		$return_url = $session->get('return_url', '', 'com_loginguard');
+		$return_url = $this->container->platform->getSessionVar('return_url', '', 'com_loginguard');
 
 		// If the return URL is not set or not inside this site redirect to the site's front page
 		if (empty($return_url) || !JUri::isInternal($return_url))
@@ -196,7 +201,5 @@ class LoginGuardControllerCaptive extends JControllerLegacy
 		}
 
 		$this->setRedirect($return_url);
-
-		return $this;
 	}
 }
