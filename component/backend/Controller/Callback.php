@@ -7,10 +7,12 @@
 
 namespace Akeeba\LoginGuard\Admin\Controller;
 
+use Akeeba\LoginGuard\Site\Controller\Callback as FrontendController;
+
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-class Callback extends Akeeba\LoginGuard\Site\Controller\Callback
+class Callback extends FrontendController
 {
 
 }

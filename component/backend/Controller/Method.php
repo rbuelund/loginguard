@@ -7,10 +7,12 @@
 
 namespace Akeeba\LoginGuard\Admin\Controller;
 
+use Akeeba\LoginGuard\Site\Controller\Method as FrontendController;
+
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-class Method extends Akeeba\LoginGuard\Site\Controller\Method
+class Method extends FrontendController
 {
 
 }
