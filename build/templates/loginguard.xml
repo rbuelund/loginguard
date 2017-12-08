@@ -20,6 +20,7 @@
 		<folder>Helper</folder>
 		<folder>Model</folder>
 		<folder>View</folder>
+		<folder>views</folder>
 
 		<filename>index.html</filename>
 		<filename>loginguard.php</filename>

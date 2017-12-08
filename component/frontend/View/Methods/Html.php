@@ -5,15 +5,26 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\View\Methods;
 
-class LoginGuardViewMethods extends JViewLegacy
+// Protect from unauthorized access
+use Akeeba\LoginGuard\Site\Model\BackupCodes;
+use Akeeba\LoginGuard\Site\Model\Methods;
+use Exception;
+use FOF30\View\DataView\Html as BaseView;
+use Joomla\CMS\User\User;
+use JText;
+use JUser;
+
+defined('_JEXEC') or die();
+
+class Html extends BaseView
 {
 	/**
 	 * Is this an administrator page?
 	 *
 	 * @var   bool
+	 * @since 2.0.0
 	 */
 	public $isAdmin = false;
 
@@ -21,6 +32,7 @@ class LoginGuardViewMethods extends JViewLegacy
 	 * The TFA methods available for this user
 	 *
 	 * @var   array
+	 * @since 2.0.0
 	 */
 	public $methods = array();
 
@@ -28,6 +40,7 @@ class LoginGuardViewMethods extends JViewLegacy
 	 * The return URL to use for all links and forms
 	 *
 	 * @var   string
+	 * @since 2.0.0
 	 */
 	public $returnURL = null;
 
@@ -35,6 +48,7 @@ class LoginGuardViewMethods extends JViewLegacy
 	 * Are there any active TFA methods at all?
 	 *
 	 * @var   bool
+	 * @since 2.0.0
 	 */
 	public $tfaActive = false;
 
@@ -42,33 +56,33 @@ class LoginGuardViewMethods extends JViewLegacy
 	 * Which method has the default record?
 	 *
 	 * @var   string
+	 * @since 2.0.0
 	 */
 	public $defaultMethod = '';
 
 	/**
 	 * The user object used to display this page
 	 *
-	 * @var   JUser
+	 * @var   JUser|User
+	 * @since 2.0.0
 	 */
 	public $user = null;
 
 	/**
 	 * Execute and display a template script.
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  mixed  A string if successful, otherwise an Error object.
-	 *
-	 * @see     JViewLegacy::loadTemplate()
+	 * @return  void
+	 * @since   2.0.0
+	 * @throws  Exception
 	 */
-	function display($tpl = null)
+	public function onBeforeDisplay()
 	{
 		if (empty($this->user))
 		{
-			$this->user = JFactory::getUser();
+			$this->user = $this->container->platform->getUser();
 		}
 
-		/** @var LoginGuardModelMethods $model */
+		/** @var Methods $model */
 		$model = $this->getModel();
 
 		if ($this->getLayout() != 'firsttime')
@@ -77,8 +91,7 @@ class LoginGuardViewMethods extends JViewLegacy
 		}
 
 		$this->methods = $model->getMethods($this->user);
-		$this->isAdmin = LoginGuardHelperTfa::isAdminPage();
-
+		$this->isAdmin = $this->container->platform->isBackend();
 		$activeRecords = 0;
 
 		if (count($this->methods))
@@ -108,14 +121,9 @@ class LoginGuardViewMethods extends JViewLegacy
 		}
 
 		// If there are no backup codes yet we should create new ones
-		if (!class_exists('LoginGuardModelBackupcodes'))
-		{
-			require_once JPATH_BASE . '/components/com_loginguard/models/backupcodes.php';
-		}
 
-		/** @var LoginGuardModelBackupcodes $model */
-		$model = JModelLegacy::getInstance('Backupcodes', 'LoginGuardModel');
-
+		/** @var BackupCodes $model */
+		$model       = $this->container->factory->model('BackupCodes');
 		$backupCodes = $model->getBackupCodes($this->user);
 
 		if ($activeRecords && empty($backupCodes))
@@ -138,40 +146,11 @@ class LoginGuardViewMethods extends JViewLegacy
 			);
 		}
 
-		// Get the media version
-		require_once JPATH_SITE . '/components/com_loginguard/helpers/version.php';
-		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
-
 		// Include CSS
-		if (version_compare(JVERSION, '3.6.999', 'le'))
-		{
-			JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
-				'version'     => $mediaVersion,
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
-		}
-		else
-		{
-			JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
-				'version'       => $mediaVersion,
-				'relative'      => true,
-				'detectDebug'   => true,
-				'pathOnly'      => false,
-				'detectBrowser' => true,
-			), array(
-				'type' => 'text/css',
-			));
-		}
-
-		// Back-end: always show a title in the 'title' module position, not in the page body
-		if ($this->isAdmin)
-		{
-			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . JText::_('COM_LOGINGUARD_HEAD_LIST_PAGE') . "</small>", 'lock');
-			$this->title = '';
-		}
-
-		// Display the view
-		return parent::display($tpl);
+		$this->addCssFile('media://com_loginguard/css/methods.min.css', null, 'text/css', null, [
+			'relative'    => true,
+			'detectDebug' => true,
+		]);
 	}
+
 }

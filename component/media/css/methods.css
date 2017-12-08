@@ -4,6 +4,11 @@
  * @license   GNU General Public License version 3, or later
  */
 
+.loginguard-methods-list-method-info {
+    text-align: right;
+}
+
+/**
 .loginguard-methods-list-method {
     display: block;
     width: 50%;
@@ -90,3 +95,4 @@ div#loginguard-methods-reset-container
 {
     display: none;
 }
+/**/

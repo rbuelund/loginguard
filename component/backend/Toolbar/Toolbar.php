@@ -46,4 +46,9 @@ class Toolbar extends BaseToolbar
 		JToolbarHelper::help('', false, 'https://github.com/akeeba/loginguard/wiki');
 		JToolbarHelper::preferences('com_loginguard');
 	}
+
+	public function onMethods()
+	{
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . JText::_('COM_LOGINGUARD_HEAD_LIST_PAGE') . "</small>", 'lock');
+	}
 }

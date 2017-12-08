@@ -52,6 +52,12 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 
                 // Obsolete cacert.pem from version 1.x; we are now using the one in FOF
 		        'components/com_loginguard/cacert.pem',
+
+		        // Remove all obsolete methods view file, except for the list.xml metadata file
+		        'components/com_loginguard/views/method/view.html.php',
+		        'components/com_loginguard/views/method/tmpl/default.php',
+		        'components/com_loginguard/views/method/tmpl/firsttime.php',
+		        'components/com_loginguard/views/method/tmpl/list.php',
             ],
 	        'folders' => [
 		        // Obsolete Joomla! core MVC files from version 1.x
@@ -65,7 +71,10 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
                 'components/com_loginguard/controllers',
                 'components/com_loginguard/helpers',
                 'components/com_loginguard/models',
-                'components/com_loginguard/views',
+                // Remove all obsolete front-end views, except for the list.xml metadata file
+                'components/com_loginguard/views/captive',
+                'components/com_loginguard/views/method',
+                'components/com_loginguard/views/methods/tmpl',
             ]
     ];
 
