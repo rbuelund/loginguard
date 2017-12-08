@@ -20,10 +20,10 @@ if (!empty($this->returnURL))
 }
 
 ?>
-<form action="index.php" method="post" id="loginguard-method-edit" class="form">
+<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="form">
 	<input type="hidden" name="option" value="com_loginguard">
 	<input type="hidden" name="task" value="method.save">
-	<input type="hidden" name="id" value="<?php echo $this->record->id ?>">
+	<input type="hidden" name="id" value="<?php echo (int) $this->record->id ?>">
 	<input type="hidden" name="method" value="<?php echo $this->record->method ?>">
 	<input type="hidden" name="user_id" value="<?php echo $this->user->id ?>">
 	<input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">

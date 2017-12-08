@@ -23,9 +23,11 @@ $model = $this->getModel();
                 <span>
 		            <?php echo $method['display'] ?>
 	                <?php if ($this->defaultMethod == $methodName): ?>
-                        <span id="loginguard-methods-list-method-default-tag" class="akeeba-label--teal">
-                        <?php echo JText::_('COM_LOGINGUARD_LBL_LIST_DEFAULTTAG') ?>
-                        </span>
+                        <sup>
+                            <span id="loginguard-methods-list-method-default-tag" class="akeeba-label--green--small">
+                            <?php echo JText::_('COM_LOGINGUARD_LBL_LIST_DEFAULTTAG') ?>
+                            </span>
+                        </sup>
 	                <?php endif; ?>
                 </span>
                 <span class="loginguard-methods-list-method-info">

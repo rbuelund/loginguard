@@ -69,6 +69,22 @@ class Html extends BaseView
 	public $user = null;
 
 	/**
+	 * Overrides the default method to execute and display a template script.
+	 *
+	 * @param   string $tpl The name of the template file to parse
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @throws  Exception  When the layout file is not found
+	 */
+	public function display($tpl = null)
+	{
+		$this->onBeforeDisplay();
+
+		return parent::display($tpl);
+	}
+
+	/**
 	 * Execute and display a template script.
 	 *
 	 * @return  void

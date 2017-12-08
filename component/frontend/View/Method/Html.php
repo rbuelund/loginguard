@@ -5,15 +5,24 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\View\Method;
 
-class LoginGuardViewMethod extends JViewLegacy
+// Protect from unauthorized access
+use Akeeba\LoginGuard\Site\Model\Method;
+use Exception;
+use FOF30\View\DataView\Html as BaseView;
+use JToolbarHelper;
+use JUser;
+
+defined('_JEXEC') or die();
+
+class Html extends BaseView
 {
 	/**
 	 * Is this an administrator page?
 	 *
 	 * @var   bool
+	 * @since 2.0.0
 	 */
 	public $isAdmin = false;
 
@@ -21,6 +30,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The editor page render options
 	 *
 	 * @var   array
+	 * @since 2.0.0
 	 */
 	public $renderOptions = array();
 
@@ -28,6 +38,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The TFA method record being edited
 	 *
 	 * @var   object
+	 * @since 2.0.0
 	 */
 	public $record = null;
 
@@ -35,6 +46,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The title text for this page
 	 *
 	 * @var  string
+	 * @since 2.0.0
 	 */
 	public $title = '';
 
@@ -42,6 +54,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The return URL to use for all links and forms
 	 *
 	 * @var   string
+	 * @since 2.0.0
 	 */
 	public $returnURL = null;
 
@@ -49,6 +62,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The user object used to display this page
 	 *
 	 * @var   JUser
+	 * @since 2.0.0
 	 */
 	public $user = null;
 
@@ -56,6 +70,7 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * The backup codes for the current user. Only applies when the backup codes record is being "edited"
 	 *
 	 * @var   array
+	 * @since 2.0.0
 	 */
 	public $backupCodes = array();
 
@@ -63,32 +78,47 @@ class LoginGuardViewMethod extends JViewLegacy
 	 * Am I editing an existing method? If it's false then I'm adding a new method.
 	 *
 	 * @var   bool
+	 * @since 2.0.0
 	 */
 	public $isEditExisting = false;
 
 	/**
+	 * Overrides the default method to execute and display a template script.
+	 *
+	 * @param   string $tpl The name of the template file to parse
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @throws  Exception  When the layout file is not found
+	 */
+	public function display($tpl = null)
+	{
+		$this->onBeforeDisplay();
+
+		return parent::display($tpl);
+	}
+
+
+	/**
 	 * Execute and display a template script.
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  mixed  A string if successful, otherwise an Error object.
-	 *
-	 * @see     JViewLegacy::loadTemplate()
+	 * @return  void
+	 * @since   2.0.0
 	 */
-	function display($tpl = null)
+	function onBeforeDisplay()
 	{
 		if (empty($this->user))
 		{
-			$this->user = JFactory::getUser();
+			$this->user = $this->container->platform->getUser();
 		}
 
-		/** @var LoginGuardModelMethod $model */
+		/** @var Method $model */
 		$model = $this->getModel();
 		$this->setLayout('edit');
 		$this->renderOptions = $model->getRenderOptions($this->user);
 		$this->record        = $model->getRecord($this->user);
 		$this->title         = $model->getPageTitle();
-		$this->isAdmin       = LoginGuardHelperTfa::isAdminPage();
+		$this->isAdmin       = $this->container->platform->isBackend();
 
 		// Backup codes are a special case, rendered with a special layout
 		if ($this->record->method == 'backupcodes')
@@ -121,48 +151,20 @@ class LoginGuardViewMethod extends JViewLegacy
 		// Set up the isEditExisting property.
 		$this->isEditExisting = !empty($this->record->id);
 
-		// Back-end: always show a title in the 'title' module position, not in the page body
 		if ($this->isAdmin)
 		{
-			JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
-
 			$helpUrl     = $this->renderOptions['help_url'];
 
 			if (!empty($helpUrl))
 			{
 				JToolbarHelper::help('', false, $helpUrl);
 			}
-
-			$this->title = '';
 		}
 
-		// Get the media version
-		require_once JPATH_SITE . '/components/com_loginguard/helpers/version.php';
-		$mediaVersion = md5(LoginGuardHelperVersion::component('com_loginguard'));
-
-		// Include CSS
-		if (version_compare(JVERSION, '3.6.999', 'le'))
-		{
-			JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
-				'version'     => $mediaVersion,
-				'relative'    => true,
-				'detectDebug' => true
-			), true, false, false, true);
-		}
-		else
-		{
-			JHtml::_('stylesheet', 'com_loginguard/methods.min.css', array(
-				'version'       => $mediaVersion,
-				'relative'      => true,
-				'detectDebug'   => true,
-				'pathOnly'      => false,
-				'detectBrowser' => true,
-			), array(
-				'type' => 'text/css',
-			));
-		}
-
-		// Display the view
-		return parent::display($tpl);
+		$this->addCssFile('media://com_loginguard/css/methods.min.css', null, 'text/css', null, [
+			'relative'    => true,
+			'detectDebug' => true
+		]);
 	}
+
 }

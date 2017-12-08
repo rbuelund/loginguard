@@ -47,8 +47,23 @@ class Toolbar extends BaseToolbar
 		JToolbarHelper::preferences('com_loginguard');
 	}
 
+	/**
+	 * Render the toolbar for view=Methods
+	 *
+	 * @since   2.0.0
+	 */
 	public function onMethods()
 	{
 		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . JText::_('COM_LOGINGUARD_HEAD_LIST_PAGE') . "</small>", 'lock');
+	}
+
+	/**
+	 * Render the toolbar for view=Method
+	 *
+	 * @since   2.0.0
+	 */
+	public function onMethod()
+	{
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
 	}
 }
