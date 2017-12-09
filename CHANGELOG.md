@@ -2,6 +2,7 @@
 
 **Other changes**
 
+* Rewritten interface using the FOF framework
 * Rewritten interface using our own CSS framework
 * Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
 * Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
