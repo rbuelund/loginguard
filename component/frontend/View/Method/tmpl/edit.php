@@ -28,15 +28,15 @@ $token = $this->getContainer()->platform->getToken();
 		<span>
             <?php echo JText::_($this->title) ?>
         </span>
-		    <?php if (!empty($this->renderOptions['help_url'])): ?>
-                <span class="loginguard-method-edit-head-help">
-            <a href="<?php echo $this->renderOptions['help_url'] ?>"
-               class="akeeba-btn--dark--mini"  target="_blank"
+        <?php if (!empty($this->renderOptions['help_url'])): ?>
+            <span class="loginguard-method-edit-head-help">
+                <a href="<?php echo $this->renderOptions['help_url'] ?>"
+               class="akeeba-btn--dark--mini" target="_blank"
             >
-                <span class="akion-ios-information"></span>
-            </a>
-        </span>
-		    <?php endif;?>
+                    <span class="akion-ios-information"></span>
+                </a>
+            </span>
+        <?php endif;?>
         </h3>
     </header>
 

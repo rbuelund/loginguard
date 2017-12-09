@@ -13,11 +13,14 @@ defined('_JEXEC') or die;
 $shownMethods = array();
 
 ?>
-<div id="loginguard-select">
-    <h3 id="loginguard-select-heading">
-        <?php echo JText::_('COM_LOGINGUARD_HEAD_SELECT_PAGE'); ?>
-    </h3>
-    <div id="loginguard-select-information">
+<div id="loginguard-select" class="akeeba-panel--info">
+    <header class="akeeba-block-header">
+        <h3 id="loginguard-select-heading">
+		    <?php echo JText::_('COM_LOGINGUARD_HEAD_SELECT_PAGE'); ?>
+        </h3>
+    </header>
+
+    <div id="loginguard-select-information" class="akeeba-block--info">
         <p>
 	        <?php echo JText::_('COM_LOGINGUARD_LBL_SELECT_INSTRUCTIONS'); ?>
         </p>
