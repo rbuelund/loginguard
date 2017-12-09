@@ -27,16 +27,22 @@ defined('_JEXEC') or die;
         </p>
     </div>
 
-	<div id="loginguard-methods-reset-container" class="well well-large well-lg col-sm-6 col-sm-offset-3 span6 offset3">
-		<?php if ($this->tfaActive): ?>
-			<a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id) ?>"
-			   class="btn btn-danger pull-right">
-				<?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
-			</a>
-		<?php endif; ?>
-		<span id="loginguard-methods-reset-message">
-            <?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_STATUS', JText::_('COM_LOGINGUARD_LBL_LIST_STATUS_' . ($this->tfaActive ? 'ON' : 'OFF'))) ?>
-        </span>
+	<div id="loginguard-methods-reset-container" class="akeeba-panel--<?php echo $this->tfaActive ? 'success' : 'danger' ?>">
+        <div class="akeeba-container--75-25">
+            <div>
+                <span id="loginguard-methods-reset-message">
+                    <?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_STATUS', JText::_('COM_LOGINGUARD_LBL_LIST_STATUS_' . ($this->tfaActive ? 'ON' : 'OFF'))) ?>
+                </span>
+            </div>
+            <div class="loginguard-methods-reset-container-removeall-container">
+	            <?php if ($this->tfaActive): ?>
+                    <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.disable&' . JFactory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id) ?>"
+                       class="akeeba-btn--red">
+			            <?php echo JText::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
+                    </a>
+	            <?php endif; ?>
+            </div>
+        </div>
 	</div>
 
 </div>

@@ -117,9 +117,13 @@ class Method extends Controller
 	 *
 	 * @return  void
 	 * @since   2.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function regenbackupcodes()
 	{
+		$this->csrfProtection();
+
 		// Make sure I am allowed to edit the specified user
 		$user_id = $this->input->getInt('user_id', null);
 		$user    = $this->container->platform->getUser($user_id);
@@ -148,9 +152,13 @@ class Method extends Controller
 	 *
 	 * @return  void
 	 * @since   2.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function delete()
 	{
+		$this->csrfProtection();
+
 		// Make sure I am allowed to edit the specified user
 		$user_id = $this->input->getInt('user_id', null);
 		$user    = $this->container->platform->getUser($user_id);
