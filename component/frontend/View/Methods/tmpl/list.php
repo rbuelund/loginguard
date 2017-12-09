@@ -115,8 +115,9 @@ $token = $this->getContainer()->platform->getToken();
 		            <?php if (empty($method['active']) || $method['allowMultiple']): ?>
                         <div class="loginguard-methods-list-method-addnew-container">
                             <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.add&method=' . $this->escape(urlencode($method['name'])) . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id)?>"
-                               class="loginguard-methods-list-method-addnew akeeba-btn--primary"
+                               class="loginguard-methods-list-method-addnew akeeba-btn--grey"
                             >
+                                <span class="akion-android-add-circle"></span>
 					            <?php echo JText::sprintf('COM_LOGINGUARD_LBL_LIST_ADD_A', $method['display']) ?>
                             </a>
                         </div>

@@ -22,23 +22,23 @@ if (!empty($this->returnURL))
 $token = $this->getContainer()->platform->getToken();
 
 ?>
-<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="akeeba-form--horizontal">
-	<?php if (!empty($this->title)): ?>
-    <h4 id="loginguard-method-edit-head">
+<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="akeeba-form--horizontal akeeba-panel--info">
+    <header class="akeeba-block-header">
+        <h3 id="loginguard-method-edit-head">
 		<span>
             <?php echo JText::_($this->title) ?>
         </span>
-	    <?php if (!empty($this->renderOptions['help_url'])): ?>
-        <span class="loginguard-method-edit-head-help">
+		    <?php if (!empty($this->renderOptions['help_url'])): ?>
+                <span class="loginguard-method-edit-head-help">
             <a href="<?php echo $this->renderOptions['help_url'] ?>"
-           class="akeeba-btn--dark--mini"  target="_blank"
-        >
+               class="akeeba-btn--dark--mini"  target="_blank"
+            >
                 <span class="akion-ios-information"></span>
             </a>
         </span>
-	    <?php endif;?>
-    </h4>
-	<?php endif; ?>
+		    <?php endif;?>
+        </h3>
+    </header>
 
 	<div class="akeeba-form-group">
 		<label class="hasTooltip" for="loginguard-method-edit-title"

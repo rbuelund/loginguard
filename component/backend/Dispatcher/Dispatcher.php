@@ -84,8 +84,6 @@ class Dispatcher extends BaseDispatcher
 			}
 		}
 
-		$view = '';
-
 		if (!empty($task) && (strpos($task, '.') !== false))
 		{
 			list($view, $task) = explode('.', $task, 2);
