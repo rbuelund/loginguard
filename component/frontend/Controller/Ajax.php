@@ -5,45 +5,55 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-defined('_JEXEC') or die;
+namespace Akeeba\LoginGuard\Site\Controller;
 
-class LoginGuardControllerAjax extends JControllerLegacy
+use FOF30\Container\Container;
+use FOF30\Controller\Controller;
+use JText;
+use RuntimeException;
+
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
+/**
+ * AJAX controller. Handles requests originating from an asynchronous request issued by the user's browser.
+ *
+ * @since       2.0.0
+ */
+class Ajax extends Controller
 {
 	/**
-	 * Constructor.
+	 * Ajax constructor.
 	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 * Recognized key values include 'name', 'default_task', 'model_path', and
-	 * 'view_path' (this list is not meant to be comprehensive).
+	 * @param   Container  $container
+	 * @param   array      $config
+	 *
+	 * @since   2.0.0
 	 */
-	public function __construct(array $config = array())
+	public function __construct(Container $container, array $config = array())
 	{
-		parent::__construct($config);
-
-		$this->registerDefaultTask('json');
+		if (!isset($config['default_task']))
+		{
+			$config['default_task'] = 'json';
+		}
+		parent::__construct($container, $config);
 	}
 
 	/**
 	 * Implement an AJAX feature. Results are returned as JSON. In case of no response the JSON string literal "null"
 	 * is returned.
 	 *
-	 * @param   bool   $cachable   Can this view be cached
-	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
-	 *
-	 * @return  JControllerLegacy   The current JControllerLegacy object to support chaining.
+	 * @return  void
+	 * @since   2.0.0
 	 */
-	public function json($cachable = false, $urlparams = false)
+	public function json()
 	{
 		$result = $this->getResult();
 
 		echo json_encode($result);
 
 		// Immediately close the application
-		JFactory::getApplication()->close();
-
-		// This is a useless line which never runs. It's here just to make code analyzers happy.
-		return $this;
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -55,23 +65,17 @@ class LoginGuardControllerAjax extends JControllerLegacy
 	 * which forcibly inject HTML or other crap to the output _even when the format query string parameter is explicitly
 	 * set to raw_. This solution has proven itself since Joomla! 1.0, all the way back in 2005.
 	 *
-	 * @param   bool   $cachable   Can this view be cached
-	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
-	 *
-	 * @return  JControllerLegacy   The current JControllerLegacy object to support chaining.
+	 * @return  void
+	 * @since   2.0.0
 	 */
-	public function hashjson($cachable = false, $urlparams = false)
+	public function hashjson()
 	{
 		$result = $this->getResult();
 
 		echo '###' . json_encode($result) . '###';
 
 		// Immediately close the application
-		JFactory::getApplication()->close();
-
-		// This is a useless line which never runs. It's here just to make code analyzers happy.
-		return $this;
-
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -79,28 +83,24 @@ class LoginGuardControllerAjax extends JControllerLegacy
 	 * whatever format is best for the application. If no plugin handles the request the application closes without
 	 * returning a response.
 	 *
-	 * @param   bool   $cachable   Can this view be cached
-	 * @param   array  $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
-	 *
-	 * @return  JControllerLegacy   The current JControllerLegacy object to support chaining.
+	 * @return  void
+	 * @since   2.0.0
 	 */
-	public function raw($cachable = false, $urlparams = false)
+	public function raw()
 	{
 		// Note: we return no result. The first plugin which handles the request is supposed to do that.
 		$result = $this->getResult();
 
 		// Immediately close the application
-		JFactory::getApplication()->close();
-
-		// This is a useless line which never runs. It's here just to make code analyzers happy.
-		return $this;
+		$this->container->platform->closeApplication();
 	}
 
 	/**
 	 * Common part of request handling across all tasks. Makes sure the request is a valid AJAX requests, triggers the
 	 * plugin event and returns the first non-empty result.
 	 *
-	 * @return   mixed  Null if no plugin handled the event. Otherwise the first non-false plugin result.
+	 * @return  mixed  Null if no plugin handled the event. Otherwise the first non-false plugin result.
+	 * @since   2.0.0
 	 */
 	private function getResult()
 	{
@@ -122,15 +122,9 @@ class LoginGuardControllerAjax extends JControllerLegacy
 		}
 
 		// Trigger the onLoginGuardAjax plugin event
-		if (!class_exists('LoginGuardHelperTfa', true))
-		{
-			require_once JPATH_SITE . '/components/com_loginguard/helpers/tfa.php';
-		}
-
-		JPluginHelper::importPlugin('loginguard');
-		$results = LoginGuardHelperTfa::runPlugins('onLoginGuardAjax', array($method, $action));
-
-		$result = null;
+		$this->container->platform->importPlugin('loginguard');
+		$results = $this->container->platform->runPlugins('onLoginGuardAjax', [$method, $action]);
+		$result  = null;
 
 		foreach ($results as $aResult)
 		{
