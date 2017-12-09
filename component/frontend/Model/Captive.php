@@ -14,6 +14,7 @@ use JApplicationCms;
 use JFactory;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\User\User;
+use Joomla\Event\Event;
 use JText;
 use JUser;
 use stdClass;
@@ -55,33 +56,96 @@ class Captive extends Model
 			$app = JFactory::getApplication();
 		}
 
+		if (version_compare(JVERSION, '3.99999.99999', 'lt'))
+		{
+			$app->registerEvent('onAfterModuleList', [$this, 'onAfterModuleListJoomla3']);
+
+			return;
+		}
+
+		$app->registerEvent('onAfterModuleList', [$this, 'onAfterModuleListJoomla4']);
+	}
+
+	/**
+	 * Process the modules list on Joomla! 3.
+	 *
+	 * Joomla! 3.x is passing the array of modules by reference. We just have to overwrite the array passed as a
+	 * parameter.
+	 *
+	 * @param   array  $modules  The list of modules on the site
+	 *
+	 * @return  void
+	 * @since   2.0.0
+	 */
+	public function onAfterModuleListJoomla3(&$modules)
+	{
+		if (empty($modules))
+		{
+			return;
+		}
+
+		$this->filterModules($modules);
+	}
+
+	/**
+	 * Process the modules list on Joomla! 4.
+	 *
+	 * Joomla! 3.x is passing an Event object. The first argument of the event object is the array of modules. After
+	 * filtering it we have to overwrite the event argument (NOT just return the new list of modules). If a future
+	 * version of Joomla! uses immutable events we'll have to use Reflection to do that or Joomla! would have to fix
+	 * the way this event is handled, taking its return into account. For now, we just abuse the mutable event
+	 * properties - a feature of the event objects we discussed in the Joomla! 4 Working Group back in August 2015.
+	 *
+	 * @param   Event  $event  The Joomla! event object
+	 *
+	 * @return  void
+	 * @since   2.0.0
+	 */
+	public function onAfterModuleListJoomla4(Event $event)
+	{
+		$modules = $event->getArgument(0);
+
+		if (empty($modules))
+		{
+			return;
+		}
+
+		$this->filterModules($modules);
+
+		$event->setArgument(0, $modules);
+	}
+
+	/**
+	 * This is the method which actually filters the sites modules based on the allowed module positions specified by
+	 * the user.
+	 *
+	 * @param   array  $modules  The list of the site's modules. Passed by reference.
+	 *
+	 * @return  void  The by-reference value is modified instead.
+	 * @since   2.0.0
+	 */
+	private function filterModules(&$modules)
+	{
 		$allowedPositions = $this->getAllowedModulePositions();
 
-		$app->registerEvent('onAfterModuleList', function (&$modules) use ($allowedPositions) {
-			if (empty($modules))
+		if (empty($allowedPositions))
+		{
+			$modules = array();
+
+			return;
+		}
+
+		$filtered = array();
+
+		foreach ($modules as $module)
+		{
+			if (in_array($module->position, $allowedPositions))
 			{
-				return;
+				$filtered[] = $module;
 			}
+		}
 
-			if (empty($allowedPositions))
-			{
-				$modules = array();
-
-				return;
-			}
-
-			$filtered = array();
-
-			foreach ($modules as $module)
-			{
-				if (in_array($module->position, $allowedPositions))
-				{
-					$filtered[] = $module;
-				}
-			}
-
-			$modules = $filtered;
-		});
+		$modules = $filtered;
 	}
 
 	/**

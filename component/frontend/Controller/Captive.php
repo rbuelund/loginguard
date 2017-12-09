@@ -80,6 +80,8 @@ class Captive extends Controller
 		// Pass the TFA record ID to the model
 		$record_id = $this->input->getInt('record_id', null);
 		$model->setState('record_id', $record_id);
+
+		$this->display();
 	}
 
 	/**

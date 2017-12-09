@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-/** @var LoginGuardViewCaptive $this */
+/** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
 
 ?>
 <div class="loginguard-captive">
@@ -43,7 +43,7 @@ defined('_JEXEC') or die;
         </div>
 	<?php endif; ?>
 
-    <form action="index.php" method="POST" id="loginguard-captive-form">
+    <form action="<?php echo JUri::base() ?>index.php" method="POST" id="loginguard-captive-form">
         <input type="hidden" name="option" value="com_loginguard">
         <input type="hidden" name="task" value="captive.validate">
         <input type="hidden" name="record_id" value="<?php echo $this->record->id ?>">
@@ -60,7 +60,7 @@ window.addEventListener("DOMContentLoaded", function() {
 });
 
 JS;
-		        $this->document->addScriptDeclaration($js);
+		        $this->addJavascriptInline($js);
 
             ?>
                 <div class="form-group">

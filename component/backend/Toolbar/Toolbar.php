@@ -66,4 +66,9 @@ class Toolbar extends BaseToolbar
 	{
 		JToolbarHelper::title(JText::_('COM_LOGINGUARD') . " <small>" . $this->title . "</small>", 'lock');
 	}
+
+	public function onCaptives()
+	{
+		JToolbarHelper::title(JText::_('COM_LOGINGUARD_HEAD_TFA_PAGE'), 'lock');
+	}
 }
