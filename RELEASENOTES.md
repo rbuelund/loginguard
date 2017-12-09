@@ -26,10 +26,11 @@ Akeeba LoginGuard comes with English (Great Britain) language built-in. Installa
 
 **Other changes**
 
-* Make the intent of Backup Codes more obvious
-* Auto-focus the two step verification field
-* Do not escape the LoginGuard method title (allows for title formatting, e.g. with the backup codes method) 
+* Rewritten interface using the FOF framework
+* Rewritten interface using our own CSS framework
+* Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
+* Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
 
 **Bug fixes**
 
-* The emergency backup codes could be reused
+* PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).
