@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-/** @var  LoginGuardViewMethod  $this */
+/** @var  \Akeeba\LoginGuard\Site\View\Method\Html  $this */
 
 JHtml::_('bootstrap.tooltip');
 
@@ -19,66 +19,48 @@ if (!empty($this->returnURL))
 	$cancelURL = $this->escape(base64_decode($this->returnURL));
 }
 
+$token = $this->getContainer()->platform->getToken();
+
 ?>
-<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="form">
-	<input type="hidden" name="option" value="com_loginguard">
-	<input type="hidden" name="task" value="method.save">
-	<input type="hidden" name="id" value="<?php echo (int) $this->record->id ?>">
-	<input type="hidden" name="method" value="<?php echo $this->record->method ?>">
-	<input type="hidden" name="user_id" value="<?php echo $this->user->id ?>">
-	<input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">
-	<?php if (!empty($this->returnURL)): ?>
-	<input type="hidden" name="returnurl" value="<?php echo $this->escape($this->returnURL) ?>">
-	<?php endif; ?>
-
-	<?php if (!empty($this->renderOptions['hidden_data'])): ?>
-	<?php foreach ($this->renderOptions['hidden_data'] as $key => $value): ?>
-	<input type="hidden" name="<?php echo $this->escape($key) ?>" value="<?php echo $this->escape($value) ?>">
-	<?php endforeach; ?>
-	<?php endif; ?>
-
+<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="akeeba-form--horizontal">
 	<?php if (!empty($this->title)): ?>
-    <?php if (!empty($this->renderOptions['help_url'])): ?>
-    <span class="pull-right">
-        <a href="<?php echo $this->renderOptions['help_url'] ?>"
-           class="btn btn-sm btn-small btn-default btn-inverse"
-           target="_blank"
+    <h4 id="loginguard-method-edit-head">
+		<span>
+            <?php echo JText::_($this->title) ?>
+        </span>
+	    <?php if (!empty($this->renderOptions['help_url'])): ?>
+        <span class="loginguard-method-edit-head-help">
+            <a href="<?php echo $this->renderOptions['help_url'] ?>"
+           class="akeeba-btn--dark--mini"  target="_blank"
         >
-            <span class="icon icon-question-sign glyphicon glyphicon-question-sign"></span>
-        </a>
-
-    </span>
-    <?php endif;?>
-	<h3 id="loginguard-method-edit-head">
-		<?php echo JText::_($this->title) ?>
-	</h3>
+                <span class="akion-ios-information"></span>
+            </a>
+        </span>
+	    <?php endif;?>
+    </h4>
 	<?php endif; ?>
 
-	<div class="control-group form-group">
-		<label class="control-label hasTooltip" for="loginguard-method-edit-title"
+	<div class="akeeba-form-group">
+		<label class="hasTooltip" for="loginguard-method-edit-title"
 			title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE_DESC')) ?>">
 			<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE'); ?>
 		</label>
-		<div class="controls">
-			<input type="text" class="form-control input-xxlarge" id="loginguard-method-edit-title"
-			       name="title"
-			       value="<?php echo $this->escape($this->record->title) ?>"
-			       placeholder="<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE_DESC') ?>">
-		</div>
+        <input type="text" id="loginguard-method-edit-title"
+               name="title"
+               value="<?php echo $this->escape($this->record->title) ?>"
+               placeholder="<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_TITLE_DESC') ?>">
 	</div>
 
-    <div class="control-group form-group">
-        <div class="controls">
-            <label class="control-label hasTooltip"
-            title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT_DESC')); ?>">
-                <input type="checkbox" <?php echo $this->record->default ? 'checked="checked"' : ''; ?> name="default">
-				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT'); ?>
-            </label>
-        </div>
+    <div class="akeeba-form-group--checkbox--pull-right">
+        <label class="hasTooltip"
+               title="<?php echo $this->escape(JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT_DESC')); ?>">
+            <input type="checkbox" <?php echo $this->record->default ? 'checked="checked"' : ''; ?> name="default">
+		    <?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_FIELD_DEFAULT'); ?>
+        </label>
     </div>
 
 	<?php if (!empty($this->renderOptions['pre_message'])): ?>
-	<div class="loginguard-method-edit-pre-message">
+	<div class="loginguard-method-edit-pre-message akeeba-block--info">
 		<?php echo $this->renderOptions['pre_message'] ?>
 	</div>
 	<?php endif; ?>
@@ -86,11 +68,11 @@ if (!empty($this->returnURL))
 	<?php if (!empty($this->renderOptions['tabular_data'])): ?>
 	<div class="loginguard-method-edit-tabular-container">
 		<?php if (!empty($this->renderOptions['table_heading'])): ?>
-		<h4>
+		<h5>
 			<?php echo $this->renderOptions['table_heading'] ?>
-		</h4>
+		</h5>
 		<?php endif; ?>
-		<table class="table table-striped">
+		<table class="akeeba-table--striped">
 			<tbody>
 			<?php foreach ($this->renderOptions['tabular_data'] as $cell1 => $cell2): ?>
 			<tr>
@@ -110,43 +92,59 @@ if (!empty($this->returnURL))
 	<?php if ($this->renderOptions['field_type'] == 'custom'): ?>
 	<?php echo $this->renderOptions['html']; ?>
 	<?php else: ?>
-	<div class="control-group form-group">
+	<div class="akeeba-form-group">
 		<?php if ($this->renderOptions['label']): ?>
-		<label class="control-label hasTooltip" for="loginguard-method-edit-code">
+		<label class="hasTooltip" for="loginguard-method-edit-code">
 			<?php echo $this->renderOptions['label']; ?>
 		</label>
 		<?php endif; ?>
-		<div class="controls">
-			<input type="<?php echo $this->renderOptions['input_type']; ?>"
-			       class="form-control" id="loginguard-method-code"
-			       name="code"
-			       value="<?php echo $this->escape($this->renderOptions['input_value']) ?>"
-			       placeholder="<?php echo $this->escape($this->renderOptions['placeholder']) ?>">
-		</div>
+        <input type="<?php echo $this->renderOptions['input_type']; ?>"
+               id="loginguard-method-code"
+               name="code"
+               value="<?php echo $this->escape($this->renderOptions['input_value']) ?>"
+               placeholder="<?php echo $this->escape($this->renderOptions['placeholder']) ?>">
 	</div>
 	<?php endif; ?>
 
-	<div class="control-group">
-		<div class="controls">
+	<div class="akeeba-form-group--pull-right">
+		<div class="akeeba-form-group--actions">
 			<?php if ($this->renderOptions['show_submit'] || $this->isEditExisting): ?>
-			<button type="submit" class="btn btn-primary"
+			<button type="submit" class="akeeba-btn--primary"
 				<?php echo $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
-				<span class="icon icon-ok glyphicon glyphicon-ok-circle"></span>
+				<span class="akion-checkmark-circled"></span>
 				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_SUBMIT'); ?>
 			</button>
 			<?php endif; ?>
 
 			<a href="<?php echo $cancelURL ?>"
-			   class="btn btn-small btn-sm btn-default">
-				<span class="icon icon-cancel-2 glyphicon glyphicon-cancel-2"></span>
+			   class="akeeba-btn--small--red">
+				<span class="akion-android-cancel"></span>
 				<?php echo JText::_('COM_LOGINGUARD_LBL_EDIT_CANCEL'); ?>
 			</a>
 		</div>
 	</div>
 
 	<?php if (!empty($this->renderOptions['post_message'])): ?>
-		<div class="loginguard-method-edit-post-message">
+		<div class="loginguard-method-edit-post-message akeeba-panel--info">
 			<?php echo $this->renderOptions['post_message'] ?>
 		</div>
 	<?php endif; ?>
+
+    <div>
+        <input type="hidden" name="option" value="com_loginguard">
+        <input type="hidden" name="task" value="method.save">
+        <input type="hidden" name="id" value="<?php echo (int) $this->record->id ?>">
+        <input type="hidden" name="method" value="<?php echo $this->record->method ?>">
+        <input type="hidden" name="user_id" value="<?php echo $this->user->id ?>">
+        <input type="hidden" name="<?php echo $token ?>" value="1">
+		<?php if (!empty($this->returnURL)): ?>
+            <input type="hidden" name="returnurl" value="<?php echo $this->escape($this->returnURL) ?>">
+		<?php endif; ?>
+
+		<?php if (!empty($this->renderOptions['hidden_data'])): ?>
+			<?php foreach ($this->renderOptions['hidden_data'] as $key => $value): ?>
+                <input type="hidden" name="<?php echo $this->escape($key) ?>" value="<?php echo $this->escape($value) ?>">
+			<?php endforeach; ?>
+		<?php endif; ?>
+    </div>
 </form>

@@ -45,6 +45,11 @@ div.loginguard-methods-list-method-record
     margin-bottom: 1em !important;
 }
 
+span.loginguard-method-edit-head-help
+{
+    float: right;
+}
+
 /**
 .loginguard-methods-list-method {
     display: block;
