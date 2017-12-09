@@ -89,7 +89,7 @@ class Captive extends Controller
 	 *
 	 * @since   2.0.0
 	 *
-	 * @throws  \Exception
+	 * @throws  Exception
 	 */
 	public function validate()
 	{

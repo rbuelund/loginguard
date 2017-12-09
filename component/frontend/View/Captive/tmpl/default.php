@@ -86,13 +86,13 @@ JS;
                 </button>
 
 	            <?php if ($this->isAdmin): ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . JSession::getFormToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-power"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php else: ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . JSession::getFormToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-ios-locked"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
@@ -120,7 +120,7 @@ JS;
             <input type="hidden" name="option" value="com_loginguard">
             <input type="hidden" name="task" value="captive.validate">
             <input type="hidden" name="record_id" value="<?php echo $this->record->id ?>">
-            <input type="hidden" name="<?php echo JSession::getFormToken() ?>" value="1">
+            <input type="hidden" name="<?php echo $this->getContainer()->platform->getToken() ?>" value="1">
         </div>
     </form>
 
