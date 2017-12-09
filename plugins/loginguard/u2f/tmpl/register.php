@@ -15,9 +15,9 @@ include $layoutPath;
 <div id="loginguard-u2f-controls">
     <input class="form-control" id="loginguard-method-code" name="code" value="" placeholder="" type="hidden">
 
-    <div class="control-group">
-        <div class="controls">
-            <a class="btn btn-primary btn-large btn-lg"
+    <div class="akeeba-form-group--pull-right">
+        <div class="akeeba-form-group--actions">
+            <a class="akeeba-btn--primary--large"
                onclick="akeeba.LoginGuard.u2f.setUp();">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
 				<?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_REGISTERKEY'); ?>

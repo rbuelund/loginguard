@@ -1,18 +1,22 @@
 ## Release highlights
+
+**Rewritten interface using the FOF framework**. This version of Akeeba LoginGuard uses our FOF framework instead of Joomla's core MVC framework. This allows us to support a wider variety of Joomla! versions more easily and with much less pain for you.
  
-**Backup codes are more obvious**. We changed the way the Backup Codes header renders to make their existence and intent more obvious to your site's users.
+**Rewritten interface using our own CSS framework**. We have created our own CSS framework which works across different Joomla! versions and even with templates which don't use Bootstrap (the official CSS framework of Joomla! itself). This makes our software better looking in even more sites without customization right out of the box.
 
-**Auto-focus the two step verification field**. So you can just type your code / press the button on your YubiKey without needing to move your hands off the keyboard or hit TAB a million times.
+**Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)**. Our software includes preliminary compatibility for Joomla! 4. We have tested our software against Joomla! 4.0.0 Alpha 2. We cannot promise that this will ensure compatibility with Joomla! 4 stable. Depending on how Joomla! 4 development proceeds we _may_ have to postpone or temporarily suspend Joomla! 4 compatibility in the future.
 
-**Bug fixes**. A number of bugs and oversights have been corrected in this version.
+**Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.**. This version of our software no longer supports PHP 5.3. Please note that PHP 5.3 has been [end of life since August 14th, 2014](http://php.net/eol.php).
 
 For more information and documentation for administrators, users and developers please [consult the documentation Wiki](https://github.com/akeeba/loginguard/wiki).
  
 ## Joomla and PHP Compatibility
 
-Akeeba LoginGuard is compatible with Joomla! 3.4, 3.5, 3.6, 3.7 and 3.8. It requires PHP 5.3.10 or later, the same minimum PHP version as Joomla! itself. It's also compatible with PHP 5.4, 5.5, 5.6, 7.0, 7.1 and 7.2.
+Akeeba LoginGuard is compatible with Joomla! 3.4, 3.5, 3.6, 3.7 and 3.8. Preliminary support for Joomla! 4 is present but does not guarantee compatibility with a future release of Joomla! 4 stable and be postponed or temporarily suspended depending on Joomla 4's development.
 
-We strongly recommend using the latest published Joomla! version and PHP 7.0 or 7.1 later _for optimal security of your site_. It makes no sense adding two step login verification to a site that's running vulnerable software. It's like locking your door and leaving your windows wide open. It will not keep the bad guys out.
+Akeeba LoginGuard requires PHP 5.4 or later. It's also compatible with PHP 5.5, 5.6, 7.0, 7.1 and 7.2.
+
+We strongly recommend using the latest published Joomla! version and PHP 7.0 or later _for optimal security of your site_. It makes no sense adding two step login verification to a site that's running vulnerable software. It's like locking your door and leaving your windows wide open. It will not keep the bad guys out.
 
 ## Language files
 
@@ -22,10 +26,11 @@ Akeeba LoginGuard comes with English (Great Britain) language built-in. Installa
 
 **Other changes**
 
-* Make the intent of Backup Codes more obvious
-* Auto-focus the two step verification field
-* Do not escape the LoginGuard method title (allows for title formatting, e.g. with the backup codes method) 
+* Rewritten interface using the FOF framework
+* Rewritten interface using our own CSS framework
+* Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
+* Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
 
 **Bug fixes**
 
-* The emergency backup codes could be reused
+* PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).

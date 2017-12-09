@@ -9,7 +9,10 @@
 
 /component/loginguard.xml
 
+/component/media/css/fef.min.css
 /component/media/js/*.map
+/component/media/fonts
+/component/media/images/akeeba-logo.svg
 
 /documentation/*/*.*~
 

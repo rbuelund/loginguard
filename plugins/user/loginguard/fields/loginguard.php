@@ -8,9 +8,6 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-JLoader::register('LoginGuardViewMethods', JPATH_SITE . '/components/com_loginguard/views/methods/view.html.php');
-JLoader::register('LoginGuardModelMethods', JPATH_SITE . '/components/com_loginguard/models/methods.php');
-
 class JFormFieldLoginguard extends JFormField
 {
 	/**

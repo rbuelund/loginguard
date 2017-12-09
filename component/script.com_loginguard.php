@@ -8,7 +8,13 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-class Com_LoginguardInstallerScript
+// Load FOF if not already loaded
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	throw new RuntimeException('This component requires FOF 3.0.');
+}
+
+class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 {
 	/**
 	 * The component's name
@@ -38,115 +44,53 @@ class Com_LoginguardInstallerScript
 	 */
 	protected $minimumJoomlaVersion = '3.4.0';
 
-	/**
-	 * Obsolete files and folders to remove from both paid and free releases. This is used when you refactor code and
-	 * some files inevitably become obsolete and need to be removed.
-	 *
-	 * @var   array
-	 */
-	protected $removeFiles = array(
-		'files'   => array(),
-		'folders' => array()
-    );
+	protected $removeFilesAllVersions = [
+	        'files' => [
+                // Obsolete Joomla! core MVC files from version 1.x
+		        'administrator/components/com_loginguard/controller.php',
+		        'components/com_loginguard/controller.php',
+
+                // Obsolete cacert.pem from version 1.x; we are now using the one in FOF
+		        'components/com_loginguard/cacert.pem',
+
+		        // Remove all obsolete methods view file, except for the list.xml metadata file
+		        'components/com_loginguard/views/method/view.html.php',
+		        'components/com_loginguard/views/method/tmpl/default.php',
+		        'components/com_loginguard/views/method/tmpl/firsttime.php',
+		        'components/com_loginguard/views/method/tmpl/list.php',
+            ],
+	        'folders' => [
+		        // Obsolete Joomla! core MVC files from version 1.x
+                'administrator/components/com_loginguard/controllers',
+                'administrator/components/com_loginguard/helpers',
+                'administrator/components/com_loginguard/models',
+                'administrator/components/com_loginguard/views',
+		        'administrator/components/com_loginguard/sql/mysql',
+		        'administrator/components/com_loginguard/sql/postgresql',
+		        'administrator/components/com_loginguard/sql/sqlazure',
+                'components/com_loginguard/controllers',
+                'components/com_loginguard/helpers',
+                'components/com_loginguard/models',
+                // Remove all obsolete front-end views, except for the list.xml metadata file
+                'components/com_loginguard/views/captive',
+                'components/com_loginguard/views/method',
+                'components/com_loginguard/views/methods/tmpl',
+            ]
+    ];
 
 	/**
-	 * Joomla! pre-flight event. This runs before Joomla! installs or updates the component. This is our last chance to
-	 * tell Joomla! if it should abort the installation.
+	 * Runs on installation
 	 *
-	 * @param   string                      $type    Installation type (install, update, discover_install)
-	 * @param   JInstallerAdapterComponent  $parent  Parent object
+	 * @param   JInstallerAdapterComponent $parent The parent object
 	 *
-	 * @return  boolean  True to let the installation proceed, false to halt the installation
+	 * @return  void
 	 */
-	public function preflight($type, $parent)
+	public function install($parent)
 	{
-		// Check the minimum PHP version
-		if (!empty($this->minimumPHPVersion))
+		if (!defined('AKEEBA_THIS_IS_INSTALLATION_FROM_SCRATCH'))
 		{
-			if (defined('PHP_VERSION'))
-			{
-				$version = PHP_VERSION;
-			}
-			elseif (function_exists('phpversion'))
-			{
-				$version = phpversion();
-			}
-			else
-			{
-				$version = '5.0.0'; // all bets are off!
-			}
-
-			if (!version_compare($version, $this->minimumPHPVersion, 'ge'))
-			{
-				$msg = "<p>You need PHP $this->minimumPHPVersion or later to install this component</p>";
-
-				JLog::add($msg, JLog::WARNING, 'jerror');
-
-				return false;
-			}
+			define('AKEEBA_THIS_IS_INSTALLATION_FROM_SCRATCH', 1);
 		}
-
-		// Check the minimum Joomla! version
-		if (!empty($this->minimumJoomlaVersion) && !version_compare(JVERSION, $this->minimumJoomlaVersion, 'ge'))
-		{
-			$msg = "<p>You need Joomla! $this->minimumJoomlaVersion or later to install this component</p>";
-
-			JLog::add($msg, JLog::WARNING, 'jerror');
-
-			return false;
-		}
-
-		// Check the maximum Joomla! version
-		if (!empty($this->maximumJoomlaVersion) && !version_compare(JVERSION, $this->maximumJoomlaVersion, 'le'))
-		{
-			$msg = "<p>You need Joomla! $this->maximumJoomlaVersion or earlier to install this component</p>";
-
-			JLog::add($msg, JLog::WARNING, 'jerror');
-
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Runs after install, update or discover_update. In other words, it executes after Joomla! has finished installing
-	 * or updating your component. This is the last chance you've got to perform any additional installations, clean-up,
-	 * database updates and similar housekeeping functions.
-	 *
-	 * @param   string                      $type    install, update or discover_update
-	 * @param   JInstallerAdapterComponent  $parent  Parent object
-	 */
-	function postflight($type, $parent)
-	{
-		// Remove obsolete files and folders
-		$this->removeFilesAndFolders($this->removeFiles);
-
-		// Show the post-installation page
-		$this->renderPostInstallation($parent);
-
-		// Always reset the OPcache if it's enabled. Otherwise there's a good chance the server will not know we are
-		// replacing .php scripts. This is a major concern since PHP 5.5 included and enabled OPcache by default.
-		if (function_exists('opcache_reset'))
-		{
-			opcache_reset();
-		}
-		// Also do that for APC cache
-		elseif (function_exists('apc_clear_cache'))
-		{
-			@apc_clear_cache();
-		}
-	}
-
-	/**
-	 * Runs on uninstallation
-	 *
-	 * @param   \JInstallerAdapterComponent  $parent  The parent object
-	 */
-	public function uninstall($parent)
-	{
-		// Show the post-uninstallation page
-		$this->renderPostUninstallation($parent);
 	}
 
 	/**
@@ -252,46 +196,6 @@ class Com_LoginguardInstallerScript
 
 HTML;
 
-	}
-
-	/**
-	 * Removes obsolete files and folders
-	 *
-	 * @param   array  $removeList  The files and directories to remove
-	 */
-	private function removeFilesAndFolders($removeList)
-	{
-		// Remove files
-		if (isset($removeList['files']) && !empty($removeList['files']))
-		{
-			foreach ($removeList['files'] as $file)
-			{
-				$f = JPATH_ROOT . '/' . $file;
-
-				if (!is_file($f))
-				{
-					continue;
-				}
-
-				JFile::delete($f);
-			}
-		}
-
-		// Remove folders
-		if (isset($removeList['folders']) && !empty($removeList['folders']))
-		{
-			foreach ($removeList['folders'] as $folder)
-			{
-				$f = JPATH_ROOT . '/' . $folder;
-
-				if (!is_dir($f))
-				{
-					continue;
-				}
-
-				JFolder::delete($f);
-			}
-		}
 	}
 
 }

@@ -1,8 +1,15 @@
-# 1.2.2
+# 2.0.0
+
+**Other changes**
+
+* Rewritten interface using the FOF framework
+* Rewritten interface using our own CSS framework
+* Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
+* Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
 
 **Bug fixes**
 
-* PHP Notice when the user does not any backup codes (it can only happen if you tamper with the database).
+* PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).
 
 # 1.2.1
 
