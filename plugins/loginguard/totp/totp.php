@@ -408,7 +408,7 @@ class PlgLoginguardTotp extends JPlugin
 		if (version_compare(JVERSION, '3.6.999', 'le'))
 		{
 			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_totp/qrcode.js', array(
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
 				'version'     => 'auto',
 				'relative'    => true,
 				'detectDebug' => true,
@@ -418,7 +418,7 @@ class PlgLoginguardTotp extends JPlugin
 		else
 		{
 			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_totp/qrcode.js', array(
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
 				'version'       => 'auto',
 				'relative'      => true,
 				'detectDebug'   => true,
