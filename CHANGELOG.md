@@ -10,6 +10,7 @@
 **Bug fixes**
 
 * PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).
+* Google's QR code API was deprecated, breaking the TOTP authentication plugin (gh-38)
 
 # 1.2.1
 

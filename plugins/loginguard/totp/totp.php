@@ -7,6 +7,7 @@
 
 // Prevent direct access
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Document\HtmlDocument;
 
 defined('_JEXEC') or die;
 
@@ -213,8 +214,10 @@ class PlgLoginguardTotp extends JPlugin
 		// Generate a QR code for the key
 		$user     = JFactory::getUser($record->user_id);
 		$hostname = JUri::getInstance()->toString(array('host'));
-		$qr       = $totp->getUrl($user->username, $hostname, $key);
+		$qr       = sprintf("otpauth://totp/%s@%s?secret=%s", $user->username, $hostname, $key);
 		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
+
+		$this->loadJavascript($qr);
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
@@ -226,7 +229,7 @@ class PlgLoginguardTotp extends JPlugin
 			// Any tabular data to display (label => custom HTML). See above
 			'tabular_data'   => array(
 				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_KEY') => $key,
-				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<img src=\"$qr\" />",
+				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<span id=\"loginGuardQRImage\" />",
 			),
 			// Hidden fields to include in the form (name => value)
 			'hidden_data'    => array(
@@ -389,5 +392,61 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		return $options;
+	}
+
+	protected function loadJavascript($QRContent)
+	{
+		if (defined('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED'))
+		{
+			return;
+		}
+
+		define('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED', 1);
+
+		JHtml::_('jquery.framework');
+
+		if (version_compare(JVERSION, '3.6.999', 'le'))
+		{
+			// Load Javascript
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.js', array(
+				'version'     => 'auto',
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
+		}
+		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+		else
+		{
+			// Load Javascript
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.js', array(
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+		}
+
+		$js        = /** @lang JavaScript */
+			<<< JS
+;; // Defense against broken scripts
+window.jQuery(document).ready(function ($){
+    $("#loginGuardQRImage").qrcode({
+    	render: 'image',
+    	ecLevel: 'Q',
+    	size: 300,
+    	quiet: 2,
+    	text: '$QRContent'
+    });
+});
+
+JS;
+
+		JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
+
 	}
 }
