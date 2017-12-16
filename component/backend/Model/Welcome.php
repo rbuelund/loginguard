@@ -7,6 +7,7 @@
 
 namespace Akeeba\LoginGuard\Admin\Model;
 
+use AkeebaGeoipProvider;
 use Exception;
 use FOF30\Model\Model;
 
