@@ -35,7 +35,7 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumPHPVersion = '5.3.10';
+	protected $minimumPHPVersion = '5.4.0';
 
 	/**
 	 * The minimum Joomla! version required to install this extension
@@ -43,6 +43,13 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 * @var   string
 	 */
 	protected $minimumJoomlaVersion = '3.4.0';
+
+	/**
+	 * The maximum Joomla! version this extension can be installed on
+	 *
+	 * @var   string
+	 */
+	protected $maximumJoomlaVersion = '4.0.99999';
 
 	protected $removeFilesAllVersions = [
 	        'files' => [
@@ -92,6 +99,27 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 			define('AKEEBA_THIS_IS_INSTALLATION_FROM_SCRATCH', 1);
 		}
 	}
+
+	/**
+	 * Runs after install, update or discover_update. In other words, it executes after Joomla! has finished installing
+	 * or updating your component. This is the last chance you've got to perform any additional installations, clean-up,
+	 * database updates and similar housekeeping functions.
+	 *
+	 * @param   string                      $type   install, update or discover_update
+	 * @param   \JInstallerAdapterComponent $parent Parent object
+	 *
+	 * @throws  Exception
+	 *
+	 * @return  void
+	 */
+	public function postflight($type, $parent)
+	{
+		parent::postflight($type, $parent);
+
+		// Add ourselves to the list of extensions depending on Akeeba FEF
+		$this->addDependency('file_fef', $this->componentName);
+	}
+
 
 	/**
 	 * Override this method to display a custom component installation message if you so wish

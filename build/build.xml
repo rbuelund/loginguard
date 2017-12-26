@@ -9,7 +9,7 @@
 	-->
 
 	<!-- Fileset for building the component ZIP -->
-	<fileset dir="${dirs.component}" id="component-core">
+	<fileset dir="${dirs.component}" id="component">
 		<include name="backend/**" />
 		<include name="frontend/**" />
 		<include name="language/**" />
@@ -25,11 +25,12 @@
 	</fileset>
 
 	<!-- Fileset for building the package ZIP -->
-	<fileset dir="${dirs.release}" id="package-core">
+	<fileset dir="${dirs.release}" id="package">
 		<include name="com_*.zip" />
 		<include name="mod_*.zip" />
 		<include name="plg_*.zip" />
 		<include name="lib_*.zip" />
+		<include name="file_fef*.zip" />
 		<include name="pkg_*.xml" />
 		<include name="*.txt" />
 		<include name="script.loginguard.php" />
