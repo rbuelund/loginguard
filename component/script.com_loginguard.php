@@ -114,6 +114,49 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 */
 	public function postflight($type, $parent)
 	{
+		// Let's install common tables
+		$container = null;
+		$model     = null;
+
+		if (class_exists('FOF30\\Container\\Container'))
+		{
+			try
+			{
+				$container = \FOF30\Container\Container::getInstance('com_loginguard');
+			}
+			catch (\Exception $e)
+			{
+				$container = null;
+			}
+		}
+
+		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		{
+			/** @var \Akeeba\LoginGuard\Admin\Model\UsageStatistics $model */
+			try
+			{
+				$model = $container->factory->model('UsageStatistics')->tmpInstance();
+			}
+			catch (\Exception $e)
+			{
+				$model = null;
+			}
+		}
+
+		if (is_object($model) && class_exists('Akeeba\\LoginGuard\\Admin\\Model\\UsageStatistics')
+			&& ($model instanceof Akeeba\LoginGuard\Admin\Model\UsageStatistics)
+			&& method_exists($model, 'checkAndFixCommonTables'))
+		{
+			try
+			{
+				$model->checkAndFixCommonTables();
+			}
+			catch (Exception $e)
+			{
+				// Do nothing if that failed.
+			}
+		}
+
 		parent::postflight($type, $parent);
 
 		// Add ourselves to the list of extensions depending on Akeeba FEF

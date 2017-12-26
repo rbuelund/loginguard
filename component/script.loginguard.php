@@ -216,18 +216,6 @@ class Pkg_LoginguardInstallerScript
 	 */
 	public function uninstall($parent)
 	{
-		// Reserved for future use
-		return true;
-	}
-
-	/**
-	 * Tries to install or update FEF. The FEF files package installation can fail if there's a newer version
-	 * installed.
-	 *
-	 * @param   \JInstallerAdapterPackage  $parent
-	 */
-	private function installOrUpdateFEF($parent)
-	{
 		// Preload FOF classes required for the InstallScript. This is required since we'll be trying to uninstall FOF
 		// before uninstalling the component itself. The component has an uninstallation script which uses FOF, so...
 		@include_once(JPATH_LIBRARIES . '/fof30/include.php');
@@ -359,6 +347,34 @@ class Pkg_LoginguardInstallerScript
 	}
 
 	/**
+	 * Tries to install or update FEF. The FEF files package installation can fail if there's a newer version
+	 * installed.
+	 *
+	 * @param   \JInstallerAdapterPackage  $parent
+	 */
+	private function installOrUpdateFEF($parent)
+	{
+		// Get the path to the FOF package
+		$sourcePath = $parent->getParent()->getPath('source');
+		$sourcePackage = $sourcePath . '/file_fef.zip';
+
+		// Extract and install the package
+		$package = JInstallerHelper::unpack($sourcePackage);
+		$tmpInstaller  = new JInstaller;
+		$error = null;
+
+		try
+		{
+			$installResult = $tmpInstaller->install($package['dir']);
+		}
+		catch (\Exception $e)
+		{
+			$installResult = false;
+			$error = $e->getMessage();
+		}
+	}
+
+	/**
 	 * Try to uninstall the FEF package. We don't go through the Joomla! package uninstallation since we can expect the
 	 * uninstallation of the FEF library to fail if other software depends on it.
 	 *
@@ -406,6 +422,7 @@ class Pkg_LoginguardInstallerScript
 		}
 	}
 
+
 	/**
 	 * Enable modules and plugins after installing them
 	 */
@@ -431,10 +448,10 @@ class Pkg_LoginguardInstallerScript
 		{
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true)
-			            ->update('#__extensions')
-			            ->set($db->qn('enabled') . ' = ' . $db->q(1))
-			            ->where('type = ' . $db->quote($type))
-			            ->where('element = ' . $db->quote($name));
+				->update('#__extensions')
+				->set($db->qn('enabled') . ' = ' . $db->q(1))
+				->where('type = ' . $db->quote($type))
+				->where('element = ' . $db->quote($name));
 		}
 		catch (\Exception $e)
 		{
