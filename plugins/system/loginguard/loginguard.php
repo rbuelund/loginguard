@@ -1,12 +1,70 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use FOF30\Container\Container;
+
 // Prevent direct access
 defined('_JEXEC') or die;
+
+// Minimum PHP version check
+if (!version_compare(PHP_VERSION, '5.4.0', '>='))
+{
+	return;
+}
+
+/**
+ * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
+ */
+if (function_exists('eaccelerator_info'))
+{
+	$isBrokenCachingEnabled = true;
+
+	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
+	{
+		$isBrokenCachingEnabled = false;
+	}
+
+	if ($isBrokenCachingEnabled)
+	{
+		/**
+		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
+		 * the plugin class isn't defined, so Joomla cannot possibly use it.
+		 *
+		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
+		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
+		 *
+		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
+		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
+		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
+		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
+		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
+		 * with the plugin.
+		 */
+		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
+		}
+
+		return;
+	}
+}
+
+// Make sure Akeeba LoginGuard is installed
+if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
+{
+	return;
+}
+
+// Load FOF
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	return;
+}
 
 /**
  * Akeeba LoginGuard System Plugin
@@ -23,6 +81,14 @@ class PlgSystemLoginguard extends JPlugin
 	public $enabled = true;
 
 	/**
+	 * The component's container
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -32,11 +98,31 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
+		/**
+		 * Required to work around eAccelerator on PHP 5.4 and later.
+		 *
+		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
+		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
+		 */
+		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			return;
+		}
+
 		parent::__construct($subject, $config);
 
-		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
-
-		if (!class_exists('LoginGuardHelperTfa'))
+		try
+		{
+			if (!JComponentHelper::isInstalled('com_loginguard') || !JComponentHelper::isEnabled('com_loginguard'))
+			{
+				$this->enabled = false;
+			}
+			else
+			{
+				$this->container = Container::getInstance('com_loginguard');
+			}
+		}
+		catch (Exception $e)
 		{
 			$this->enabled = false;
 		}
@@ -77,7 +163,13 @@ class PlgSystemLoginguard extends JPlugin
 		try
 		{
 			$app = JFactory::getApplication();
-			$app->loadIdentity();
+
+			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
+			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
+			{
+				$app->loadIdentity();
+			}
+
 			$user = $app->getIdentity();
 		}
 		catch (\Exception $e)
@@ -178,7 +270,7 @@ class PlgSystemLoginguard extends JPlugin
 	private function needsTFA(JUser $user)
 	{
 		// Get the user's TFA records
-		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+		$records = Tfa::getUserTfaRecords($user->id);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
 		if (empty($records))
@@ -187,7 +279,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Let's get a list of all currently active TFA methods
-		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+		$tfaMethods = Tfa::getTfaMethods();
 
 		// If not TFA method is active we can't really display a captive login page.
 		if (empty($tfaMethods))

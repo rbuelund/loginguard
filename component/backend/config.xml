@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
 -->
-<config addfieldpath="/administrator/components/com_loginguard/models/fields">
+<config addfieldpath="/administrator/components/com_loginguard/Field/Joomla">
 
 	<fieldset name="captive" label="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_LABEL"
 			  description="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_DESC">

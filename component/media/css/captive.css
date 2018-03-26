@@ -1,12 +1,17 @@
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 /**
  * ===== Select a TFA ======
  */
+
+span.loginguard-captive-head-help
+{
+    float: right;
+}
 
 #loginguard-select {
 }
@@ -19,14 +24,15 @@
     min-height: 55px;
     margin: auto;
     padding: 0.25em;
-    border-top: thin solid #666666;
-    border-bottom: thin solid #666666;
+    border-top: thin solid #514F50;
+    border-bottom: thin solid #514F50;
     background: #fafafa;
     clear: left;
+    text-decoration: none;
 }
 
 #loginguard-select .loginguard-method:hover {
-    background: #fffff0;
+    background: #EFEFEF;
     text-decoration: none;
 }
 
@@ -42,14 +48,13 @@
 #loginguard-select .loginguard-method span.loginguard-method-title {
     font-size: larger;
     font-weight: bold;
-    color: #333333;
+    color: #514F50;
     display: block;
 }
 
 #loginguard-select .loginguard-method img.loginguard-method-name {
     font-size: small;
     font-style: italic;
-    color: #666688;
     display: block;
 
 }

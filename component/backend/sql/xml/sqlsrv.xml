@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+    <!-- Metadata -->
+    <meta>
+        <!-- Supported driver types -->
+        <drivers>
+            <driver>sqlsrv</driver>
+            <driver>sqlazure</driver>
+        </drivers>
+    </meta>
+
+    <!-- SQL commands to run on installation and update -->
+    <sql>
+        <!-- Create the #__loginguard_tfa table if it's missing -->
+        <action table="#__loginguard_tfa" canfail="0">
+            <condition type="missing" value="" />
+            <query><![CDATA[
+CREATE TABLE [#__loginguard_tfa] (
+  [id] [bigint] IDENTITY(1,1) NOT NULL,
+  [user_id] [BIGINT] NOT NULL DEFAULT 0 ,
+  [title] [NVARCHAR](180) NOT NULL,
+  [method] [NVARCHAR](100) NOT NULL,
+  [default] [SMALLINT] NOT NULL DEFAULT 0 ,
+  [options] [nvarchar](max) NOT NULL,
+  [created_on] [datetime] NOT NULL DEFAULT '1900-01-01T00:00:00.000',
+  [last_used] [datetime] NOT NULL DEFAULT '1900-01-01T00:00:00.000',
+  [ua] [VARCHAR](190) NULL,
+  [ip] [VARCHAR](190) NULL,
+  CONSTRAINT [PK_#__loginguard_tfa_id] PRIMARY KEY CLUSTERED (
+    [id] ASC
+  )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY];
+            ]]></query>
+            <query canfail="1"><![CDATA[
+CREATE NONCLUSTERED INDEX [__loginguard_tfa_user_id] ON [#__loginguard_tfa];
+            ]]></query>
+        </action>
+    </sql>
+
+</schema>

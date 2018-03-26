@@ -1,9 +1,12 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
+
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use FOF30\Container\Container;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -16,6 +19,14 @@ defined('_JEXEC') or die;
 class plgUserLoginguard extends JPlugin
 {
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -26,6 +37,9 @@ class plgUserLoginguard extends JPlugin
 	public function __construct(& $subject, $config)
 	{
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		$this->loadLanguage();
 	}
@@ -55,7 +69,7 @@ class plgUserLoginguard extends JPlugin
 
 		$layout = JFactory::getApplication()->input->getCmd('layout', 'default');
 
-		if (!LoginGuardHelperTfa::isAdminPage() && !in_array($layout, array('edit', 'default')))
+		if (!$this->container->platform->isBackend() && !in_array($layout, array('edit', 'default')))
 		{
 			return true;
 		}
@@ -85,7 +99,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure I am either editing myself OR I am a Super User AND I'm not editing another Super User
-		if (!LoginGuardHelperTfa::canEditUser($user))
+		if (!Tfa::canEditUser($user))
 		{
 			return true;
 		}
@@ -96,7 +110,7 @@ class plgUserLoginguard extends JPlugin
 		// Special handling for profile overview page
 		if ($layout == 'default')
 		{
-			$tfaMethods = LoginGuardHelperTfa::getUserTfaRecords($id);
+			$tfaMethods = Tfa::getUserTfaRecords($id);
 
 			/**
 			 * We cannot pass a boolean or integer; if it's false/0 Joomla! will display "No information entered". We
@@ -196,7 +210,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Get the user's TFA records
-		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+		$records = Tfa::getUserTfaRecords($user->id);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
 		if (empty($records))
@@ -205,7 +219,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Let's get a list of all currently active TFA methods
-		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+		$tfaMethods = Tfa::getTfaMethods();
 
 		// If not TFA method is active we can't really display a captive login page.
 		if (empty($tfaMethods))

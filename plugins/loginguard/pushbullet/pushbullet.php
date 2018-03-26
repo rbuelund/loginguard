@@ -1,21 +1,74 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
+
+use FOF30\Container\Container;
+use FOF30\Encrypt\Totp;
 
 // Prevent direct access
 defined('_JEXEC') or die;
 
-if (!class_exists('LoginGuardAuthenticator', true))
+// Minimum PHP version check
+if (!version_compare(PHP_VERSION, '5.4.0', '>='))
 {
-	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+	return;
+}
+
+/**
+ * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
+ */
+if (function_exists('eaccelerator_info'))
+{
+	$isBrokenCachingEnabled = true;
+
+	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
+	{
+		$isBrokenCachingEnabled = false;
+	}
+
+	if ($isBrokenCachingEnabled)
+	{
+		/**
+		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
+		 * the plugin class isn't defined, so Joomla cannot possibly use it.
+		 *
+		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
+		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
+		 *
+		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
+		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
+		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
+		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
+		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
+		 * with the plugin.
+		 */
+		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
+		}
+
+		return;
+	}
+}
+
+// Make sure Akeeba LoginGuard is installed
+if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
+{
+	return;
+}
+
+// Load FOF
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	return;
 }
 
 if (!class_exists('LoginGuardPushbulletApi', true))
 {
-	JLoader::register('LoginGuardPushbulletApi', __DIR__ . '/classes/pushbullet.php');
+	require_once __DIR__ . '/classes/pushbullet.php';
 }
 
 /**
@@ -55,6 +108,14 @@ class PlgLoginguardPushbullet extends JPlugin
 	private $tfaMethodName = 'pushbullet';
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -64,7 +125,21 @@ class PlgLoginguardPushbullet extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
+		/**
+		 * Required to work around eAccelerator on PHP 5.4 and later.
+		 *
+		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
+		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
+		 */
+		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			return;
+		}
+
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		// Load the PushBullet API parameters
 		/** @var \Joomla\Registry\Registry $params */
@@ -141,7 +216,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		$token   = $session->get('pushbullet.token', $token, 'com_loginguard');
 
 		// Initialize objects
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 
 		// If there's still no key in the options, generate one and save it in the session
 		if (empty($key))
@@ -298,7 +373,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
@@ -396,7 +471,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 		return $totp->checkCode($key, $code);
 	}
 
@@ -450,7 +525,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		}
 
 		// Get the API objects
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 		$pushBullet = new LoginGuardPushbulletApi($token);
 
 		// Create the list of variable replacements
@@ -515,9 +590,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		$token = $input->getString('token', null);
 
 		// If I have no token and it's the front-end I have received a token in the URL fragment from PushBullet
-		JLoader::register('LoginGuardHelperTfa', JPATH_SITE . '/components/com_loginguard/helpers/tfa.php');
-
-		if (empty($token) && !LoginGuardHelperTfa::isAdminPage())
+		if (empty($token) && !$this->container->platform->isBackend())
 		{
 			// The returned URL has a code query string parameter I need to use to retrieve a token
 			$code  = $input->getString('code', null);

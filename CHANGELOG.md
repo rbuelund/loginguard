@@ -1,3 +1,18 @@
+# 2.0.0
+
+**New**
+
+* Rewritten interface using the FOF framework
+* Rewritten interface using our own CSS framework
+* Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
+* Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
+* Warn the user if either FOF or FEF is not installed.
+
+**Bug fixes**
+
+* PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).
+* Google's QR code API was deprecated, breaking the TOTP authentication plugin (gh-38)
+
 # 1.2.1
 
 **Other changes**
