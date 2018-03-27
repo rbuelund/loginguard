@@ -6,6 +6,8 @@
 
 **Bug fixes**
 
+* Cannot update the GeoIP database from inside the component
+
 # 2.0.0
 
 **New**
