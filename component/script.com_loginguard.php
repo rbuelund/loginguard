@@ -82,6 +82,8 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
                 'components/com_loginguard/views/captive',
                 'components/com_loginguard/views/method',
                 'components/com_loginguard/views/methods/tmpl',
+                // Obsolete custom renderer
+		        'components/com_loginguard/Render',
             ]
     ];
 

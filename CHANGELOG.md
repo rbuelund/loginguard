@@ -1,3 +1,11 @@
+# 2.0.1
+
+**Other changes**
+
+* Using the built-in FOF page renderer instead of a custom one
+
+**Bug fixes**
+
 # 2.0.0
 
 **New**
