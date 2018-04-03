@@ -1,3 +1,15 @@
+# 2.0.1
+
+**Other changes**
+
+* Using the built-in FOF page renderer instead of a custom one
+
+**Bug fixes**
+
+* Cannot update the GeoIP database from inside the component
+* TOTP (Google Authenticator) plugin does not display the QR code due to missing JS file
+* Leftover records after the user is deleted from Joomla
+
 # 2.0.0
 
 **New**

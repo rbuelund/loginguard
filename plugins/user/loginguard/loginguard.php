@@ -7,6 +7,7 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -179,6 +180,74 @@ class plgUserLoginguard extends JPlugin
 
 		// Prepare to redirect
 		JFactory::getSession()->set('postloginredirect', $url, 'com_loginguard');
+	}
+
+	/**
+	 * Remove all user profile information for the given user ID
+	 *
+	 * Method is called after user data is deleted from the database
+	 *
+	 * @param   array   $user     Holds the user data
+	 * @param   bool    $success  True if user was successfully stored in the database
+	 * @param   string  $msg      Message
+	 *
+	 * @return  bool
+	 *
+	 * @throws  Exception
+	 */
+	public function onUserAfterDelete($user, $success, $msg)
+	{
+		if (!$success)
+		{
+			return false;
+		}
+
+		if (class_exists('Joomla\\Utilities\\ArrayHelper'))
+		{
+			$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
+		}
+		else
+		{
+			$userId	= JArrayHelper::getValue($user, 'id', 0, 'int');
+		}
+
+		if (!$userId)
+		{
+			return true;
+		}
+
+		$db = JFactory::getDbo();
+
+		// Delete user profile records
+		$query = $db->getQuery(true)
+		            ->delete($db->qn('#__user_profiles'))
+		            ->where($db->qn('user_id').' = '.$db->q($userId))
+		            ->where($db->qn('profile_key').' LIKE '.$db->q('loginguard.%', false));
+
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// No sweat if it failed
+		}
+
+		// Delete LoginGuard records
+		try
+		{
+			$query = $db->getQuery(true)
+			            ->delete($db->qn('#__loginguard_tfa'))
+			            ->where($db->qn('user_id').' = '.$db->q($userId));
+
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// No sweat if it failed
+		}
+
+		return true;
 	}
 
 	/**

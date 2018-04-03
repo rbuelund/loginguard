@@ -146,7 +146,7 @@ defined('_JEXEC') or die;
         <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BODY'); ?>
     </p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.updategeoip&' . JFactory::getSession()->getToken() . '=1') ?>"
+        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=welcome&task=updategeoip&' . JFactory::getSession()->getToken() . '=1') ?>"
            class="akeeba-btn--primary">
             <span class="akion-refresh"></span>
             <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BUTTON'); ?>
@@ -165,7 +165,7 @@ defined('_JEXEC') or die;
 		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BODY'); ?>
 	</p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=welcome.upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
+        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=welcome&task=upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
            class="akeeba-btn--ghost">
             <span class="akion-refresh"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BUTTON'); ?>

@@ -15,7 +15,7 @@
             <option name="scaffolding">0</option>
             <option name="saveScaffolding">0</option>
             <!-- This is the special sauce which allows us to use our own CSS framework :) -->
-            <option name="rendererClass">Akeeba\LoginGuard\Admin\Render\FEF</option>
+            <option name="rendererClass">FOF30\Render\FEF</option>
         </container>
     </common>
     <backend>
