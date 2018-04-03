@@ -48,9 +48,9 @@
 		<files folder="backend">
 			<folder>Controller</folder>
 			<folder>Dispatcher</folder>
+			<folder>Field</folder>
 			<folder>Helper</folder>
 			<folder>Model</folder>
-			<folder>Render</folder>
 			<folder>Toolbar</folder>
 			<folder>View</folder>
 
