@@ -19,6 +19,7 @@
 
 	<media folder="media" destination="plg_loginguard_totp">
 		<folder>images</folder>
+		<folder>js</folder>
 	</media>
 
 	<languages folder="language">

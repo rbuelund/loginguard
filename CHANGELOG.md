@@ -7,6 +7,7 @@
 **Bug fixes**
 
 * Cannot update the GeoIP database from inside the component
+* TOTP (Google Authenticator) plugin does not display the QR code due to missing JS file
 
 # 2.0.0
 
