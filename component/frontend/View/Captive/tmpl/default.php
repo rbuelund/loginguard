@@ -86,13 +86,13 @@ JS;
                 </button>
 
 	            <?php if ($this->isAdmin): ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-power"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php else: ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-ios-locked"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>

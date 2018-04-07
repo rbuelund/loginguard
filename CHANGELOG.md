@@ -1,3 +1,9 @@
+# 2.0.2
+
+**Bug fixes**
+
+* The Log Out button results in an invalid token error (h/t Ivaylo V. for the heads up)
+
 # 2.0.1
 
 **Other changes**
