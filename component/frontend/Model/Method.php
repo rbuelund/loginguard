@@ -243,11 +243,12 @@ class Method extends Model
 		{
 			// Update the Created On, UA and IP columns
 			JLoader::import('joomla.environment.browser');
-			$jNow    = $this->container->platform->getDate();
-			$browser = JBrowser::getInstance();
-			$ip      = $this->container->platform->getSessionVar('session.client.address');
+			$jNow      = $this->container->platform->getDate();
+			$browser   = JBrowser::getInstance();
+			$collectIp = $this->container->params->get('collect_ip', true);
+			$ip        = $collectIp ? $this->container->platform->getSessionVar('session.client.address') : '';
 
-			if (empty($ip))
+			if (empty($ip) && $collectIp)
 			{
 				$ip = Ip::getIp();
 			}

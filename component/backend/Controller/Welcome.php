@@ -56,6 +56,8 @@ class Welcome extends Controller
 	protected function onBeforeExecute(&$task)
 	{
 		$this->assertSuperUser();
+
+		$this->emptyIPs();
 	}
 
 	/**
@@ -147,5 +149,28 @@ class Welcome extends Controller
 		}
 
 		throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+	}
+
+	/**
+	 * Empty any already collected IP addresses when the collect_ip component option is disabled.
+	 *
+	 * @return  void
+	 */
+	private function emptyIPs()
+	{
+		$collectIp = $this->container->params->get('collect_ip', true);
+
+		if ($collectIp)
+		{
+			return;
+		}
+
+		$db = $this->container->db;
+		$query = $db->getQuery(true)
+			->update($db->qn('#__loginguard_tfa'))
+			->set($db->qn('ip') . ' = ' . $db->q(''))
+			->where($db->qn('ip') . ' != ' . $db->q(''))
+		;
+		$db->setQuery($query)->execute();
 	}
 }

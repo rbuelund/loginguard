@@ -22,7 +22,7 @@ class Dispatcher extends BaseDispatcher
 	 * @var   string
 	 * @since 2.0.0
 	 */
-	public $defaultView = 'Methods';
+	public $defaultView = 'Welcome';
 
 	/**
 	 * Executes before dispatching the request to the appropriate controller.
