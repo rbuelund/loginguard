@@ -681,6 +681,9 @@ JS;
 			'options' => json_encode(array('registrations' => array($registration)))
 		);
 
+		$container = Container::getInstance('com_loginguard');
+		$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$update]);
+
 		$db = JFactory::getDbo();
 		$db->updateObject('#__loginguard_tfa', $update, array('id'));
 
@@ -823,8 +826,19 @@ JS;
 			return $return;
 		}
 
+		$container = Container::getInstance('com_loginguard');
+
 		foreach ($results as $result)
 		{
+			$container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$result]);
+
+			if (isset($result->must_save) && ($result->must_save === 1))
+			{
+				/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
+				$methodModel = $container->factory->model('Method')->tmpInstance();
+				$methodModel->saveRecord($record);
+			}
+
 			$options = $this->_decodeRecordOptions($result);
 
 			if (!isset($options['registrations']) || empty($options['registrations']))
@@ -874,8 +888,19 @@ JS;
 		}
 
 		// Loop all records, stop if at least one matches
+		$container = Container::getInstance('com_loginguard');
+
 		foreach ($records as $aRecord)
 		{
+			$container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$aRecord]);
+
+			if (isset($aRecord->must_save) && ($aRecord->must_save === 1))
+			{
+				/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
+				$methodModel = $container->factory->model('Method')->tmpInstance();
+				$methodModel->saveRecord($aRecord);
+			}
+
 			$recordOptions       = $this->_decodeRecordOptions($aRecord);
 			$recordRegistrations = isset($recordOptions['registrations']) ? $recordOptions['registrations'] : array();
 			$registrations       = array_merge($registrations, $recordRegistrations);

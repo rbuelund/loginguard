@@ -118,9 +118,29 @@ class Method extends Model
 			return $defaultRecord;
 		}
 
+		/**
+		 * Call onLoginGuardAfterReadRecord(&$record)
+		 *
+		 * This event fires right after a record has been successfully read from the database. You have the chance to
+		 * modify the record. At this point we have not yet checked whether the record's method refers to an existing,
+		 * activated LoginGuard authentication method plugin.
+		 */
+		$this->container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$record]);
+
 		if (!$this->methodExists($record->method))
 		{
 			return $defaultRecord;
+		}
+
+		// Did a plugin set the flag telling us that we must save the record again?
+		if (isset($record->must_save) && ($record->must_save === 1))
+		{
+			unset($record->must_save);
+
+			// We save a clone of the original object since plugins may change the content of the record on save.
+			$recordToSave = clone $record;
+
+			$this->saveRecord($recordToSave);
 		}
 
 		return $record;
@@ -209,6 +229,15 @@ class Method extends Model
 		}
 
 		$isNewRecord = empty($record->id);
+
+		/**
+		 * Call onLoginGuardBeforeSaveRecord(&$record, $input).
+		 *
+		 * This is your last chance to modify the record being saved to the database. At this point it is NOT guaranteed
+		 * that the changes you see will be committed to the database. Use this event only to modify $record itself. Do
+		 * not make decisions based on its contents.
+		 */
+		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$record]);
 
 		if ($isNewRecord)
 		{

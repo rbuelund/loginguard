@@ -13,7 +13,7 @@
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
 
-    <copyright>Copyright (c)2016-2017 Akeeba Ltd</copyright>
+    <copyright>Copyright (c)2016-2018 Akeeba Ltd</copyright>
     <license>GNU GPL v3 or later</license>
 
     <description>Akeeba LoginGuard installation package v.##VERSION##</description>
@@ -28,6 +28,7 @@
 
         <!-- Plugins: loginguard -->
         <file type="plugin" group="loginguard" id="email">plg_loginguard_email.zip</file>
+        <file type="plugin" group="loginguard" id="encrypt">plg_loginguard_encrypt.zip</file>
         <file type="plugin" group="loginguard" id="fixed">plg_loginguard_fixed.zip</file>
         <file type="plugin" group="loginguard" id="pushbullet">plg_loginguard_pushbullet.zip</file>
         <file type="plugin" group="loginguard" id="smsapi">plg_loginguard_smsapi.zip</file>

@@ -63,6 +63,9 @@
 		<copy file="${phing.dir}/templates/plg_loginguard_email.xml" tofile="${dirs.plugins}/loginguard/email/email.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>
+		<copy file="${phing.dir}/templates/plg_loginguard_encrypt.xml" tofile="${dirs.plugins}/loginguard/encrypt/encrypt.xml" overwrite="true">
+			<filterchain refid="manifest-replace-tokens" />
+		</copy>
 		<copy file="${phing.dir}/templates/plg_loginguard_fixed.xml" tofile="${dirs.plugins}/loginguard/fixed/fixed.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>

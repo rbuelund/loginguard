@@ -329,8 +329,19 @@ class PlgLoginguardYubikey extends JPlugin
 			}
 
 			// Loop all records, stop if at least one matches
+			$container = \FOF30\Container\Container::getInstance('com_loginguard');
+
 			foreach ($records as $aRecord)
 			{
+				$container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$aRecord]);
+
+				if (isset($aRecord->must_save) && ($aRecord->must_save === 1))
+				{
+					/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
+					$methodModel = $container->factory->model('Method')->tmpInstance();
+					$methodModel->saveRecord($aRecord);
+				}
+
 				if ($this->validateAgainstRecord($aRecord, $code))
 				{
 					return true;
@@ -627,7 +638,7 @@ class PlgLoginguardYubikey extends JPlugin
 	 */
 	private function validateAgainstRecord($record, $code)
 	{
-// Load the options from the record (if any)
+		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$keyID   = isset($options['id']) ? $options['id'] : '';
 

@@ -196,6 +196,7 @@ class Convert extends Model
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
+		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
 		$db->insertObject('#__loginguard_tfa', $object, 'id');
 	}
 
@@ -243,6 +244,7 @@ class Convert extends Model
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
+		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
 		$db->insertObject('#__loginguard_tfa', $object, 'id');
 	}
 
@@ -291,6 +293,7 @@ class Convert extends Model
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
+		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
 		$db->insertObject('#__loginguard_tfa', $object, 'id');
 	}
 

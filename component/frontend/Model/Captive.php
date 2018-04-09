@@ -222,6 +222,14 @@ class Captive extends Model
 		try
 		{
 			$record = $db->setQuery($query)->loadObject();
+			$this->container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$record]);
+
+			if (isset($record->must_save) && ($record->must_save === 1))
+			{
+				/** @var Method $methodModel */
+				$methodModel = $this->getContainer()->factory->model('Method')->tmpInstance();
+				$methodModel->saveRecord($record);
+			}
 		}
 		catch (Exception $e)
 		{

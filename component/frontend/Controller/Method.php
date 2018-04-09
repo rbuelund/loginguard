@@ -327,6 +327,8 @@ class Method extends Controller
 
 			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
+
+			return;
 		}
 
 		$this->setRedirect($url);

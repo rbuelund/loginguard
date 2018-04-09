@@ -129,16 +129,32 @@ abstract class Tfa
 	{
 		if (!isset(self::$recordsPerUser[$user_id]))
 		{
-			$db = self::getContainer()->db;
+			$db    = self::getContainer()->db;
 			$query = $db->getQuery(true)
-				->select('*')
-				->from($db->qn('#__loginguard_tfa'))
-				->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-				->order($db->qn('method') . ' ASC');
+			            ->select('*')
+			            ->from($db->qn('#__loginguard_tfa'))
+			            ->where($db->qn('user_id') . ' = ' . $db->q($user_id))
+			            ->order($db->qn('method') . ' ASC')
+			;
 
 			try
 			{
-				self::$recordsPerUser[$user_id] = $db->setQuery($query)->loadObjectList();
+				$records = $db->setQuery($query)->loadObjectList();
+				$container                      = Container::getInstance('com_loginguard');
+				$methodModel                    = $container->factory->model('Method')->tmpInstance();
+				self::$recordsPerUser[$user_id] = array_map(function ($record) use ($container, $methodModel) {
+					$container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$record]);
+
+					if (isset($record->must_save) && ($record->must_save === 1))
+					{
+						unset($record->must_save);
+						$recordToSave = clone $record;
+						$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$recordToSave]);
+						$container->db->updateObject('#__loginguard_tfa', $recordToSave, ['id']);
+					}
+
+					return $record;
+				}, $records);
 			}
 			catch (Exception $e)
 			{
