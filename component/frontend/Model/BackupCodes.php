@@ -116,6 +116,12 @@ class BackupCodes extends Model
 			{
 				$record = $db->setQuery($query)->loadObject();
 				$this->getContainer()->platform->runPlugins('onLoginGuardAfterReadRecord', [&$record]);
+
+				if (!is_object($record))
+				{
+					throw new \RuntimeException('Could not load record - this is OK for new users and is caught in the exception handler below.');
+				}
+
 				$json = $record->options;
 
 				if (isset($record->must_save) && ($record->must_save === 1))
