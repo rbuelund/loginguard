@@ -127,6 +127,11 @@ class PlgLoginguardEncrypt extends JPlugin
 			return;
 		}
 
+		if (empty($record) || !is_object($record))
+		{
+			return;
+		}
+
 		if (substr($record->options, 0, 12) != '###AES128###')
 		{
 			// The settings are not encrypted yet. Flag them as in need to be saved again.

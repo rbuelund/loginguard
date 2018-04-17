@@ -2,7 +2,6 @@
 
 **Other changes**
 
-* Optional plugin to encrypt the 2SV settings in the database. MOST SITES DON'T NEED THIS. READ THE DOCUMENTATION.
 * Option to disable the collection of IP addresses for GDPR compliance on some sites.
 
 **Bug fixes**
