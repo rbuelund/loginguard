@@ -1,8 +1,13 @@
-# 2.0.2
+# 3.0.0
 
 **Other changes**
 
-* Option to disable the collection of IP addresses for GDPR compliance on some sites.
+* Fully refactored to make better use of FOF 3 features
+* Automatic encryption of TFA settings for GDPR compliance (only affects TFA methods which are newly created or used after installing this version)
+
+**Removed features**
+
+* IP addresses and User Agents are no longer collected for GDPR compliance.
 
 **Bug fixes**
 
