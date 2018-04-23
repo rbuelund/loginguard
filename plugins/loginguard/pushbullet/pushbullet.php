@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use Akeeba\LoginGuard\Site\Model\Tfa;
+use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 

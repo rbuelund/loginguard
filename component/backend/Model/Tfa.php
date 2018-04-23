@@ -59,6 +59,7 @@ class Tfa extends DataModel
 	{
 		$config['tableName']   = '#__loginguard_tfa';
 		$config['idFieldName'] = 'id';
+		$config['behaviours'] = ['filters'];
 
 		parent::__construct($container, $config);
 	}

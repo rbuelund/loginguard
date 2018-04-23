@@ -6,7 +6,7 @@
  */
 
 // Prevent direct access
-use Akeeba\LoginGuard\Site\Model\Tfa;
+use Akeeba\LoginGuard\Admin\Model\Tfa;
 
 defined('_JEXEC') or die;
 

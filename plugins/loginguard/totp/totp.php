@@ -6,9 +6,8 @@
  */
 
 // Prevent direct access
-use Akeeba\LoginGuard\Site\Model\Tfa;
+use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
-use Joomla\CMS\Document\HtmlDocument;
 
 defined('_JEXEC') or die;
 
