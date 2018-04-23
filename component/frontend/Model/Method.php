@@ -11,14 +11,9 @@ use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
-use FOF30\Utils\Ip;
-use JBrowser;
-use JLoader;
 use Joomla\CMS\User\User;
 use JText;
 use JUser;
-use RuntimeException;
-use stdClass;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -86,7 +81,7 @@ class Method extends Model
 	 *
 	 * @param   JUser|User  $user  The user record. Null to use the currently logged in user.
 	 *
-	 * @return  object
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
 	 */
 	public function getRecord($user = null)

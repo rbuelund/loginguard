@@ -154,7 +154,7 @@ class Captive extends Model
 	 *
 	 * @param   JUser|User  $user   The user for which to fetch records. Skip to use the current user.
 	 *
-	 * @return  array
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since   2.0.0
 	 */
 	public function getRecords($user = null)
@@ -199,7 +199,7 @@ class Captive extends Model
 	 *
 	 * @param   JUser|User  $user  The user for which to fetch records. Skip to use the current user.
 	 *
-	 * @return  mixed|null
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
 	 */
 	public function getRecord($user = null)
