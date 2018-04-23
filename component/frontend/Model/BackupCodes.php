@@ -321,7 +321,7 @@ class BackupCodes extends Model
 			$user = $this->container->platform->getUser();
 		}
 
-		$record = $this->getBackupCodesRecord($user->id);
+		$record = $this->getBackupCodesRecord($user);
 
 		if (is_null($record))
 		{
