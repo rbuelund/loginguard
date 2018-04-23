@@ -124,7 +124,7 @@ class Tfa extends DataModel
 		// If this record is marked as the default we have to unset all other default records
 		if ($this->default)
 		{
-			$this->getClone()->reset(true, true)->user_id($this->user_id)
+			$this->getClone()->tmpInstance()->reset(true, true)->user_id($this->user_id)
 				->get(true)->save([
 				'default' => 0
 			]);
@@ -143,7 +143,8 @@ class Tfa extends DataModel
 	 */
 	protected function onBeforeCreate(&$dataObject)
 	{
-		$numOldRecords = $this->getClone()->reset(true, true)->user_id($this->user_id)
+		$numOldRecords = $this->getClone()->tmpInstance()
+			->reset(true, true)->user_id($this->user_id)
 			->get(true)->count();
 
 		if ($numOldRecords > 0)
@@ -181,7 +182,8 @@ class Tfa extends DataModel
 		{
 			try
 			{
-				$record = $this->getClone()->reset(true)->findOrFail($id);
+				$record = $this->getClone()
+					->tmpInstance()->reset(true)->findOrFail($id);
 			}
 			catch (\Exception $e)
 			{
@@ -207,8 +209,8 @@ class Tfa extends DataModel
 		// Save flags used onAfterDelete
 		$this->deleteFlags[$record->getId()] = [
 			'default'    => $record->default,
-			'numRecords' => $record->getClone()->reset(true, true)->user_id($record->user_id)
-				->get(true)->count(),
+			'numRecords' => $record->getClone()->tmpInstance()->reset(true, true)
+				->user_id($record->user_id)->get(true)->count(),
 			'user_id'    => $record->user_id,
 			'method'     => $record->method,
 		];
@@ -228,7 +230,8 @@ class Tfa extends DataModel
 			 * need to delete the remaining entry and go away. We don't trigger this if the method we are deleting was
 			 * the backupcodes because we might just be regenerating the backup codes.
 			 */
-			$this->getClone()->reset(true, true)->user_id($this->deleteFlags[$id]['user_id'])
+			$this->getClone()->tmpInstance()->reset(true, true)
+				->user_id($this->deleteFlags[$id]['user_id'])
 				->get(true)->delete();
 
 			unset($this->deleteFlags[$id]);
@@ -239,7 +242,8 @@ class Tfa extends DataModel
 		// This was the default record. Promote the next available record to default.
 		if ($this->deleteFlags[$id]['default'])
 		{
-			$this->getClone()->reset(true, true)->user_id($this->deleteFlags[$id]['user_id'])
+			$this->getClone()->tmpInstance()
+				->reset(true, true)->user_id($this->deleteFlags[$id]['user_id'])
 				->get(false, 0, 1)->save([
 					'default' => 1
 				]);
