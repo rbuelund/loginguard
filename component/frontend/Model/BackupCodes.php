@@ -53,7 +53,9 @@ class BackupCodes extends Model
 		// Try to load the record
 		/** @var Tfa $tfa */
 		$tfa = $this->getContainer()->factory->model('Tfa')->tmpInstance();
-		$tfa->user_id($user->id)->method('backupcodes');
+		$tfa
+			->user_id($user->id)
+			->method('backupcodes');
 
 		try
 		{
@@ -96,7 +98,7 @@ class BackupCodes extends Model
 			// Try to load the record
 			try
 			{
-				$record = $this->getBackupCodesRecord($user->id);
+				$record = $this->getBackupCodesRecord($user);
 
 				if (!is_object($record))
 				{
