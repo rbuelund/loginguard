@@ -317,13 +317,10 @@ class PlgLoginguardYubikey extends JPlugin
 		{
 			try
 			{
-				$db = JFactory::getDbo();
-				$query = $db->getQuery(true)
-				            ->select('*')
-				            ->from($db->qn('#__loginguard_tfa'))
-				            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-				            ->where($db->qn('method') . ' = ' . $db->q($record->method));
-				$records = $db->setQuery($query)->loadObjectList();
+				$container = Container::getInstance('com_loginguard');
+				/** @var Tfa $tfaModel */
+				$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+				$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 			}
 			catch (Exception $e)
 			{
@@ -335,15 +332,6 @@ class PlgLoginguardYubikey extends JPlugin
 
 			foreach ($records as $aRecord)
 			{
-				$container->platform->runPlugins('onLoginGuardAfterReadRecord', [&$aRecord]);
-
-				if (isset($aRecord->must_save) && ($aRecord->must_save === 1))
-				{
-					/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
-					$methodModel = $container->factory->model('Method')->tmpInstance();
-					$methodModel->saveRecord($aRecord);
-				}
-
 				if ($this->validateAgainstRecord($aRecord, $code))
 				{
 					return true;
