@@ -41,12 +41,6 @@ class Convert extends Model
 	 */
 	public function convert($limit = 25)
 	{
-		// There is no TFA in Joomla < 3.2
-		if (version_compare(JVERSION, '3.2.0', 'lt'))
-		{
-			return false;
-		}
-
 		// Make sure FOF 2.x is loaded (required by Joomla's TFA)
 		if (!defined('FOF_INCLUDED'))
 		{
@@ -176,16 +170,14 @@ class Convert extends Model
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->container->db;
-		$jDate  = $this->container->platform->getDate();
-		$object = (object) array(
-			'user_id'    => $user_id,
-			'title'      => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
-			'method'     => 'backupcodes',
-			'default'    => 0,
-			'created_on' => $jDate->toSql(),
-			'last_used'  => $db->getNullDate(),
-			'options'    => $json
+		$db   = $this->container->db;
+		$data = array(
+			'user_id'   => $user_id,
+			'title'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
+			'method'    => 'backupcodes',
+			'default'   => 0,
+			'last_used' => $db->getNullDate(),
+			'options'   => $json,
 		);
 
 		// Delete any other record with the same user_id and method
@@ -196,8 +188,9 @@ class Convert extends Model
 		$db->setQuery($query)->execute();
 
 		// Insert the new record
-		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
-		$db->insertObject('#__loginguard_tfa', $object, 'id');
+		/** @var Tfa $tfa */
+		$tfa = $this->container->factory->model('Tfa')->tmpInstance();
+		$tfa->create($data);
 	}
 
 	/**
@@ -223,29 +216,20 @@ class Convert extends Model
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->container->db;
-		$jDate  = $this->container->platform->getDate();
-		$object = (object) array(
-			'user_id'    => $user_id,
-			'title'      => 'YubiKey ' . $config['yubikey'],
-			'method'     => 'yubikey',
-			'default'    => 0,
-			'created_on' => $jDate->toSql(),
-			'last_used'  => $db->getNullDate(),
-			'options'    => json_encode(array('id' => $config['yubikey']))
+		$db   = $this->container->db;
+		$data = array(
+			'user_id'   => $user_id,
+			'title'     => 'YubiKey ' . $config['yubikey'],
+			'method'    => 'yubikey',
+			'default'   => 0,
+			'last_used' => $db->getNullDate(),
+			'options'   => array('id' => $config['yubikey']),
 		);
 
-		// Delete any other record with the same user_id, method and options
-		$query = $db->getQuery(true)
-			->delete($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-			->where($db->qn('method') . ' = ' . $db->q('yubikey'))
-			->where($db->qn('options') . ' = ' . $db->q($object->options));
-		$db->setQuery($query)->execute();
-
 		// Insert the new record
-		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
-		$db->insertObject('#__loginguard_tfa', $object, 'id');
+		/** @var Tfa $tfa */
+		$tfa = $this->container->factory->model('Tfa')->tmpInstance();
+		$tfa->create($data);
 	}
 
 	/**
@@ -272,29 +256,20 @@ class Convert extends Model
 		}
 
 		// Get the TSV object to insert
-		$db     = $this->container->db;
-		$jDate  = $this->container->platform->getDate();
-		$object = (object) array(
-			'user_id'    => $user_id,
-			'title'      => 'Authenticator',
-			'method'     => 'totp',
-			'default'    => 0,
-			'created_on' => $jDate->toSql(),
-			'last_used'  => $db->getNullDate(),
-			'options'    => json_encode(array('key' => $config['code']))
+		$db   = $this->container->db;
+		$data = array(
+			'user_id'   => $user_id,
+			'title'     => 'Authenticator',
+			'method'    => 'totp',
+			'default'   => 0,
+			'last_used' => $db->getNullDate(),
+			'options'   => array('key' => $config['code']),
 		);
 
-		// Delete any other record with the same user_id, method and options
-		$query = $db->getQuery(true)
-			->delete($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-			->where($db->qn('method') . ' = ' . $db->q('totp'))
-			->where($db->qn('options') . ' = ' . $db->q($object->options));
-		$db->setQuery($query)->execute();
-
 		// Insert the new record
-		$this->container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$object]);
-		$db->insertObject('#__loginguard_tfa', $object, 'id');
+		/** @var Tfa $tfa */
+		$tfa = $this->container->factory->model('Tfa')->tmpInstance();
+		$tfa->create($data);
 	}
 
 	/**
@@ -361,7 +336,7 @@ class Convert extends Model
 	{
 		if (version_compare(JVERSION, '3.99999.99999', 'gt'))
 		{
-			throw new RuntimeException('Two Factor Authentication conversion is not yet implemented for Joomla! 4.');
+			throw new \RuntimeException('Two Factor Authentication conversion is not yet implemented for Joomla! 4.');
 		}
 
 		// If encryption is not supported we return the original string
