@@ -57,6 +57,7 @@ class Tfa extends DataModel
 
 	public function __construct(Container $container, array $config = array())
 	{
+		$config['tableName']   = '#__loginguard_tfa';
 		$config['idFieldName'] = 'id';
 
 		parent::__construct($container, $config);
