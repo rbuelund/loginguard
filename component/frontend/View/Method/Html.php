@@ -125,7 +125,7 @@ class Html extends BaseView
 		{
 			$this->setLayout('backupcodes');
 
-			$backupCodes = json_decode($this->record->options);
+			$backupCodes = $this->record->options;
 
 			if (!is_array($backupCodes))
 			{

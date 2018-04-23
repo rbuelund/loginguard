@@ -725,12 +725,12 @@ JS;
 			 */
 			$temp = [];
 
-			foreach ($recordOptions as $k => $opt)
+			foreach ($recordOptions['registrations'] as $k => $opt)
 			{
 				$temp[$k] = (object)$opt;
 			}
 
-			$recordOptions = $temp;
+			$recordOptions = ['registrations' => $temp];
 
 			$options = array_merge($options, $recordOptions);
 		}
