@@ -6,6 +6,7 @@
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Site\Model\Tfa;
 use FOF30\Container\Container;
 
 defined('_JEXEC') or die;
@@ -598,13 +599,13 @@ JS;
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are enabled
 		if (!$this->enabled)
@@ -716,19 +717,20 @@ JS;
 
 		if (!empty($recordOptions))
 		{
-			if (is_string($recordOptions))
-			{
-				// We need to decode as object. This is required for the U2F library to work proparly.
-				$recordOptions = json_decode($recordOptions);
-			}
-
 			/**
-			 * However, $options is an array so I need to typecast the generated object to an array. The end result is:
+			 * The end result is:
 			 * $recordOptions is an array with one key, 'registrations'
 			 * $recordOptions['registrations'] is a simple (numerically indexed) array. Its contents are objects.
 			 * That's exactly what I wanted.
 			 */
-			$recordOptions = (array)$recordOptions;
+			$temp = [];
+
+			foreach ($recordOptions as $k => $opt)
+			{
+				$temp[$k] = (object)$opt;
+			}
+
+			$recordOptions = $temp;
 
 			$options = array_merge($options, $recordOptions);
 		}
