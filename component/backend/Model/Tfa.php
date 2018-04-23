@@ -96,8 +96,11 @@ class Tfa extends DataModel
 	 */
 	protected function getOptionsAttribute($value)
 	{
-		$value = $this->container->crypto->decrypt($value);
-		$value = @json_decode($value, true);
+		if (is_string($value))
+		{
+			$value = $this->container->crypto->decrypt($value);
+			$value = @json_decode($value, true);
+		}
 
 		return empty($value) ? [] : $value;
 	}
