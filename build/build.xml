@@ -20,6 +20,9 @@
 		<!-- Exclude uncompressed CSS and JS -->
 		<exclude name="media/uncompressed/**" />
 
+		<!-- Exclude the encryption key (randomly generated per site) -->
+		<exclude name="backend/encrypt_service_key.php" />
+
 		<!-- Exclude the script used by the package -->
 		<exclude name="script.loginguard.php" />
 	</fileset>
