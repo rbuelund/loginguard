@@ -317,7 +317,7 @@ class PlgLoginguardYubikey extends JPlugin
 		{
 			try
 			{
-				$container = Container::getInstance('com_loginguard');
+				$container = \FOF30\Container\Container::getInstance('com_loginguard');
 				/** @var Tfa $tfaModel */
 				$tfaModel = $container->factory->model('Tfa')->tmpInstance();
 				$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
