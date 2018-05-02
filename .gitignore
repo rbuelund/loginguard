@@ -23,6 +23,7 @@
 /installers/angie
 
 /plugins/**/**/*.xml
+!/plugins/user/loginguard/loginguard/*.xml
 /plugins/loginguard/encrypt/secretkey.php
 
 /release
