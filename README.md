@@ -34,45 +34,26 @@ You will also need the following path structure inside a folder on your system
 
 * **loginguard** This repository
 * **buildfiles** [Akeeba Build Tools](https://github.com/akeeba/buildfiles)
+* **fof** [Framework on Framework](https://github.com/akeeba/fof)
+* **fef** [Akeeba Front-end Framework](https://github.com/akeeba/fef)
 * **translations** [Akeeba Translations](https://github.com/akeeba/translations)
 
 You will need to use the exact folder names specified here.
 
-### Useful Phing tasks
+## Building a dev release
 
-All of the following commands are to be run from the MAIN/build directory.
-Lines starting with $ indicate a Mac OS X / Linux / other *NIX system commands.
-Lines starting with > indicate Windows commands. The starting character ($ or >)
-MUST NOT be typed!
+Go inside `loginguard/build` and run `phing git -Dversion=0.0.1.a1` to create a development release. The installable Joomla! ZIP package file is output in the `loginguard/release` directory.
 
-You are advised to NOT distribute the library installation packages you have built yourselves with your components. It
-is best to only use the official library packages released by Akeeba Ltd.
-
-1. Relinking internal files
-
-   This is only required when the buildfiles change.
-
-		$ phing link
-		> phing link
-
-1. Creating a dev release installation package
-
-   This creates the installable ZIP packages of the component inside the
-   MAIN/release directory.
-
-		$ phing git
-		> phing git
-		
-   **WARNING** Do not distribute the dev releases to your clients. Dev releases, unlike regular releases, also use a
-   dev version of FOF 3.
-
-1. Build the documentation in PDF format
-
-   This creates the documentation in PDF format
-
-		$ phing doc-j-pdf
-		> phing doc-j-pdf
-
-
-Please note that all generated files (ZIP library packages, PDF files, HTML files) are written to the
-`release` directory inside the repository's root.
+If you want to build a release with development versions of FOF and FEF you will need to do some preparatory work. **This is NOT RECOMMENDED for most people**. Development builds of FOF and FEF may affect how other Akeeba and / or third party software work on your site. As a result you MUST NOT distribute these packages or use them on a production site. The steps you need to do are (from the main directory where you checked out all the other repositories):
+```bash
+pushd fof/build
+phing git
+popd
+pushd fef/build
+phing compile
+popd
+pushd loginguard/build
+phing git 
+popd 
+```
+This will create a dev release ZIP package in `loginguard/release`.
