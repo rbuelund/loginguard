@@ -8,16 +8,12 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
+use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
-use FOF30\Utils\Ip;
-use JBrowser;
-use JLoader;
 use Joomla\CMS\User\User;
 use JText;
 use JUser;
-use RuntimeException;
-use stdClass;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -85,7 +81,7 @@ class Method extends Model
 	 *
 	 * @param   JUser|User  $user  The user record. Null to use the currently logged in user.
 	 *
-	 * @return  object
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
 	 */
 	public function getRecord($user = null)
@@ -103,15 +99,12 @@ class Method extends Model
 			return $defaultRecord;
 		}
 
-		$db    = $this->container->db;
-		$query = $db->getQuery(true)
-			->select('*')
-			->from($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-			->where($db->qn('id') . ' = ' . $db->q($id));
+		/** @var TfaRecord $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+
 		try
 		{
-			$record = $db->setQuery($query)->loadObject();
+			$record = $tfaModel->findOrFail($id);
 		}
 		catch (Exception $e)
 		{
@@ -124,130 +117,6 @@ class Method extends Model
 		}
 
 		return $record;
-	}
-
-	/**
-	 * Save a TFA record to the database
-	 *
-	 * @param   stdClass  $record
-	 *
-	 * @return  void
-	 *
-	 * @throws  RuntimeException  When the database insert / update fails (thrown from JDatabaseDriver in recent Joomla! versions)
-	 * @since   2.0.0
-	 */
-	public function saveRecord(&$record)
-	{
-		$db = $this->container->db;
-
-		// Get existing records for this user EXCEPT the current record
-		$records = Tfa::getUserTfaRecords($record->user_id);
-
-		if ($record->id)
-		{
-			$allRecords = $records;
-			$records    = array();
-
-			foreach ($allRecords as $rec)
-			{
-				if ($rec->id == $record->id)
-				{
-					continue;
-				}
-
-				$records[] = $rec;
-			}
-		}
-
-		// Let's handle the default record flag
-		switch ($record->default)
-		{
-			case 1:
-				// If this record is marked as default we have to make all the other user's records non-default
-				if (count($records))
-				{
-					foreach ($records as $rec)
-					{
-						if (!$rec->default)
-						{
-							continue;
-						}
-
-						$rec->default = 0;
-
-						try
-						{
-							$db->updateObject('#__loginguard_tfa', $rec, array('id'));
-						}
-						catch (Exception $e)
-						{
-							// No problem if that fails
-						}
-					}
-				}
-
-				break;
-
-			case 0:
-				// If this record is NOT marked default we have to make it default unless another record is the default
-				$record->default = 1;
-
-				if (!empty($records))
-				{
-					foreach ($records as $rec)
-					{
-						if ($rec->default)
-						{
-							$record->default = 0;
-
-							break;
-						}
-					}
-				}
-
-				break;
-		}
-
-		$isNewRecord = empty($record->id);
-
-		if ($isNewRecord)
-		{
-			// Update the Created On, UA and IP columns
-			JLoader::import('joomla.environment.browser');
-			$jNow    = $this->container->platform->getDate();
-			$browser = JBrowser::getInstance();
-			$ip      = $this->container->platform->getSessionVar('session.client.address');
-
-			if (empty($ip))
-			{
-				$ip = Ip::getIp();
-			}
-
-			$record->created_on = $jNow->toSql();
-			$record->ua         = $browser->getAgentString();
-			$record->ip         = $ip;
-
-			$result = $db->insertObject('#__loginguard_tfa', $record, 'id');
-		}
-		else
-		{
-			$result = $db->updateObject('#__loginguard_tfa', $record, array('id'));
-		}
-
-		// For old Joomla versions which do not throw DB exceptions
-		if (!$result)
-		{
-			throw new RuntimeException($db->getErrorMsg());
-		}
-
-		// If that was the very first method we added for that user let's also create their backup codes
-		if ($isNewRecord && !count($records))
-		{
-			/** @var BackupCodes $model */
-			$model = $this->container->factory->model('BackupCodes')->tmpInstance();
-			$user  = $this->container->platform->getUser($record->user_id);
-			$model->regenerateBackupCodes($user);
-		}
 	}
 
 	/**
@@ -318,107 +187,6 @@ class Method extends Model
 	}
 
 	/**
-	 * Delete a TFA method record
-	 *
-	 * @param   int         $id
-	 * @param   JUser|User  $user
-	 *
-	 * @since   2.0.0
-	 */
-	public function deleteRecord($id, $user = null)
-	{
-		// Make sure we have a valid user
-		if (is_null($user))
-		{
-			$user = $this->container->platform->getUser();
-		}
-
-		// The user must be a registered user, not a guest
-		if ($user->guest)
-		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
-		}
-
-		// The record ID must be a positive integer
-		if ($id <= 0)
-		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
-		}
-
-		// The record must exist and belong to the specified user
-		$this->setState('id', $id);
-		$record = $this->getRecord($user);
-
-		if (($record->user_id != $user->id) || ($record->id != $id))
-		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
-		}
-
-		// Try to delete the record
-		$db    = $this->container->db;
-		$query = $db->getQuery(true)
-			->delete($db->qn('#__loginguard_tfa'))
-			->where($db->qn('id') . ' = ' . $db->q($id))
-			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
-		$db->setQuery($query)->execute();
-
-		// We will need the list of records later on
-		$allRecords = Tfa::getUserTfaRecords($record->user_id);
-
-		// If the record was the default set a new default
-		if ($record->default && !empty($records))
-		{
-			$records = $allRecords;
-
-			do
-			{
-				$otherRecord = array_shift($records);
-				$otherRecord->default = 1;
-
-				if ($otherRecord->method != 'backupcodes')
-				{
-					break;
-				}
-
-				$otherRecord = null;
-
-			} while (!empty($records));
-
-
-			try
-			{
-				if (!empty($otherRecord))
-				{
-					$this->saveRecord($record);
-				}
-			}
-			catch (Exception $e)
-			{
-				// If we can't set a new default record it's OK, we'll survive.
-			}
-		}
-
-		// If the last remaining record is backup codes we need to remove it
-		if (!empty($allRecords) && (count($allRecords) == 1))
-		{
-			$backupCodesRecord = array_shift($allRecords);
-
-			$query = $db->getQuery(true)
-				->delete($db->qn('#__loginguard_tfa'))
-				->where($db->qn('id') . ' = ' . $db->q($backupCodesRecord->id));
-
-			try
-			{
-				$db->setQuery($query)->execute();
-			}
-			catch (Exception $e)
-			{
-				// If we can't delete the backup codes it's OK, we'll survive.
-			}
-		}
-	}
-
-	/**
 	 * Return the title to use for the page
 	 *
 	 * @return  string
@@ -454,11 +222,11 @@ class Method extends Model
 
 		// We also need to add the backup codes method
 		$this->tfaMethods['backupcodes'] = array(
-			'name' => 'backupcodes',
-			'display' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
-			'shortinfo' => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
-			'image' => 'media/com_loginguard/images/emergency.svg',
-			'canDisable' => false,
+			'name'          => 'backupcodes',
+			'display'       => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
+			'shortinfo'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
+			'image'         => 'media/com_loginguard/images/emergency.svg',
+			'canDisable'    => false,
 			'allowMultiple' => false,
 		);
 	}
@@ -468,7 +236,7 @@ class Method extends Model
 	 *
 	 * @param   JUser|User  $user  The user record. Null to use the current user.
 	 *
-	 * @return  object
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
 	 */
 	protected function getDefaultRecord($user = null)
@@ -491,16 +259,19 @@ class Method extends Model
 			$title = $this->tfaMethods[$method]['display'];
 		}
 
-		$record = (object) array(
+		$recordData = array(
 			'id'      => null,
 			'user_id' => $user->id,
 			'title'   => $title,
 			'method'  => $method,
 			'default' => 0,
-			'options' => '{}'
+			'options' => []
 		);
 
-		return $record;
+		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $record */
+		$record = $this->container->factory->model('Tfa');
+
+		return $record->bind($recordData);
 	}
 
 }

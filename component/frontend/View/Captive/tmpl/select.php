@@ -8,7 +8,7 @@
 // Prevent direct access
 defined('_JEXEC') or die;
 
-/** @var LoginGuardViewCaptive $this */
+/** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
 
 $shownMethods = array();
 
@@ -36,10 +36,12 @@ $shownMethods = array();
 	    $shownMethods[] = $record->method;
     }
 
-    $methodName = $this->getModel()->translateMethodName($record->method);
+        /** @var \Akeeba\LoginGuard\Site\Model\Captive $model */
+		$model      = $this->getModel();
+		$methodName = $model->translateMethodName($record->method);
     ?>
     <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record->id)?>" class="loginguard-method">
-        <img src="<?php echo JUri::root() . $this->getModel()->getMethodImage($record->method) ?>" class="loginguard-method-image" />
+        <img src="<?php echo JUri::root() . $model->getMethodImage($record->method) ?>" class="loginguard-method-image" />
         <?php if (!$this->allowEntryBatching || !$allowEntryBatching): ?>
         <span class="loginguard-method-title">
             <?php echo $record->title; ?>

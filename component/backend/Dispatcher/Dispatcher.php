@@ -22,7 +22,7 @@ class Dispatcher extends BaseDispatcher
 	 * @var   string
 	 * @since 2.0.0
 	 */
-	public $defaultView = 'Methods';
+	public $defaultView = 'Welcome';
 
 	/**
 	 * Executes before dispatching the request to the appropriate controller.
@@ -131,6 +131,7 @@ class Dispatcher extends BaseDispatcher
 			return;
 		}
 
+		// TODO This should be per view / task, otherwise backend users cannot edit their own TFA from the backend.
 		// If we don't have the core.manage privilege for this component throw an error
 		if (!$this->container->platform->authorise('core.manage', $this->container->componentName))
 		{

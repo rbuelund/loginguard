@@ -6,6 +6,8 @@
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Admin\Model\Tfa;
+
 defined('_JEXEC') or die;
 
 // Minimum PHP version check
@@ -291,13 +293,13 @@ class PlgLoginguardYubikey extends JPlugin
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -315,13 +317,10 @@ class PlgLoginguardYubikey extends JPlugin
 		{
 			try
 			{
-				$db = JFactory::getDbo();
-				$query = $db->getQuery(true)
-				            ->select('*')
-				            ->from($db->qn('#__loginguard_tfa'))
-				            ->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-				            ->where($db->qn('method') . ' = ' . $db->q($record->method));
-				$records = $db->setQuery($query)->loadObjectList();
+				$container = \FOF30\Container\Container::getInstance('com_loginguard');
+				/** @var Tfa $tfaModel */
+				$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+				$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 			}
 			catch (Exception $e)
 			{
@@ -329,6 +328,8 @@ class PlgLoginguardYubikey extends JPlugin
 			}
 
 			// Loop all records, stop if at least one matches
+			$container = \FOF30\Container\Container::getInstance('com_loginguard');
+
 			foreach ($records as $aRecord)
 			{
 				if ($this->validateAgainstRecord($aRecord, $code))
@@ -360,11 +361,6 @@ class PlgLoginguardYubikey extends JPlugin
 		if (!empty($record->options))
 		{
 			$recordOptions = $record->options;
-
-			if (is_string($recordOptions))
-			{
-				$recordOptions = json_decode($recordOptions, true);
-			}
 
 			$options = array_merge($options, $recordOptions);
 		}
@@ -627,7 +623,7 @@ class PlgLoginguardYubikey extends JPlugin
 	 */
 	private function validateAgainstRecord($record, $code)
 	{
-// Load the options from the record (if any)
+		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$keyID   = isset($options['id']) ? $options['id'] : '';
 

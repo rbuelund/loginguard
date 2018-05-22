@@ -173,15 +173,12 @@ class Method extends Controller
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
-		/** @var MethodModel $model */
-		$model = $this->getModel();
-
 		$type    = null;
 		$message = null;
 
 		try
 		{
-			$model->deleteRecord($id, $user);
+			$record->delete();
 		}
 		catch (Exception $e)
 		{
@@ -296,13 +293,13 @@ class Method extends Controller
 		// Update the record's "default" flag
 		$default         = $this->input->getBool('default', false);
 		$record->title   = $title;
-		$record->options = json_encode($result);
+		$record->options = $result;
 		$record->default = $default ? 1 : 0;
 
 		// Ask the model to save the record
 		try
 		{
-			$model->saveRecord($record);
+			$record->save();
 		}
 		catch (Exception $e)
 		{
@@ -327,6 +324,8 @@ class Method extends Controller
 
 			$url = JRoute::_($nonSefUrl, false);
 			$this->setRedirect($url, $e->getMessage(), 'error');
+
+			return;
 		}
 
 		$this->setRedirect($url);
@@ -335,7 +334,7 @@ class Method extends Controller
 	/**
 	 * Assert that the provided ID is a valid record identified for the given user
 	 *
-	 * @return  object  The loaded record
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa  The loaded record
 	 * @since   2.0.0
 	 *
 	 * @throws  RuntimeException  When the record ID is invalid or does not belong to the specified user.

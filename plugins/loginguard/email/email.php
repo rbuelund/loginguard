@@ -6,6 +6,7 @@
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
 
 defined('_JEXEC') or die;
@@ -329,13 +330,13 @@ class PlgLoginguardEmail extends JPlugin
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -380,11 +381,6 @@ class PlgLoginguardEmail extends JPlugin
 		if (!empty($record->options))
 		{
 			$recordOptions = $record->options;
-
-			if (is_string($recordOptions))
-			{
-				$recordOptions = json_decode($recordOptions, true);
-			}
 
 			$options = array_merge($options, $recordOptions);
 		}

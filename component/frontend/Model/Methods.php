@@ -8,6 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
+use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use AkeebaGeoipProvider;
 use DateInterval;
 use DateTimeZone;
@@ -63,9 +64,11 @@ class Methods extends Model
 		}
 
 		// Put the user TFA records into the methods array
-		$userTfaRecords = Tfa::getUserTfaRecords($user->id);
+		/** @var TfaRecord $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$userTfaRecords = $tfaModel->user_id($user->id)->get(true);
 
-		if (!empty($userTfaRecords))
+		if ($userTfaRecords->count() >= 1)
 		{
 			foreach ($userTfaRecords as $record)
 			{
@@ -105,11 +108,9 @@ class Methods extends Model
 			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
-		$db = $this->container->db;
-		$query = $db->getQuery(true)
-			->delete($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user->id));
-		$db->setQuery($query)->execute();
+		/** @var TfaRecord $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$tfaModel->user_id($user->id)->get(true)->delete();
 	}
 
 	/**
@@ -177,167 +178,6 @@ class Methods extends Model
 		}
 
 		return sprintf($containerString, $jDate->format($formatString, true));
-	}
-
-	/**
-	 * Extract the the browser and platform from a User Agent string and format them in a human-readable manner.
-	 *
-	 * @param   string  $ua  A User-Agent string
-	 *
-	 * @return  string  Human readable format, e.g. "Chrome on Windows"
-	 * @since   2.0.0
-	 */
-	public function formatBrowser($ua)
-	{
-		if (empty($ua))
-		{
-			return '';
-		}
-
-		JLoader::import('joomla.environment.browser');
-		$jBrowser = JBrowser::getInstance($ua);
-		$platform = $jBrowser->getPlatform();
-		$browser  = $jBrowser->getBrowser();
-
-		// Let's make sure we have the correct platform
-		if (strpos($ua, '; Android') !== false)
-		{
-			$platform = 'android';
-		}
-		elseif ((strpos($ua, 'iPhone;')) !== false || (strpos($ua, 'iPad;') !== false) || (strpos($ua, 'iPod;') !== false) || (strpos($ua, 'iPad touch;') !== false))
-		{
-			$platform = 'ios';
-		}
-		elseif (strpos($ua, 'Linux') !== false)
-		{
-			$platform = 'linux';
-		}
-
-		// Let's make sure we have the correct browser
-		if (strpos($ua, 'Edge/'))
-		{
-			$browser = 'edge';
-		}
-		if (strpos($ua, 'Chromium/'))
-		{
-			$browser = 'chromium';
-		}
-		elseif (strpos($ua, 'Opera Mini/'))
-		{
-			$browser = 'operamini';
-		}
-		elseif (strpos($ua, 'Maxthon;'))
-		{
-			$browser = 'maxthon';
-		}
-		elseif (strpos($ua, 'YaBrowser/'))
-		{
-			$browser = 'yandex';
-		}
-		elseif (strpos($ua, 'Avant Browser'))
-		{
-			$browser = 'avant';
-		}
-		elseif (strpos($ua, 'Camino/'))
-		{
-			$browser = 'camino';
-		}
-		elseif (strpos($ua, 'Epiphany/'))
-		{
-			$browser = 'epiphany';
-		}
-		elseif (strpos($ua, 'Galeon/'))
-		{
-			$browser = 'galeon';
-		}
-		elseif (strpos($ua, 'Iceweasel/'))
-		{
-			$browser = 'iceweasel';
-		}
-		elseif (strpos($ua, 'K-Meleon/'))
-		{
-			$browser = 'kmeleon';
-		}
-		elseif (strpos($ua, 'Midori/'))
-		{
-			$browser = 'midori';
-		}
-		elseif (strpos($ua, 'rekonq/'))
-		{
-			$browser = 'rekonq';
-		}
-		elseif (strpos($ua, 'SamsungBrowser/'))
-		{
-			$browser = 'samsung';
-		}
-		elseif (strpos($ua, 'SeaMonkey/'))
-		{
-			$browser = 'seamonkey';
-		}
-		elseif (strpos($ua, 'Iron/'))
-		{
-			$browser = 'iron';
-		}
-		elseif (strpos($ua, 'Dalvik/'))
-		{
-			$browser = 'android';
-		}
-		elseif (strpos($ua, 'presto/'))
-		{
-			$browser = 'android';
-		}
-		elseif (strpos($ua, 'Vivaldi/'))
-		{
-			$browser = 'vivaldi';
-		}
-
-		// Translate the information
-		$platformText  = JText::_('COM_LOGINGUARD_LBL_BROWSER_PLATFORM_' . $platform);
-		$browserString = JText::_('COM_LOGINGUARD_LBL_BROWSER_' . $browser);
-
-		return JText::sprintf('COM_LOGINGUARD_LBL_BROWSER', $browserString, $platformText);
-	}
-
-	/**
-	 * Format an IP address in a human readable format, either as an IP or - if the Akeeba GeoIP plugin is installed and
-	 * enabled - as a country or as a city and country (depending on the GeoIP database you have installed).
-	 *
-	 * @param   string  $ip  The IPv4/IPv6 address of the visitor.
-	 *
-	 * @return  string  Human readable format e.g. "on 123.123.123.123", "from Germany", or "from Tokyo, Japan"
-	 * @since   2.0.0
-	 */
-	public function formatIp($ip)
-	{
-		if (empty($ip))
-		{
-			return '';
-		}
-
-		$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMIP', $ip);
-
-		if (class_exists('AkeebaGeoipProvider'))
-		{
-			$geoip     = new AkeebaGeoipProvider();
-			$country   = $geoip->getCountryName($ip);
-
-			if (!empty($country))
-			{
-				$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMCOUNTRY', $country);
-			}
-
-			if (method_exists($geoip, 'getCity'))
-			{
-				$city = $geoip->getCity($ip);
-
-				if (!empty($city) && !empty($country))
-				{
-					$string = JText::sprintf('COM_LOGINGUARD_LBL_FROMCITYCOUNTRY', $city, $country);
-				}
-			}
-		}
-
-		return $string;
 	}
 
 	/**

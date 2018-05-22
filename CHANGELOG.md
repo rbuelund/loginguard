@@ -1,3 +1,18 @@
+# 3.0.0
+
+**Other changes**
+
+* Fully refactored to make better use of FOF 3 features
+* Automatic encryption of TFA settings for GDPR compliance (only affects TFA methods which are newly created or used after installing this version)
+
+**Removed features**
+
+* IP addresses and User Agents are no longer collected for GDPR compliance.
+
+**Bug fixes**
+
+* The Log Out button results in an invalid token error (h/t Ivaylo V. for the heads up)
+
 # 2.0.1
 
 **Other changes**

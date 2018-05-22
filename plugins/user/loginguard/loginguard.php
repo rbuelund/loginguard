@@ -111,7 +111,9 @@ class plgUserLoginguard extends JPlugin
 		// Special handling for profile overview page
 		if ($layout == 'default')
 		{
-			$tfaMethods = Tfa::getUserTfaRecords($id);
+			/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
+			$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+			$tfaMethods = $tfaModel->user_id($id)->get(true);
 
 			/**
 			 * We cannot pass a boolean or integer; if it's false/0 Joomla! will display "No information entered". We
@@ -119,7 +121,7 @@ class plgUserLoginguard extends JPlugin
 			 * use such a field. So all I can do is pass raw text. Um, whatever.
 			 */
 			$data->loginguard = array(
-				'hastfa' => (count($tfaMethods) > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
+				'hastfa' => ($tfaMethods->count() > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
 			);
 
 			$form->loadFile('list', false);
@@ -279,10 +281,13 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Get the user's TFA records
-		$records = Tfa::getUserTfaRecords($user->id);
+		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$records = $tfaModel->user_id($user->id)->get(true);
+
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
-		if (empty($records))
+		if ($records->count() < 1)
 		{
 			return false;
 		}

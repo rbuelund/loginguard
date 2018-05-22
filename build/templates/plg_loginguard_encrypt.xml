@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.4.0" type="plugin" group="loginguard" method="upgrade">
+    <name>PLG_LOGINGUARD_ENCRYPT</name>
+    <version>##VERSION##</version>
+    <creationDate>##DATE##</creationDate>
+
+    <author>Akeeba Ltd</author>
+    <authorEmail>no-reply@akeebabackup.com</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+
+    <copyright>Copyright (c)2016-2018 Akeeba Ltd</copyright>
+    <license>GNU GPL v3 or later</license>
+
+    <description>PLG_LOGINGUARD_ENCRYPT_DESCRIPTION</description>
+
+    <files>
+        <filename plugin="encrypt">encrupt.php</filename>
+    </files>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_loginguard_encrypt.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_loginguard_encrypt.sys.ini</language>
+    </languages>
+</extension>

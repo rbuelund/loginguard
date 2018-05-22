@@ -9,6 +9,8 @@
 
 /component/loginguard.xml
 
+/component/backend/encrypt_service_key.php
+
 /component/media/css/fef.min.css
 /component/media/js/*.map
 /component/media/fonts
@@ -21,6 +23,8 @@
 /installers/angie
 
 /plugins/**/**/*.xml
+!/plugins/user/loginguard/loginguard/*.xml
+/plugins/loginguard/encrypt/secretkey.php
 
 /release
 

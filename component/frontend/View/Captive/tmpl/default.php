@@ -9,7 +9,9 @@
 defined('_JEXEC') or die;
 
 /** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
+/** @var \Akeeba\LoginGuard\Site\Model\Captive $model */
 
+$model = $this->getModel();
 ?>
 <div class="loginguard-captive akeeba-panel--info">
     <header class="akeeba-block-header">
@@ -21,7 +23,7 @@ defined('_JEXEC') or die;
                 <?php if (!$this->allowEntryBatching): ?>
                     <?php echo $this->escape($this->record->title) ?>
                 <?php else: ?>
-                    <?php echo $this->escape($this->getModel()->translateMethodName($this->record->method)) ?>
+                    <?php echo $this->escape($model->translateMethodName($this->record->method)) ?>
                 <?php endif; ?>
                 <?php if (!empty($this->title)): ?>
                 </small>
@@ -86,13 +88,13 @@ JS;
                 </button>
 
 	            <?php if ($this->isAdmin): ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-power"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php else: ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken() . '=1') ?>"
+                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-ios-locked"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>

@@ -8,6 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Exception;
+use FOF30\Container\Container;
 use FOF30\Model\Model;
 use JCrypt;
 use Joomla\CMS\User\User;
@@ -37,7 +38,7 @@ class BackupCodes extends Model
 	 *
 	 * @param   JUser|User  $user  The user in question. Use null for the currently logged in user.
 	 *
-	 * @return  stdClass|null  Record object or null if none is found
+	 * @return  Tfa  Record object or null if none is found
 	 *
 	 * @since   2.0.0
 	 */
@@ -50,16 +51,15 @@ class BackupCodes extends Model
 		}
 
 		// Try to load the record
-		$db    = $this->container->db;
-		$query = $db->getQuery(true)
-			->select('*')
-			->from($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-			->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
+		/** @var Tfa $tfa */
+		$tfa = $this->getContainer()->factory->model('Tfa')->tmpInstance();
+		$tfa
+			->user_id($user->id)
+			->method('backupcodes');
 
 		try
 		{
-			$record = $db->setQuery($query)->loadObject();
+			$record = $tfa->firstOrFail();
 		}
 		catch (Exception $e)
 		{
@@ -96,25 +96,23 @@ class BackupCodes extends Model
 			$json                   = null;
 
 			// Try to load the record
-			$db    = $this->container->db;
-			$query = $db->getQuery(true)
-				->select($db->qn('options'))
-				->from($db->qn('#__loginguard_tfa'))
-				->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-				->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
-
 			try
 			{
-				$json = $db->setQuery($query)->loadResult();
+				$record = $this->getBackupCodesRecord($user);
+
+				if (!is_object($record))
+				{
+					throw new \RuntimeException('Could not load record - this is OK for new users and is caught in the exception handler below.');
+				}
 			}
 			catch (Exception $e)
 			{
 				// Any db issue is equivalent to "no such record exists"
 			}
 
-			if (!empty($json))
+			if (!empty($record->options))
 			{
-				$this->cache[$user->id] = json_decode($json, true);
+				$this->cache[$user->id] = $record->options;
 			}
 		}
 
@@ -250,7 +248,7 @@ class BackupCodes extends Model
 
 		// The two arrays let us always add an element to an array, therefore having PHP expend the same amount of time
 		// for the correct code, the incorrect codes and the fake codes.
-		$newArray = array();
+		$newArray   = array();
 		$dummyArray = array();
 
 		$realLength = count($codes);
@@ -261,16 +259,16 @@ class BackupCodes extends Model
 			if (JCrypt::timingSafeCompare($codes[$i], $code))
 			{
 				// This may seem redundant but makes sure both branches of the if-block are isochronous
-				$result = $result || true;
-				$newArray[] = '';
+				$result       = $result || true;
+				$newArray[]   = '';
 				$dummyArray[] = $codes[$i];
 			}
 			else
 			{
 				// This may seem redundant but makes sure both branches of the if-block are isochronous
-				$result = $result || false;
+				$result       = $result || false;
 				$dummyArray[] = '';
-				$newArray[] = $codes[$i];
+				$newArray[]   = $codes[$i];
 			}
 		}
 
@@ -283,14 +281,14 @@ class BackupCodes extends Model
 		{
 			if (JCrypt::timingSafeCompare($temp1[$i], $code))
 			{
-				$otherResult = $otherResult || true;
-				$newArray[] = '';
+				$otherResult  = $otherResult || true;
+				$newArray[]   = '';
 				$dummyArray[] = $temp1[$i];
 			}
 			else
 			{
-				$otherResult = $otherResult || false;
-				$newArray[] = '';
+				$otherResult  = $otherResult || false;
+				$newArray[]   = '';
 				$dummyArray[] = $temp1[$i];
 			}
 		}
@@ -323,54 +321,23 @@ class BackupCodes extends Model
 			$user = $this->container->platform->getUser();
 		}
 
-		// Try to load existing backup codes
-		$existingCodes = $this->getBackupCodes($user);
-		$db            = $this->container->db;
-		$query         = $db->getQuery(true);
-		$jNow          = $this->container->platform->getDate();
-		$json          = json_encode($codes);
+		$record = $this->getBackupCodesRecord($user);
 
-		if (is_null($existingCodes))
+		if (is_null($record))
 		{
-			// If the backup codes is null insert a new record
-			$query->insert($db->qn('#__loginguard_tfa'))
-				->columns(array(
-					$db->qn('user_id'),
-					$db->qn('title'),
-					$db->qn('method'),
-					$db->qn('default'),
-					$db->qn('created_on'),
-					$db->qn('options'),
-				))->values(
-					$db->q($user->id) . ', ' .
-					$db->q('Backup Codes') . ', ' .
-					$db->q('backupcodes') . ', ' .
-					$db->q(0) . ', ' .
-					$db->q($jNow->toSql()) . ', ' .
-					$db->q($json)
-				);
-		}
-		else
-		{
-			// Otherwise update the existing db record
-			$query->update($db->qn('#__loginguard_tfa'))
-				->set(array(
-					$db->qn('options') . ' = ' . $db->q($json)
-				))->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-				->where($db->qn('method') . ' = ' . $db->q('backupcodes'));
+			/** @var Tfa $record */
+			$record = $this->container->factory->model('Tfa')->tmpInstance();
+			$record->bind([
+				'user_id' => $user->id,
+				'title'   => 'Backup Codes',
+				'method'  => 'backupcodes',
+				'default' => 0,
+			]);
 		}
 
-		try
-		{
-			if ($db->setQuery($query)->execute() === false)
-			{
-				return false;
-			}
-		}
-		catch (Exception $e)
-		{
-			return false;
-		}
+		$record->save([
+			'options' => $codes,
+		]);
 
 		// Finally, update the cache
 		$this->cache[$user->id] = $codes;

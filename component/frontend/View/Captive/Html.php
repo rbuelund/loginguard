@@ -25,7 +25,7 @@ class Html extends BaseView
 	/**
 	 * The TFA method records for the current user which correspond to enabled plugins
 	 *
-	 * @var   array
+	 * @var   \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since 2.0.0
 	 */
 	public $records = array();
@@ -33,7 +33,7 @@ class Html extends BaseView
 	/**
 	 * The currently selected TFA method record against which we'll be authenticating
 	 *
-	 * @var   null|object
+	 * @var   \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since 2.0.0
 	 */
 	public $record = null;
@@ -112,7 +112,7 @@ class Html extends BaseView
 		if (empty($this->record))
 		{
 			// Default to the first record
-			$this->record = $this->records[0];
+			$this->record = reset($this->records);
 
 			// If we have multiple records try to make this record the default
 			if (count($this->records) > 1)

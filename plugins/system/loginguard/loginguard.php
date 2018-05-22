@@ -269,11 +269,14 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	private function needsTFA(JUser $user)
 	{
+		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+
 		// Get the user's TFA records
-		$records = Tfa::getUserTfaRecords($user->id);
+		$records = $tfaModel->user_id($user->id)->get(true);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
-		if (empty($records))
+		if ($records->count() < 1)
 		{
 			return false;
 		}

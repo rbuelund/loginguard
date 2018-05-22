@@ -8,6 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
+use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
 use JApplicationCms;
@@ -153,7 +154,7 @@ class Captive extends Model
 	 *
 	 * @param   JUser|User  $user   The user for which to fetch records. Skip to use the current user.
 	 *
-	 * @return  array
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since   2.0.0
 	 */
 	public function getRecords($user = null)
@@ -164,10 +165,12 @@ class Captive extends Model
 		}
 
 		// Get the user's TFA records
-		$records = Tfa::getUserTfaRecords($user->id);
+		/** @var TfaRecord $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$records = $tfaModel->user_id($user->id)->get(true);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
-		if (empty($records))
+		if ($records->count() < 1)
 		{
 			return array();
 		}
@@ -178,11 +181,12 @@ class Captive extends Model
 		// Filter the records based on currently active TFA methods
 		$ret = array();
 
-		foreach($records as $record)
+		/** @var TfaRecord $record */
+		foreach ($records as $record)
 		{
-			if (in_array($record->method, $methodNames))
+			if (in_array($record->method, $methodNames) || ($record->method == 'backupcodes'))
 			{
-				$ret[] = $record;
+				$ret[$record->getId()] = $record;
 			}
 		}
 
@@ -195,7 +199,7 @@ class Captive extends Model
 	 *
 	 * @param   JUser|User  $user  The user for which to fetch records. Skip to use the current user.
 	 *
-	 * @return  mixed|null
+	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
 	 */
 	public function getRecord($user = null)
@@ -212,30 +216,14 @@ class Captive extends Model
 			$user = $this->container->platform->getUser();
 		}
 
-		$db    = $this->container->db;
-		$query = $db->getQuery(true)
-			->select('*')
-			->from($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
-			->where($db->qn('id') . ' = ' . $db->q($id));
+		$records = $this->getRecords($user);
 
-		try
-		{
-			$record = $db->setQuery($query)->loadObject();
-		}
-		catch (Exception $e)
+		if (!isset($records[$id]))
 		{
 			return null;
 		}
 
-		$methodNames = $this->getActiveMethodNames();
-
-		if (!in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
-		{
-			return null;
-		}
-
-		return $record;
+		return $records[$id];
 	}
 
 	/**

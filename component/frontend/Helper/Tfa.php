@@ -24,14 +24,6 @@ defined('_JEXEC') or die();
 abstract class Tfa
 {
 	/**
-	 * Cache of TFA records per user
-	 *
-	 * @var   array
-	 * @since 1.0.0
-	 */
-	protected static $recordsPerUser = array();
-
-	/**
 	 * Cache of all currently active TFAs
 	 *
 	 * @var   array|null
@@ -116,37 +108,6 @@ abstract class Tfa
 		}
 
 		return self::$allTFAs;
-	}
-
-	/**
-	 * Get the TFA records for a specific user
-	 *
-	 * @param   int  $user_id  The user's ID
-	 *
-	 * @return  stdClass[]
-	 */
-	public static function getUserTfaRecords($user_id)
-	{
-		if (!isset(self::$recordsPerUser[$user_id]))
-		{
-			$db = self::getContainer()->db;
-			$query = $db->getQuery(true)
-				->select('*')
-				->from($db->qn('#__loginguard_tfa'))
-				->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-				->order($db->qn('method') . ' ASC');
-
-			try
-			{
-				self::$recordsPerUser[$user_id] = $db->setQuery($query)->loadObjectList();
-			}
-			catch (Exception $e)
-			{
-				self::$recordsPerUser[$user_id] = array();
-			}
-		}
-
-		return self::$recordsPerUser[$user_id];
 	}
 
 	/**

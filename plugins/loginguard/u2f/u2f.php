@@ -6,6 +6,7 @@
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 
 defined('_JEXEC') or die;
@@ -598,13 +599,13 @@ JS;
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are enabled
 		if (!$this->enabled)
@@ -678,8 +679,11 @@ JS;
 		 */
 		$update = (object)array(
 			'id' => $id,
-			'options' => json_encode(array('registrations' => array($registration)))
+			'options' => json_encode(array('registrations' => array($registration))),
 		);
+
+		$container = Container::getInstance('com_loginguard');
+		$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$update]);
 
 		$db = JFactory::getDbo();
 		$db->updateObject('#__loginguard_tfa', $update, array('id'));
@@ -697,7 +701,7 @@ JS;
 	private function _decodeRecordOptions($record)
 	{
 		$options = array(
-			'registrations' => array()
+			'registrations' => array(),
 		);
 
 		$recordOptions = null;
@@ -713,19 +717,20 @@ JS;
 
 		if (!empty($recordOptions))
 		{
-			if (is_string($recordOptions))
-			{
-				// We need to decode as object. This is required for the U2F library to work proparly.
-				$recordOptions = json_decode($recordOptions);
-			}
-
 			/**
-			 * However, $options is an array so I need to typecast the generated object to an array. The end result is:
+			 * The end result is:
 			 * $recordOptions is an array with one key, 'registrations'
 			 * $recordOptions['registrations'] is a simple (numerically indexed) array. Its contents are objects.
 			 * That's exactly what I wanted.
 			 */
-			$recordOptions = (array)$recordOptions;
+			$temp = [];
+
+			foreach ($recordOptions['registrations'] as $k => $opt)
+			{
+				$temp[$k] = (object)$opt;
+			}
+
+			$recordOptions = ['registrations' => $temp];
 
 			$options = array_merge($options, $recordOptions);
 		}
@@ -810,15 +815,12 @@ JS;
 
 		$return = array();
 
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true)
-			->select('*')
-			->from($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-			->where($db->qn('method') . ' = ' . $db->q('u2f'));
-		$results = $db->setQuery($query)->loadObjectList();
+		$container = Container::getInstance('com_loginguard');
+		/** @var Tfa $tfaModel */
+		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+		$results = $tfaModel->user_id($user_id)->method('u2f')->get(true);
 
-		if (empty($results))
+		if ($results->count() < 1)
 		{
 			return $return;
 		}
@@ -860,13 +862,10 @@ JS;
 
 		try
 		{
-			$db = JFactory::getDbo();
-			$query = $db->getQuery(true)
-			            ->select('*')
-			            ->from($db->qn('#__loginguard_tfa'))
-			            ->where($db->qn('user_id') . ' = ' . $db->q($record->user_id))
-			            ->where($db->qn('method') . ' = ' . $db->q($record->method));
-			$records = $db->setQuery($query)->loadObjectList();
+			$container = Container::getInstance('com_loginguard');
+			/** @var Tfa $tfaModel */
+			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 		}
 		catch (Exception $e)
 		{
@@ -874,6 +873,9 @@ JS;
 		}
 
 		// Loop all records, stop if at least one matches
+		$container = Container::getInstance('com_loginguard');
+
+		/** @var Tfa $aRecord */
 		foreach ($records as $aRecord)
 		{
 			$recordOptions       = $this->_decodeRecordOptions($aRecord);

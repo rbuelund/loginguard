@@ -90,10 +90,6 @@ $token = $this->getContainer()->platform->getToken();
                                                 <span class="loginguard-methods-list-method-record-lastused-date">
                                                     <?php echo JText::sprintf('COM_LOGINGUARD_LBL_LASTUSED', $model->formatRelative($record->last_used)) ?>
                                                 </span>
-                                                <span class="loginguard-methods-list-method-record-lastused-location">
-                                                    <?php echo $model->formatBrowser($record->ua) ?>
-                                                    <?php echo $model->formatIp($record->ip) ?>
-                                                </span>
                                             </div>
                                         </div>
 

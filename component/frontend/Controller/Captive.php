@@ -9,7 +9,6 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Captive as CaptiveModel;
-use Akeeba\LoginGuard\Site\Model\Method;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
@@ -120,7 +119,7 @@ class Captive extends Controller
 		{
 			/** @var BackupCodes $codesModel */
 			$codesModel = $this->getModel('BackupCodes');
-			$results = [$codesModel->isBackupCode($code, $user)];
+			$results    = [$codesModel->isBackupCode($code, $user)];
 
 			/**
 			 * This is required! Do not remove!
@@ -165,25 +164,21 @@ class Captive extends Controller
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');
-		$jNow    = $this->container->platform->getDate();
-		$browser = JBrowser::getInstance();
-		$ip      = $this->container->platform->getSessionVar('session.client.address');
+		$jNow      = $this->container->platform->getDate();
+		$browser   = JBrowser::getInstance();
+		$collectIp = $this->container->params->get('collect_ip', true);
+		$ip        = $collectIp ? $this->container->platform->getSessionVar('session.client.address') : '';
 
-		if (empty($ip))
+		if (empty($ip) && $collectIp)
 		{
 			$ip = Ip::getIp();
 		}
 
 		$record->last_used = $jNow->toSql();
-		$record->ua        = $browser->getAgentString();
-		$record->ip        = $ip;
-
-		/** @var Method $methodModel */
-		$methodModel = $this->getModel('Method');
 
 		try
 		{
-			$methodModel->saveRecord($record);
+			$record->save();
 		}
 		catch (Exception $e)
 		{
