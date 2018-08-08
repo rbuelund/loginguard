@@ -284,6 +284,7 @@ class PlgLoginguardU2f extends JPlugin
 			}
 
 			$js = <<< JS
+;; // Defense against broken scripts
 window.jQuery(document).ready(function() {
 	akeeba.LoginGuard.u2f.regData = $u2fRegData;
 });
@@ -540,7 +541,8 @@ JS;
 		$session->set('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
 		$js = <<< JS
-		
+;; // Defense against broken scripts
+
 function akeebaLoginGuardU2FOnClick()
 {
 	    window.jQuery('#loginguard-u2f-button').hide();

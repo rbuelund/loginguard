@@ -4,6 +4,10 @@
 
 * Users page to see whihc users have 2SV enabled or not
 
+**Bug fixes**
+
+* U2F might fail on Firefox due to a missing semicolon
+
 # 3.0.0
 
 **Other changes**
