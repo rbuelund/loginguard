@@ -4,6 +4,7 @@
 
 * Users page to see which users have 2SV enabled or not
 * Ability to force-disable TSV for specific user groups
+* gh-49 Forced 2SV for specific user groups
 
 **Other changes**
 

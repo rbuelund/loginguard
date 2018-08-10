@@ -42,6 +42,16 @@
 			<option value="0">COM_LOGINGUARD_CONFIG_LBL_NOGROUP</option>
 		</field>
 
+		<field name="forceTSVUserGroups" type="UserGroupList"
+			   checksuperusergroup="1"
+			   default=""
+			   multiple="1"
+			   label="COM_LOGINGUARD_CONFIG_FORCETSVUSERGROUPS_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_FORCETSVUSERGROUPS_DESC"
+		>
+			<option value="0">COM_LOGINGUARD_CONFIG_LBL_NOGROUP</option>
+		</field>
+
 	</fieldset>
 
 	<fieldset

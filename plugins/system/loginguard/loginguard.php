@@ -98,6 +98,14 @@ class PlgSystemLoginguard extends JPlugin
 	private $neverTSVUserGroups = [];
 
 	/**
+	 * User groups for which Two Step Verification is mandatory
+	 *
+	 * @var   array
+	 * @since 3.0.1
+	 */
+	private $forceTSVUserGroups = [];
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -142,6 +150,13 @@ class PlgSystemLoginguard extends JPlugin
 		{
 			$this->neverTSVUserGroups = [];
 		}
+
+		$this->forceTSVUserGroups = $this->container->params->get('forceTSVUserGroups', []);
+
+		if (!is_array($this->forceTSVUserGroups))
+		{
+			$this->forceTSVUserGroups = [];
+		}
 	}
 
 	/**
@@ -149,6 +164,8 @@ class PlgSystemLoginguard extends JPlugin
 	 * application (load any components).
 	 *
 	 * @return  void
+	 *
+	 * @throws  Exception
 	 */
 	public function onAfterRoute()
 	{
@@ -244,9 +261,10 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// We only kick in when the user has actually set up TFA.
-		$needsTFA    = $this->needsTFA($user);
-		$disabledTSV = $this->disabledTSV($user);
+		// We only kick in when the user has actually set up TFA or must definitely enable TFA.
+		$needsTFA     = $this->needsTFA($user);
+		$disabledTSV  = $this->disabledTSV($user);
+		$mandatoryTSV = $this->mandatoryTSV($user);
 
 		if ($needsTFA && !$disabledTSV)
 		{
@@ -271,6 +289,16 @@ class PlgSystemLoginguard extends JPlugin
 		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
 		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
 
+		// If the user is in a group that requires TFA we will redirect them to the setup page
+		if (!$needsTFA && $mandatoryTSV)
+		{
+			// First unset the flag to make sure the redirection will apply until they conform to the mandatory TFA
+			$session->set('tfa_checked', 0, 'com_loginguard');
+
+			// Then redirect them to the setup page
+			$this->redirectToTSVSetup();
+		}
+
 		if (!$needsTFA && $redirectionUrl && !$disabledTSV)
 		{
 			$session->set('postloginredirect', null, 'com_loginguard');
@@ -280,7 +308,7 @@ class PlgSystemLoginguard extends JPlugin
 	}
 
 	/**
-	 * Does the current user need to complete TFA authentication before allowed to access the site?
+	 * Does the current user need to complete TFA authentication before being allowed to access the site?
 	 *
 	 * @return  bool
 	 */
@@ -347,7 +375,7 @@ class PlgSystemLoginguard extends JPlugin
 			}
 			else
 			{
-				$app = \JFactory::getApplication();
+				$app   = \JFactory::getApplication();
 				$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
 			}
 		}
@@ -384,8 +412,54 @@ class PlgSystemLoginguard extends JPlugin
 		$userGroups             = $user->getAuthorisedGroups();
 		$belongsToTSVUserGroups = array_intersect($this->neverTSVUserGroups, $userGroups);
 
-		//var_dump($userGroups, $this->neverTSVUserGroups, $belongsToTSVUserGroups);die;
+		return !empty($belongsToTSVUserGroups);
+	}
+
+	/**
+	 * Does the user belong in a group indicating TSV is required for them?
+	 *
+	 * @param   JUser|User $user
+	 *
+	 * @return  bool
+	 */
+	private function mandatoryTSV($user)
+	{
+		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
+		$userGroups             = $user->getAuthorisedGroups();
+		$belongsToTSVUserGroups = array_intersect($this->forceTSVUserGroups, $userGroups);
 
 		return !empty($belongsToTSVUserGroups);
+	}
+
+	/**
+	 * Redirect the user to the Two Step Verification method setup page.
+	 *
+	 * @return  void
+	 *
+	 * @since   3.0.1
+	 */
+	private function redirectToTSVSetup()
+	{
+		try
+		{
+			$app = JFactory::getApplication();
+		}
+		catch (\Exception $e)
+		{
+			// This would happen if we are in CLI or under an old Joomla! version. Either case is not supported.
+			return;
+		}
+
+		// If we are in a LoginGuard page do not redirect
+		$option = strtolower($app->input->getCmd('option'));
+
+		if ($option == 'com_loginguard')
+		{
+			return;
+		}
+
+		// Otherwise redirect to the LoginGuard TSV setup page after enqueueing a message
+		$url = 'index.php?option=com_loginguard&view=Methods';
+		$app->redirect($url, 307);
 	}
 }
