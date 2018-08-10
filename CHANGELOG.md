@@ -4,6 +4,10 @@
 
 * Users page to see whihc users have 2SV enabled or not
 
+**Other changes**
+
+* Joomla! 3.9 backend Components menu item compatibility
+
 **Bug fixes**
 
 * U2F might fail on Firefox due to a missing semicolon
