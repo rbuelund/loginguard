@@ -186,8 +186,17 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// We only kick in if the session flag is not set
-		if ($session->get('tfa_checked', 0, 'com_loginguard'))
+		/**
+		 * We only kick in if the session flag is not set AND the user is not flagged for monitoring of their TSV status
+		 *
+		 * In case a user belongs to a group which requires TSV to be always enabled and they logged in without having
+		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
+		 * circumventing the requirement for TSV.
+		 */
+		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
+		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
+
+		if ($tfaChecked && !$tfaRecheck)
 		{
 			return;
 		}
@@ -231,6 +240,11 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
+		if ($tfaChecked && $tfaRecheck && $this->needsTFA($user))
+		{
+			return;
+		}
+
 		// We only kick in if the option and task are not the ones of the captive page
 		$option = strtolower($app->input->getCmd('option'));
 		$task = strtolower($app->input->getCmd('task'));
@@ -243,7 +257,12 @@ class PlgSystemLoginguard extends JPlugin
 			$app->input->set('format', 'html');
 			$app->input->set('layout', null);
 
-			if (in_array($view, array('ajax', 'captive')))
+			if (empty($view) && (strpos($task, '.') !== false))
+			{
+				list($view, $task) = explode('.', $task, 2);
+			}
+
+			if (in_array($view, array('ajax', 'captive', 'method', 'methods')))
 			{
 				return;
 			}
@@ -294,6 +313,9 @@ class PlgSystemLoginguard extends JPlugin
 		{
 			// First unset the flag to make sure the redirection will apply until they conform to the mandatory TFA
 			$session->set('tfa_checked', 0, 'com_loginguard');
+
+			// Now set a flag which forces rechecking TSV for this user
+			$session->set('recheck_mandatory_tsv', 1, 'com_loginguard');
 
 			// Then redirect them to the setup page
 			$this->redirectToTSVSetup();
