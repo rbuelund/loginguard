@@ -2,7 +2,8 @@
 
 **New**
 
-* Users page to see whihc users have 2SV enabled or not
+* Users page to see which users have 2SV enabled or not
+* Ability to force-disable TSV for specific user groups
 
 **Other changes**
 

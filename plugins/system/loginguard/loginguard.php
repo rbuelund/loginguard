@@ -7,6 +7,7 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -89,6 +90,14 @@ class PlgSystemLoginguard extends JPlugin
 	private $container = null;
 
 	/**
+	 * User groups for which Two Step Verification is never applied
+	 *
+	 * @var   array
+	 * @since 3.0.1
+	 */
+	private $neverTSVUserGroups = [];
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -125,6 +134,13 @@ class PlgSystemLoginguard extends JPlugin
 		catch (Exception $e)
 		{
 			$this->enabled = false;
+		}
+
+		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);
+
+		if (!is_array($this->neverTSVUserGroups))
+		{
+			$this->neverTSVUserGroups = [];
 		}
 	}
 
@@ -229,9 +245,10 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// We only kick in when the user has actually set up TFA.
-		$needsTFA = $this->needsTFA($user);
+		$needsTFA    = $this->needsTFA($user);
+		$disabledTSV = $this->disabledTSV($user);
 
-		if ($needsTFA)
+		if ($needsTFA && !$disabledTSV)
 		{
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
 			$return_url = $session->get('return_url', '', 'com_loginguard');
@@ -254,7 +271,7 @@ class PlgSystemLoginguard extends JPlugin
 		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
 		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
 
-		if (!$needsTFA && $redirectionUrl)
+		if (!$needsTFA && $redirectionUrl && !$disabledTSV)
 		{
 			$session->set('postloginredirect', null, 'com_loginguard');
 
@@ -291,7 +308,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Get a list of just the method names
-		$methodNames = array();
+		$methodNames = [];
 
 		foreach ($tfaMethods as $tfaMethod)
 		{
@@ -299,7 +316,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Filter the records based on currently active TFA methods
-		foreach($records as $record)
+		foreach ($records as $record)
 		{
 			if (in_array($record->method, $methodNames))
 			{
@@ -354,4 +371,21 @@ class PlgSystemLoginguard extends JPlugin
 		return array($isCLI, $isAdmin);
 	}
 
+	/**
+	 * Does the user belong in a group indicating TSV should be disabled for them?
+	 *
+	 * @param   JUser|User $user
+	 *
+	 * @return  bool
+	 */
+	private function disabledTSV($user)
+	{
+		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
+		$userGroups             = $user->getAuthorisedGroups();
+		$belongsToTSVUserGroups = array_intersect($this->neverTSVUserGroups, $userGroups);
+
+		//var_dump($userGroups, $this->neverTSVUserGroups, $belongsToTSVUserGroups);die;
+
+		return !empty($belongsToTSVUserGroups);
+	}
 }
