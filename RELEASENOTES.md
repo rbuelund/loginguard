@@ -18,10 +18,6 @@ Akeeba LoginGuard requires PHP 5.4 or later. It's also compatible with PHP 5.5, 
 
 We strongly recommend using the latest published Joomla! version and PHP 7.0 or later _for optimal security of your site_. It makes no sense adding two step login verification to a site that's running vulnerable software. It's like locking your door and leaving your windows wide open. It will not keep the bad guys out.
 
-## Language files
-
-Akeeba LoginGuard comes with English (Great Britain) language built-in. Installation packages for other languages are available [on our language download page](https://cdn.akeebabackup.com/language/loginguard/index.html).
-
 ## Changelog
 
 **Other changes**
