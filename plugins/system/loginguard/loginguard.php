@@ -280,6 +280,16 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
+		/**
+		 * Allow com_ajax. This is required for cookie acceptance in the following scenario. Your session has expired,
+		 * therefore you need to re-apply TFA. Moreover, your cookie acceptance cookie has also expired and you need to
+		 * accept the site's cookies again.
+		 */
+		if ($option == 'com_ajax')
+		{
+			return;
+		}
+
 		// We only kick in when the user has actually set up TFA or must definitely enable TFA.
 		$needsTFA     = $this->needsTFA($user);
 		$disabledTSV  = $this->disabledTSV($user);

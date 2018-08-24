@@ -9,6 +9,7 @@
 **Other changes**
 
 * Joomla! 3.9 backend Components menu item compatibility
+* Allow com_ajax in the captive page (used by cookie banners and similar)
 
 **Bug fixes**
 
