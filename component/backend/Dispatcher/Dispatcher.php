@@ -8,7 +8,9 @@
 namespace Akeeba\LoginGuard\Admin\Dispatcher;
 
 // Protect from unauthorized access
+use FOF30\Container\Container;
 use FOF30\Dispatcher\Dispatcher as BaseDispatcher;
+use FOF30\Dispatcher\Mixin\ViewAliases;
 use FOF30\Utils\ComponentVersion;
 use RuntimeException;
 
@@ -16,6 +18,10 @@ defined('_JEXEC') or die();
 
 class Dispatcher extends BaseDispatcher
 {
+	use ViewAliases {
+		onBeforeDispatch as onBeforeDispatchViewAliases;
+	}
+
 	/**
 	 * The name of the default view, in case none is specified
 	 *
@@ -23,6 +29,15 @@ class Dispatcher extends BaseDispatcher
 	 * @since 2.0.0
 	 */
 	public $defaultView = 'Welcome';
+
+	public function __construct(Container $container, array $config)
+	{
+		parent::__construct($container, $config);
+
+		$this->viewNameAliases = [
+			'cpanel'             => 'ControlPanel',
+		];
+	}
 
 	/**
 	 * Executes before dispatching the request to the appropriate controller.
@@ -34,6 +49,8 @@ class Dispatcher extends BaseDispatcher
 	 */
 	public function onBeforeDispatch()
 	{
+		$this->onBeforeDispatchViewAliases();
+
 		// Does the user have adequate permissions to access our component?
 		$this->checkPrivileges();
 
@@ -148,7 +165,7 @@ class Dispatcher extends BaseDispatcher
 	{
 		$this->container->template->addCSS(
 			"media://{$this->container->componentName}/css/backend.min.css",
-			$this->container->mediaVersion, 'text/css', 'null',
+			$this->container->mediaVersion, 'text/css', null,
 			[
 				'relative'    => true,
 				'detectDebug' => true,

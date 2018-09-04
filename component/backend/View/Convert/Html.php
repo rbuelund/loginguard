@@ -19,6 +19,7 @@ class Html extends BaseView
 		if ($this->getLayout() != 'done')
 		{
 			$js = <<< JS
+;; // Defense against broken scripts
 window.jQuery(document).ready(function (){
 	document.forms.adminForm.submit();
 });

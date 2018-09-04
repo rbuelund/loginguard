@@ -7,6 +7,7 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -89,6 +90,22 @@ class PlgSystemLoginguard extends JPlugin
 	private $container = null;
 
 	/**
+	 * User groups for which Two Step Verification is never applied
+	 *
+	 * @var   array
+	 * @since 3.0.1
+	 */
+	private $neverTSVUserGroups = [];
+
+	/**
+	 * User groups for which Two Step Verification is mandatory
+	 *
+	 * @var   array
+	 * @since 3.0.1
+	 */
+	private $forceTSVUserGroups = [];
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -126,6 +143,20 @@ class PlgSystemLoginguard extends JPlugin
 		{
 			$this->enabled = false;
 		}
+
+		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);
+
+		if (!is_array($this->neverTSVUserGroups))
+		{
+			$this->neverTSVUserGroups = [];
+		}
+
+		$this->forceTSVUserGroups = $this->container->params->get('forceTSVUserGroups', []);
+
+		if (!is_array($this->forceTSVUserGroups))
+		{
+			$this->forceTSVUserGroups = [];
+		}
 	}
 
 	/**
@@ -133,6 +164,8 @@ class PlgSystemLoginguard extends JPlugin
 	 * application (load any components).
 	 *
 	 * @return  void
+	 *
+	 * @throws  Exception
 	 */
 	public function onAfterRoute()
 	{
@@ -153,8 +186,17 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// We only kick in if the session flag is not set
-		if ($session->get('tfa_checked', 0, 'com_loginguard'))
+		/**
+		 * We only kick in if the session flag is not set AND the user is not flagged for monitoring of their TSV status
+		 *
+		 * In case a user belongs to a group which requires TSV to be always enabled and they logged in without having
+		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
+		 * circumventing the requirement for TSV.
+		 */
+		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
+		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
+
+		if ($tfaChecked && !$tfaRecheck)
 		{
 			return;
 		}
@@ -198,6 +240,11 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
+		if ($tfaChecked && $tfaRecheck && $this->needsTFA($user))
+		{
+			return;
+		}
+
 		// We only kick in if the option and task are not the ones of the captive page
 		$option = strtolower($app->input->getCmd('option'));
 		$task = strtolower($app->input->getCmd('task'));
@@ -210,7 +257,12 @@ class PlgSystemLoginguard extends JPlugin
 			$app->input->set('format', 'html');
 			$app->input->set('layout', null);
 
-			if (in_array($view, array('ajax', 'captive')))
+			if (empty($view) && (strpos($task, '.') !== false))
+			{
+				list($view, $task) = explode('.', $task, 2);
+			}
+
+			if (in_array($view, array('ajax', 'captive', 'method', 'methods')))
 			{
 				return;
 			}
@@ -228,10 +280,22 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// We only kick in when the user has actually set up TFA.
-		$needsTFA = $this->needsTFA($user);
+		/**
+		 * Allow com_ajax. This is required for cookie acceptance in the following scenario. Your session has expired,
+		 * therefore you need to re-apply TFA. Moreover, your cookie acceptance cookie has also expired and you need to
+		 * accept the site's cookies again.
+		 */
+		if ($option == 'com_ajax')
+		{
+			return;
+		}
 
-		if ($needsTFA)
+		// We only kick in when the user has actually set up TFA or must definitely enable TFA.
+		$needsTFA     = $this->needsTFA($user);
+		$disabledTSV  = $this->disabledTSV($user);
+		$mandatoryTSV = $this->mandatoryTSV($user);
+
+		if ($needsTFA && !$disabledTSV)
 		{
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
 			$return_url = $session->get('return_url', '', 'com_loginguard');
@@ -254,7 +318,20 @@ class PlgSystemLoginguard extends JPlugin
 		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
 		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
 
-		if (!$needsTFA && $redirectionUrl)
+		// If the user is in a group that requires TFA we will redirect them to the setup page
+		if (!$needsTFA && $mandatoryTSV)
+		{
+			// First unset the flag to make sure the redirection will apply until they conform to the mandatory TFA
+			$session->set('tfa_checked', 0, 'com_loginguard');
+
+			// Now set a flag which forces rechecking TSV for this user
+			$session->set('recheck_mandatory_tsv', 1, 'com_loginguard');
+
+			// Then redirect them to the setup page
+			$this->redirectToTSVSetup();
+		}
+
+		if (!$needsTFA && $redirectionUrl && !$disabledTSV)
 		{
 			$session->set('postloginredirect', null, 'com_loginguard');
 
@@ -263,7 +340,7 @@ class PlgSystemLoginguard extends JPlugin
 	}
 
 	/**
-	 * Does the current user need to complete TFA authentication before allowed to access the site?
+	 * Does the current user need to complete TFA authentication before being allowed to access the site?
 	 *
 	 * @return  bool
 	 */
@@ -291,7 +368,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Get a list of just the method names
-		$methodNames = array();
+		$methodNames = [];
 
 		foreach ($tfaMethods as $tfaMethod)
 		{
@@ -299,7 +376,7 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// Filter the records based on currently active TFA methods
-		foreach($records as $record)
+		foreach ($records as $record)
 		{
 			if (in_array($record->method, $methodNames))
 			{
@@ -330,7 +407,7 @@ class PlgSystemLoginguard extends JPlugin
 			}
 			else
 			{
-				$app = \JFactory::getApplication();
+				$app   = \JFactory::getApplication();
 				$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
 			}
 		}
@@ -354,4 +431,67 @@ class PlgSystemLoginguard extends JPlugin
 		return array($isCLI, $isAdmin);
 	}
 
+	/**
+	 * Does the user belong in a group indicating TSV should be disabled for them?
+	 *
+	 * @param   JUser|User $user
+	 *
+	 * @return  bool
+	 */
+	private function disabledTSV($user)
+	{
+		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
+		$userGroups             = $user->getAuthorisedGroups();
+		$belongsToTSVUserGroups = array_intersect($this->neverTSVUserGroups, $userGroups);
+
+		return !empty($belongsToTSVUserGroups);
+	}
+
+	/**
+	 * Does the user belong in a group indicating TSV is required for them?
+	 *
+	 * @param   JUser|User $user
+	 *
+	 * @return  bool
+	 */
+	private function mandatoryTSV($user)
+	{
+		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
+		$userGroups             = $user->getAuthorisedGroups();
+		$belongsToTSVUserGroups = array_intersect($this->forceTSVUserGroups, $userGroups);
+
+		return !empty($belongsToTSVUserGroups);
+	}
+
+	/**
+	 * Redirect the user to the Two Step Verification method setup page.
+	 *
+	 * @return  void
+	 *
+	 * @since   3.0.1
+	 */
+	private function redirectToTSVSetup()
+	{
+		try
+		{
+			$app = JFactory::getApplication();
+		}
+		catch (\Exception $e)
+		{
+			// This would happen if we are in CLI or under an old Joomla! version. Either case is not supported.
+			return;
+		}
+
+		// If we are in a LoginGuard page do not redirect
+		$option = strtolower($app->input->getCmd('option'));
+
+		if ($option == 'com_loginguard')
+		{
+			return;
+		}
+
+		// Otherwise redirect to the LoginGuard TSV setup page after enqueueing a message
+		$url = 'index.php?option=com_loginguard&view=Methods';
+		$app->redirect($url, 307);
+	}
 }

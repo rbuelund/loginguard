@@ -5,6 +5,4 @@ $symlink_files = [
 ];
 
 $symlink_folders = [
-	// Language files
-	'../translations/loginguard' => 'translations',
 ];
