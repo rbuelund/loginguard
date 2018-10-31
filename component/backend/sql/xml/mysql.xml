@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+	<!-- Metadata -->
+	<meta>
+		<!-- Supported driver types -->
+		<drivers>
+			<driver>mysql</driver>
+			<driver>mysqli</driver>
+			<driver>pdomysql</driver>
+		</drivers>
+	</meta>
+
+	<!-- SQL commands to run on installation and update -->
+	<sql>
+		<!-- Create the #__loginguard_tfa table if it's missing -->
+		<action table="#__loginguard_tfa" canfail="0">
+			<condition type="missing" value="" />
+			<query><![CDATA[
+CREATE TABLE IF NOT EXISTS `#__loginguard_tfa` (
+  `id` SERIAL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `title` VARCHAR(180) NOT NULL,
+  `method` VARCHAR(100) NOT NULL,
+  `default` TINYINT(1) NOT NULL DEFAULT 0,
+  `options` MEDIUMTEXT null,
+  `created_on` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_used` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  INDEX idx_user_id (`user_id`)
+) ENGINE=InnoDB DEFAULT COLLATE=utf8_general_ci;
+            ]]></query>
+		</action>
+
+		<!-- GDPR considers this personal information so all we can do is not record it. * shrug * -->
+		<action table="#__ak_stats" canfail="1">
+			<condition type="missing" operator="'not" value="ua" />
+			<query><![CDATA[
+ALTER TABLE `#__loginguard_tfa`
+DROP COLUMN `ip`,
+DROP COLUMN `ua`
+            ]]></query>
+		</action>
+
+
+	</sql>
+</schema>

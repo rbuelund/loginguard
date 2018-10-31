@@ -2,6 +2,12 @@
 <project name="AkeebaLoginGuard" description="Akeeba LoginGuard" default="git" >
 	<import file="${phing.dir}/../../buildfiles/phing/common.xml" />
 
+	<!--
+	====================================================================================================
+	File sets
+	====================================================================================================
+	-->
+
 	<!-- Fileset for building the component ZIP -->
 	<fileset dir="${dirs.component}" id="component">
 		<include name="backend/**" />
@@ -14,6 +20,9 @@
 		<!-- Exclude uncompressed CSS and JS -->
 		<exclude name="media/uncompressed/**" />
 
+		<!-- Exclude the encryption key (randomly generated per site) -->
+		<exclude name="backend/encrypt_service_key.php" />
+
 		<!-- Exclude the script used by the package -->
 		<exclude name="script.loginguard.php" />
 	</fileset>
@@ -24,6 +33,7 @@
 		<include name="mod_*.zip" />
 		<include name="plg_*.zip" />
 		<include name="lib_*.zip" />
+		<include name="file_fef*.zip" />
 		<include name="pkg_*.xml" />
 		<include name="*.txt" />
 		<include name="script.loginguard.php" />
@@ -31,10 +41,17 @@
 
 	<!--
 	====================================================================================================
-	Build customization
+	Tasks - General
 	====================================================================================================
 	-->
-	<target name="component-packages" depends="plugin-manifests,package-pkg" />
+
+	<target name="all" description="Makes everything"
+			depends="git">
+	</target>
+
+	<target name="git" description="Makes only packages"
+			depends="new-release,setup-properties,plugin-manifests,component-packages">
+	</target>
 
 	<target name="plugin-manifests" depends="setup-properties">
 		<copy file="${phing.dir}/templates/plg_system_loginguard.xml" tofile="${dirs.plugins}/system/loginguard/loginguard.xml" overwrite="true">
@@ -47,6 +64,9 @@
 		</copy>
 
 		<copy file="${phing.dir}/templates/plg_loginguard_email.xml" tofile="${dirs.plugins}/loginguard/email/email.xml" overwrite="true">
+			<filterchain refid="manifest-replace-tokens" />
+		</copy>
+		<copy file="${phing.dir}/templates/plg_loginguard_encrypt.xml" tofile="${dirs.plugins}/loginguard/encrypt/encrypt.xml" overwrite="true">
 			<filterchain refid="manifest-replace-tokens" />
 		</copy>
 		<copy file="${phing.dir}/templates/plg_loginguard_fixed.xml" tofile="${dirs.plugins}/loginguard/fixed/fixed.xml" overwrite="true">

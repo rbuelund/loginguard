@@ -1,3 +1,97 @@
+# 3.0.2
+
+**Security update**
+
+* Fixed an authenticated security bypass which could be used to disable two step verification, discovered by Ivaylo V. 
+
+# 3.0.1
+
+**New**
+
+* Users page to see which users have 2SV enabled or not
+* Ability to force-disable TSV for specific user groups
+* gh-49 Forced 2SV for specific user groups
+
+**Other changes**
+
+* Joomla! 3.9 backend Components menu item compatibility
+* Allow com_ajax in the captive page (used by cookie banners and similar)
+
+**Bug fixes**
+
+* U2F might fail on Firefox due to a missing semicolon
+
+# 3.0.0
+
+**Other changes**
+
+* Fully refactored to make better use of FOF 3 features
+* Automatic encryption of TFA settings for GDPR compliance (only affects TFA methods which are newly created or used after installing this version)
+
+**Removed features**
+
+* IP addresses and User Agents are no longer collected for GDPR compliance.
+
+**Bug fixes**
+
+* The Log Out button results in an invalid token error (h/t Ivaylo V. for the heads up)
+
+# 2.0.1
+
+**Other changes**
+
+* Using the built-in FOF page renderer instead of a custom one
+
+**Bug fixes**
+
+* Cannot update the GeoIP database from inside the component
+* TOTP (Google Authenticator) plugin does not display the QR code due to missing JS file
+* Leftover records after the user is deleted from Joomla
+
+# 2.0.0
+
+**New**
+
+* Rewritten interface using the FOF framework
+* Rewritten interface using our own CSS framework
+* Preliminary Joomla! 4 compatibility (tested against 4.0.0 Alpha 2)
+* Minimum requirements increased to PHP 5.4 or later. Tested up to and including PHP 7.2.
+* Warn the user if either FOF or FEF is not installed.
+
+**Bug fixes**
+
+* PHP Notice when the user does not have any backup codes (it can only happen if you tamper with the database).
+* Google's QR code API was deprecated, breaking the TOTP authentication plugin (gh-38)
+
+# 1.2.1
+
+**Other changes**
+
+* Make the intent of Backup Codes more obvious
+* Auto-focus the two step verification field
+* Do not escape the LoginGuard method title (allows for title formatting, e.g. with the backup codes method) 
+
+**Bug fixes**
+
+* The emergency backup codes could be reused
+
+# 1.2.0
+
+**Other changes**
+
+* Improved static media versioning.
+* Security Key (U2F) plugin: start the U2F validation request immediately, without having to press the button on the screen.
+* Security Key (U2F) plugin: do not show the confusing Validate button.
+* Show TFA status in the Profile status page (before editing).
+
+**Bug fixes**
+
+* Missing file.
+* PHP warnings on Joomla! 3.7.0 because Joomla! broke backwards compatibility, again.
+* Disabling method batching doesn't display each authentication method separately in the captive page. 
+* Backup Codes not shown in the authentication method selection page.
+* Workaround for Joomla! Bug 16147 (https://github.com/joomla/joomla-cms/issues/16147) - Cannot access component after installation when cache is enabled
+
 # 1.1.1
 
 **Bug fixes**

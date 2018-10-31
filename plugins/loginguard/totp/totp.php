@@ -1,16 +1,69 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF30\Encrypt\Totp;
+
 defined('_JEXEC') or die;
 
-if (!class_exists('LoginGuardAuthenticator', true))
+// Minimum PHP version check
+if (!version_compare(PHP_VERSION, '5.4.0', '>='))
 {
-	JLoader::register('LoginGuardAuthenticator', JPATH_ADMINISTRATOR . '/components/com_loginguard/helpers/authenticator.php');
+	return;
+}
+
+/**
+ * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
+ */
+if (function_exists('eaccelerator_info'))
+{
+	$isBrokenCachingEnabled = true;
+
+	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
+	{
+		$isBrokenCachingEnabled = false;
+	}
+
+	if ($isBrokenCachingEnabled)
+	{
+		/**
+		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
+		 * the plugin class isn't defined, so Joomla cannot possibly use it.
+		 *
+		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
+		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
+		 *
+		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
+		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
+		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
+		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
+		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
+		 * with the plugin.
+		 */
+		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
+		}
+
+		return;
+	}
+}
+
+// Make sure Akeeba LoginGuard is installed
+if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
+{
+	return;
+}
+
+// Load FOF
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	return;
 }
 
 /**
@@ -38,6 +91,17 @@ class PlgLoginguardTotp extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
+		/**
+		 * Required to work around eAccelerator on PHP 5.4 and later.
+		 *
+		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
+		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
+		 */
+		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			return;
+		}
+
 		parent::__construct($subject, $config);
 
 		$this->loadLanguage();
@@ -125,7 +189,7 @@ class PlgLoginguardTotp extends JPlugin
 			return array();
 		}
 
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -150,8 +214,10 @@ class PlgLoginguardTotp extends JPlugin
 		// Generate a QR code for the key
 		$user     = JFactory::getUser($record->user_id);
 		$hostname = JUri::getInstance()->toString(array('host'));
-		$qr       = $totp->getUrl($user->username, $hostname, $key);
+		$qr       = sprintf("otpauth://totp/%s@%s?secret=%s", $user->username, $hostname, $key);
 		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
+
+		$this->loadJavascript($qr);
 
 		return array(
 			// Default title if you are setting up this TFA method for the first time
@@ -163,7 +229,7 @@ class PlgLoginguardTotp extends JPlugin
 			// Any tabular data to display (label => custom HTML). See above
 			'tabular_data'   => array(
 				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_KEY') => $key,
-				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<img src=\"$qr\" />",
+				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<span id=\"loginGuardQRImage\" />",
 			),
 			// Hidden fields to include in the form (name => value)
 			'hidden_data'    => array(
@@ -244,7 +310,7 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
@@ -265,13 +331,13 @@ class PlgLoginguardTotp extends JPlugin
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -296,7 +362,7 @@ class PlgLoginguardTotp extends JPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new LoginGuardAuthenticator();
+		$totp = new Totp();
 		return $totp->checkCode($key, $code);
 	}
 
@@ -317,14 +383,65 @@ class PlgLoginguardTotp extends JPlugin
 		{
 			$recordOptions = $record->options;
 
-			if (is_string($recordOptions))
-			{
-				$recordOptions = json_decode($recordOptions, true);
-			}
-
 			$options = array_merge($options, $recordOptions);
 		}
 
 		return $options;
+	}
+
+	protected function loadJavascript($QRContent)
+	{
+		if (defined('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED'))
+		{
+			return;
+		}
+
+		define('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED', 1);
+
+		JHtml::_('jquery.framework');
+
+		if (version_compare(JVERSION, '3.6.999', 'le'))
+		{
+			// Load Javascript
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
+				'version'     => 'auto',
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
+		}
+		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+		else
+		{
+			// Load Javascript
+			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+		}
+
+		$js        = /** @lang JavaScript */
+			<<< JS
+;; // Defense against broken scripts
+window.jQuery(document).ready(function ($){
+    $("#loginGuardQRImage").qrcode({
+    	render: 'image',
+    	ecLevel: 'Q',
+    	size: 300,
+    	quiet: 2,
+    	text: '$QRContent'
+    });
+});
+
+JS;
+
+		JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
+
 	}
 }

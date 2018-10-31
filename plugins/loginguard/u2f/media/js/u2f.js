@@ -1,6 +1,6 @@
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -96,6 +96,13 @@ akeeba.LoginGuard.u2f.showError = function(errorCode)
 
         case 5:
             alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT'));
+
+            try
+            {
+                $('#loginguard-u2f-button').show();
+            }
+            catch (e) {};
+
             break;
     }
 

@@ -9,7 +9,12 @@
 
 /component/loginguard.xml
 
+/component/backend/encrypt_service_key.php
+
+/component/media/css/fef.min.css
 /component/media/js/*.map
+/component/media/fonts
+/component/media/images/akeeba-logo.svg
 
 /documentation/*/*.*~
 
@@ -18,5 +23,12 @@
 /installers/angie
 
 /plugins/**/**/*.xml
+!/plugins/user/loginguard/loginguard/*.xml
+/plugins/loginguard/encrypt/secretkey.php
 
 /release
+
+# Internal language symlinks
+/component/language/*/en-GB
+/modules/*/*/language/en-GB
+/plugins/*/*/language/en-GB

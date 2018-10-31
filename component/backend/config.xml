@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
 -->
-<config addfieldpath="/administrator/components/com_loginguard/models/fields">
+<config addfieldpath="/administrator/components/com_loginguard/Field/Joomla">
 
 	<fieldset name="captive" label="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_LABEL"
 			  description="COM_LOGINGUARD_CONFIG_HEADER_CAPTIVE_DESC">
@@ -31,6 +31,26 @@
 			   client_id="1"
 			   multiple="1"
 			   class="input-large"/>
+
+		<field name="neverTSVUserGroups" type="UserGroupList"
+			   checksuperusergroup="1"
+			   default=""
+			   multiple="1"
+			   label="COM_LOGINGUARD_CONFIG_NEVERTSVUSERGROUPS_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_NEVERTSVUSERGROUPS_DESC"
+		>
+			<option value="0">COM_LOGINGUARD_CONFIG_LBL_NOGROUP</option>
+		</field>
+
+		<field name="forceTSVUserGroups" type="UserGroupList"
+			   checksuperusergroup="1"
+			   default=""
+			   multiple="1"
+			   label="COM_LOGINGUARD_CONFIG_FORCETSVUSERGROUPS_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_FORCETSVUSERGROUPS_DESC"
+		>
+			<option value="0">COM_LOGINGUARD_CONFIG_LBL_NOGROUP</option>
+		</field>
 
 	</fieldset>
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -40,23 +40,19 @@ JS;
 
 JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
 ?>
-<div class="form form-horizontal" id="loginGuardSMSAPIForm">
-    <div id="loginguard-smsapi-controls">
-        <div class="control-group">
-            <label class="control-label" for="loginGuardSMSAPIPhone">
-                <?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_PHONE') ?>
-            </label>
-            <div class="controls">
-                <input type="text" name="phone-entry-field" id="loginGuardSMSAPIPhone" value="" class="input-large" />
-            </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <button type="button" class="btn btn-primary" onclick="loginGuardSMSAPISendCode()">
-                    <span class="icon icon-phone glyphicon glyphicon-phone"></span>
-	                <?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SENDCODEBUTTON'); ?>
-                </button>
-            </div>
+<div class="akeeba-form--horizontal" id="loginGuardSMSAPIForm">
+    <div class="akeeba-form-group">
+        <label for="loginGuardSMSAPIPhone">
+			<?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_PHONE') ?>
+        </label>
+        <input type="text" name="phone-entry-field" id="loginGuardSMSAPIPhone" value="" class="input-large" />
+    </div>
+    <div class="akeeba-form-group--pull-right">
+        <div class="akeeba-form-group--actions">
+            <button type="button" class="akeeba-btn--primary" onclick="loginGuardSMSAPISendCode()">
+                <span class="icon icon-phone glyphicon glyphicon-phone"></span>
+				<?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SENDCODEBUTTON'); ?>
+            </button>
         </div>
     </div>
 </div>

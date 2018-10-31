@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,6 +9,7 @@
 defined('_JEXEC') or die;
 
 $js = <<< JS
+;; // Defense against broken scripts
 
 window.jQuery(document).ready(function($){
     document.getElementById('loginguard-u2f-missing').style.display = 'none';
@@ -18,7 +19,7 @@ window.jQuery(document).ready(function($){
         document.getElementById('loginguard-u2f-missing').style.display = 'block';
         document.getElementById('loginguard-u2f-controls').style.display = 'none';
     }
-})
+});
 
 JS;
 

@@ -1,12 +1,70 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Prevent direct access
+use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF30\Container\Container;
+
 defined('_JEXEC') or die;
+
+// Minimum PHP version check
+if (!version_compare(PHP_VERSION, '5.4.0', '>='))
+{
+	return;
+}
+
+/**
+ * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
+ */
+if (function_exists('eaccelerator_info'))
+{
+	$isBrokenCachingEnabled = true;
+
+	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
+	{
+		$isBrokenCachingEnabled = false;
+	}
+
+	if ($isBrokenCachingEnabled)
+	{
+		/**
+		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
+		 * the plugin class isn't defined, so Joomla cannot possibly use it.
+		 *
+		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
+		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
+		 *
+		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
+		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
+		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
+		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
+		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
+		 * with the plugin.
+		 */
+		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
+		}
+
+		return;
+	}
+}
+
+// Make sure Akeeba LoginGuard is installed
+if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
+{
+	return;
+}
+
+// Load FOF
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+{
+	return;
+}
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Time-based One Time Password"
@@ -47,6 +105,17 @@ class PlgLoginguardU2f extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
+		/**
+		 * Required to work around eAccelerator on PHP 5.4 and later.
+		 *
+		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
+		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
+		 */
+		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		{
+			return;
+		}
+
 		parent::__construct($subject, $config);
 
 		// Load the language file
@@ -170,20 +239,52 @@ class PlgLoginguardU2f extends JPlugin
 		 */
 		if (empty($currentRecordRegistrations))
 		{
-			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'     => 'auto',
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
+			if (version_compare(JVERSION, '3.6.999', 'le'))
+			{
+				// Load Javascript
+				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+					'version'     => 'auto',
+					'relative'    => true,
+					'detectDebug' => true,
+				), true, false, false, true);
 
-			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'     => 'auto',
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
+				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+					'version'     => 'auto',
+					'relative'    => true,
+					'detectDebug' => true,
+				), true, false, false, true);
+			}
+			// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+			else
+			{
+				// Load Javascript
+				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+					'version'       => 'auto',
+					'relative'      => true,
+					'detectDebug'   => true,
+					'framework'     => true,
+					'pathOnly'      => false,
+					'detectBrowser' => true,
+				), array(
+					'defer' => false,
+					'async' => false,
+				));
+
+				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+					'version'       => 'auto',
+					'relative'      => true,
+					'detectDebug'   => true,
+					'framework'     => true,
+					'pathOnly'      => false,
+					'detectBrowser' => true,
+				), array(
+					'defer' => false,
+					'async' => false,
+				));
+			}
 
 			$js = <<< JS
+;; // Defense against broken scripts
 window.jQuery(document).ready(function() {
 	akeeba.LoginGuard.u2f.regData = $u2fRegData;
 });
@@ -347,18 +448,51 @@ JS;
 			return array();
 		}
 
-		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
-		JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-			'version'     => 'auto',
-			'relative'    => true,
-			'detectDebug' => true,
-		), true, false, false, true);
+		// Get the media version
+		$mediaVersion = Container::getInstance('com_loginguard')->mediaVersion;
 
-		JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-			'version'     => 'auto',
-			'relative'    => true,
-			'detectDebug' => true,
-		), true, false, false, true);
+		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
+		if (version_compare(JVERSION, '3.6.999', 'le'))
+		{
+			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+				'version'     => $mediaVersion,
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
+
+			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+				'version'     => $mediaVersion,
+				'relative'    => true,
+				'detectDebug' => true,
+			), true, false, false, true);
+		}
+		else
+		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
+		{
+			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
+				'version'       => $mediaVersion,
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+
+			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
+				'version'       => $mediaVersion,
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			), array(
+				'defer' => false,
+				'async' => false,
+			));
+		}
 
 		// Load JS translations
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
@@ -407,13 +541,26 @@ JS;
 		$session->set('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
 		$js = <<< JS
+;; // Defense against broken scripts
+
+function akeebaLoginGuardU2FOnClick()
+{
+	    window.jQuery('#loginguard-u2f-button').hide();
+		akeeba.LoginGuard.u2f.validate();
+
+		return false;
+}
+		
 window.jQuery(document).ready(function($) {
 	akeeba.LoginGuard.u2f.authData = $u2fAuthDataJSON;
 	
-	$(document.getElementById('loginguard-captive-button-submit')).click(function() {
-		akeeba.LoginGuard.u2f.validate();
-		return false;
-	})
+	$('#loginguard-captive-button-submit').click(function() {
+	    akeebaLoginGuardU2FOnClick();
+	});
+	
+	setTimeout(function() {
+	    akeebaLoginGuardU2FOnClick();
+	}, 250);
 });
 
 JS;
@@ -441,6 +588,8 @@ JS;
 			'html'               => $html,
 			// Custom HTML to display below the TFA form
 			'post_message'       => '',
+			// Should I hide the submit button? Useful if you need to render your own buttons or use a method which is meant to auto-submit upon doing a certain action.
+			'hide_submit'        => true,
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
@@ -452,13 +601,13 @@ JS;
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   stdClass  $record  The TFA method's record you're validatng against
+	 * @param   Tfa       $record  The TFA method's record you're validatng against
 	 * @param   JUser     $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate($record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
 	{
 		// Make sure we are enabled
 		if (!$this->enabled)
@@ -532,8 +681,11 @@ JS;
 		 */
 		$update = (object)array(
 			'id' => $id,
-			'options' => json_encode(array('registrations' => array($registration)))
+			'options' => json_encode(array('registrations' => array($registration))),
 		);
+
+		$container = Container::getInstance('com_loginguard');
+		$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$update]);
 
 		$db = JFactory::getDbo();
 		$db->updateObject('#__loginguard_tfa', $update, array('id'));
@@ -551,7 +703,7 @@ JS;
 	private function _decodeRecordOptions($record)
 	{
 		$options = array(
-			'registrations' => array()
+			'registrations' => array(),
 		);
 
 		$recordOptions = null;
@@ -567,19 +719,20 @@ JS;
 
 		if (!empty($recordOptions))
 		{
-			if (is_string($recordOptions))
-			{
-				// We need to decode as object. This is required for the U2F library to work proparly.
-				$recordOptions = json_decode($recordOptions);
-			}
-
 			/**
-			 * However, $options is an array so I need to typecast the generated object to an array. The end result is:
+			 * The end result is:
 			 * $recordOptions is an array with one key, 'registrations'
 			 * $recordOptions['registrations'] is a simple (numerically indexed) array. Its contents are objects.
 			 * That's exactly what I wanted.
 			 */
-			$recordOptions = (array)$recordOptions;
+			$temp = [];
+
+			foreach ($recordOptions['registrations'] as $k => $opt)
+			{
+				$temp[$k] = (object)$opt;
+			}
+
+			$recordOptions = ['registrations' => $temp];
 
 			$options = array_merge($options, $recordOptions);
 		}
@@ -664,15 +817,12 @@ JS;
 
 		$return = array();
 
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true)
-			->select('*')
-			->from($db->qn('#__loginguard_tfa'))
-			->where($db->qn('user_id') . ' = ' . $db->q($user_id))
-			->where($db->qn('method') . ' = ' . $db->q('u2f'));
-		$results = $db->setQuery($query)->loadObjectList();
+		$container = Container::getInstance('com_loginguard');
+		/** @var Tfa $tfaModel */
+		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+		$results = $tfaModel->user_id($user_id)->method('u2f')->get(true);
 
-		if (empty($results))
+		if ($results->count() < 1)
 		{
 			return $return;
 		}
@@ -714,13 +864,10 @@ JS;
 
 		try
 		{
-			$db = JFactory::getDbo();
-			$query = $db->getQuery(true)
-			            ->select('*')
-			            ->from($db->qn('#__loginguard_tfa'))
-			            ->where($db->qn('user_id') . ' = ' . $db->q($record->user_id))
-			            ->where($db->qn('method') . ' = ' . $db->q($record->method));
-			$records = $db->setQuery($query)->loadObjectList();
+			$container = Container::getInstance('com_loginguard');
+			/** @var Tfa $tfaModel */
+			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 		}
 		catch (Exception $e)
 		{
@@ -728,6 +875,9 @@ JS;
 		}
 
 		// Loop all records, stop if at least one matches
+		$container = Container::getInstance('com_loginguard');
+
+		/** @var Tfa $aRecord */
 		foreach ($records as $aRecord)
 		{
 			$recordOptions       = $this->_decodeRecordOptions($aRecord);

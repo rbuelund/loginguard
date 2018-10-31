@@ -1,9 +1,13 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2017 Akeeba Ltd
+ * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
+
+use Akeeba\LoginGuard\Site\Helper\Tfa;
+use FOF30\Container\Container;
+use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -16,6 +20,14 @@ defined('_JEXEC') or die;
 class plgUserLoginguard extends JPlugin
 {
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 * @since 2.0.0
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -26,6 +38,9 @@ class plgUserLoginguard extends JPlugin
 	public function __construct(& $subject, $config)
 	{
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		$this->loadLanguage();
 	}
@@ -53,7 +68,9 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
-		if (!LoginGuardHelperTfa::isAdminPage() && (JFactory::getApplication()->input->getCmd('layout', 'default') != 'edit'))
+		$layout = JFactory::getApplication()->input->getCmd('layout', 'default');
+
+		if (!$this->container->platform->isBackend() && !in_array($layout, array('edit', 'default')))
 		{
 			return true;
 		}
@@ -83,13 +100,36 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure I am either editing myself OR I am a Super User AND I'm not editing another Super User
-		if (!LoginGuardHelperTfa::canEditUser($user))
+		if (!Tfa::canEditUser($user))
 		{
 			return true;
 		}
 
 		// Add the fields to the form.
 		JForm::addFormPath(dirname(__FILE__) . '/loginguard');
+
+		// Special handling for profile overview page
+		if ($layout == 'default')
+		{
+			/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
+			$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+			$tfaMethods = $tfaModel->user_id($id)->get(true);
+
+			/**
+			 * We cannot pass a boolean or integer; if it's false/0 Joomla! will display "No information entered". We
+			 * cannot use a list field to display it in a human readable format, Joomla! just dumps the raw value if you
+			 * use such a field. So all I can do is pass raw text. Um, whatever.
+			 */
+			$data->loginguard = array(
+				'hastfa' => ($tfaMethods->count() > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
+			);
+
+			$form->loadFile('list', false);
+
+			return true;
+		}
+
+		// Profile edit page
 		$form->loadFile('loginguard', false);
 
 		return true;
@@ -145,6 +185,74 @@ class plgUserLoginguard extends JPlugin
 	}
 
 	/**
+	 * Remove all user profile information for the given user ID
+	 *
+	 * Method is called after user data is deleted from the database
+	 *
+	 * @param   array   $user     Holds the user data
+	 * @param   bool    $success  True if user was successfully stored in the database
+	 * @param   string  $msg      Message
+	 *
+	 * @return  bool
+	 *
+	 * @throws  Exception
+	 */
+	public function onUserAfterDelete($user, $success, $msg)
+	{
+		if (!$success)
+		{
+			return false;
+		}
+
+		if (class_exists('Joomla\\Utilities\\ArrayHelper'))
+		{
+			$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
+		}
+		else
+		{
+			$userId	= JArrayHelper::getValue($user, 'id', 0, 'int');
+		}
+
+		if (!$userId)
+		{
+			return true;
+		}
+
+		$db = JFactory::getDbo();
+
+		// Delete user profile records
+		$query = $db->getQuery(true)
+		            ->delete($db->qn('#__user_profiles'))
+		            ->where($db->qn('user_id').' = '.$db->q($userId))
+		            ->where($db->qn('profile_key').' LIKE '.$db->q('loginguard.%', false));
+
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// No sweat if it failed
+		}
+
+		// Delete LoginGuard records
+		try
+		{
+			$query = $db->getQuery(true)
+			            ->delete($db->qn('#__loginguard_tfa'))
+			            ->where($db->qn('user_id').' = '.$db->q($userId));
+
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// No sweat if it failed
+		}
+
+		return true;
+	}
+
+	/**
 	 * Does the current user need to complete 2FA authentication before allowed to access the site?
 	 *
 	 * @param   JUser   $user          The user object we are checking
@@ -173,16 +281,19 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Get the user's TFA records
-		$records = LoginGuardHelperTfa::getUserTfaRecords($user->id);
+		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
+		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$records = $tfaModel->user_id($user->id)->get(true);
+
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
-		if (empty($records))
+		if ($records->count() < 1)
 		{
 			return false;
 		}
 
 		// Let's get a list of all currently active TFA methods
-		$tfaMethods = LoginGuardHelperTfa::getTfaMethods();
+		$tfaMethods = Tfa::getTfaMethods();
 
 		// If not TFA method is active we can't really display a captive login page.
 		if (empty($tfaMethods))
