@@ -240,7 +240,9 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		if ($tfaChecked && $tfaRecheck && $this->needsTFA($user))
+        $needsTFA     = $this->needsTFA($user);
+
+		if ($tfaChecked && $tfaRecheck && $needsTFA)
 		{
 			return;
 		}
@@ -262,7 +264,14 @@ class PlgSystemLoginguard extends JPlugin
 				list($view, $task) = explode('.', $task, 2);
 			}
 
-			if (in_array($view, array('ajax', 'captive', 'method', 'methods')))
+			// The captive login page is always allowed
+			if ($view === 'captive')
+            {
+                return;
+            }
+
+            // These views are only allowed if you do not have 2SV enabled *or* if you have already logged in.
+			if (!$needsTFA && in_array($view, array('ajax', 'method', 'methods')))
 			{
 				return;
 			}
@@ -291,7 +300,6 @@ class PlgSystemLoginguard extends JPlugin
 		}
 
 		// We only kick in when the user has actually set up TFA or must definitely enable TFA.
-		$needsTFA     = $this->needsTFA($user);
 		$disabledTSV  = $this->disabledTSV($user);
 		$mandatoryTSV = $this->mandatoryTSV($user);
 

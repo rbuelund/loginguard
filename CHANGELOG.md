@@ -1,3 +1,9 @@
+# 3.0.2
+
+**Security update**
+
+* Fixed an authenticated security bypass which could be used to disable two step verification, discovered by Ivaylo V. 
+
 # 3.0.1
 
 **New**
