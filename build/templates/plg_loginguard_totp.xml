@@ -33,8 +33,8 @@
 				<field
 						name="helpurl"
 						type="text"
-						label="PLG_LOGINGUARD_FIXED_CONFIG_HELPURL_LABEL"
-						description="PLG_LOGINGUARD_FIXED_CONFIG_HELPURL_DESC"
+						label="PLG_LOGINGUARD_TOTP_CONFIG_HELPURL_LABEL"
+						description="PLG_LOGINGUARD_TOTP_CONFIG_HELPURL_DESC"
 						default=""
 						filter="url"
 				/>
