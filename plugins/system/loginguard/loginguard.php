@@ -160,6 +160,43 @@ class PlgSystemLoginguard extends JPlugin
 	}
 
 	/**
+	 * MAGIC TRICK. If you have enabled Joomla's Privacy Consent you'd end up with an infinite redirection loop. That's
+	 * because Joomla! did a partial, naive copy of my original research code on captive Joomla! logins. They did not
+	 * implement configurable exceptions since they do not use the CMS in the real world and do not understand the use
+	 * cases.
+	 *
+	 * Since fixing Joomla's code is not an option, as we have found from bitter experience, we'll do what we have
+	 * always been doing best: work around it based on our knowledge of real world Joomla usage and how the beast truly
+	 * works under the hood.
+	 *
+	 * In this episode of Crazy Stuff Nicholas Has To Do To Get Basic Functionlaity Working we will explore how to use
+	 * PHP Reflection to detect the offending Joomla! Privacy Consent system plugin and snuff it out before it can issue
+	 * its redirections. Yo, Joomla!, I invented this UI pattern. Do you think your bad aping of it would stop me? HAH!
+	 *
+	 * @since  3.0.3
+	 * @throws Exception
+	 */
+	public function onAfterInitialise()
+	{
+		$app    = JFactory::getApplication();
+		$option = $app->input->getCmd('option', null);
+
+		/**
+		 * If we're going to need to perform a redirection and Joomla's privacy consent is also enabled we will snuff it
+		 * so it doesn't cause an infinite redirection loop. The correct solution would be Joomla! allowing users to
+		 * specify exceptions to the captive login but having its developers think of that requires them to use the CMS
+		 * in the real world which, as we know, is not the case. No problem. I've made a career working around the
+		 * Joomla! core, haven't I?
+		 */
+		if (
+			($this->willNeedRedirect() || ($option == 'com_loginguard'))
+			&& version_compare(JVERSION, '3.8.999', 'gt'))
+		{
+			$this->snuffJoomlaPrivacyConsent();
+		}
+	}
+
+	/**
 	 * Gets triggered right after Joomla has finished with the SEF routing and before it has the chance to dispatch the
 	 * application (load any components).
 	 *
@@ -169,8 +206,7 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	public function onAfterRoute()
 	{
-		// If the requirements are not met do not proceed
-		if (!$this->enabled)
+		if (!$this->willNeedRedirect())
 		{
 			return;
 		}
@@ -183,21 +219,6 @@ class PlgSystemLoginguard extends JPlugin
 		catch (Exception $e)
 		{
 			// Can't get access to the session? Must be under CLI which is not supported.
-			return;
-		}
-
-		/**
-		 * We only kick in if the session flag is not set AND the user is not flagged for monitoring of their TSV status
-		 *
-		 * In case a user belongs to a group which requires TSV to be always enabled and they logged in without having
-		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
-		 * circumventing the requirement for TSV.
-		 */
-		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
-		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
-
-		if ($tfaChecked && !$tfaRecheck)
-		{
 			return;
 		}
 
@@ -220,86 +241,8 @@ class PlgSystemLoginguard extends JPlugin
 			return;
 		}
 
-		// The plugin only needs to kick in when you have logged in
-		if ($user->get('guest'))
-		{
-			return;
-		}
-
-		list($isCLI, $isAdmin) = $this->isCliAdmin();
-
-		// TFA is not applicable under CLI
-		if ($isCLI)
-		{
-			return;
-		}
-
-		// If we are in the administrator section we only kick in when the user has backend access privileges
-		if ($isAdmin && !$user->authorise('core.login.admin'))
-		{
-			return;
-		}
-
-        $needsTFA     = $this->needsTFA($user);
-
-		if ($tfaChecked && $tfaRecheck && $needsTFA)
-		{
-			return;
-		}
-
-		// We only kick in if the option and task are not the ones of the captive page
-		$option = strtolower($app->input->getCmd('option'));
-		$task = strtolower($app->input->getCmd('task'));
-		$view = strtolower($app->input->getCmd('view'));
-
-		if ($option == 'com_loginguard')
-		{
-			// In case someone gets any funny ideas...
-			$app->input->set('tmpl', 'index');
-			$app->input->set('format', 'html');
-			$app->input->set('layout', null);
-
-			if (empty($view) && (strpos($task, '.') !== false))
-			{
-				list($view, $task) = explode('.', $task, 2);
-			}
-
-			// The captive login page is always allowed
-			if ($view === 'captive')
-            {
-                return;
-            }
-
-            // These views are only allowed if you do not have 2SV enabled *or* if you have already logged in.
-			if (!$needsTFA && in_array($view, array('ajax', 'method', 'methods')))
-			{
-				return;
-			}
-		}
-
-		// Allow the frontend user to log out (in case they forgot their TFA code or something)
-		if (!$isAdmin && ($option == 'com_users') && ($task == 'user.logout'))
-		{
-			return;
-		}
-
-		// Allow the backend user to log out (in case they forgot their TFA code or something)
-		if ($isAdmin && ($option == 'com_login') && ($task == 'logout'))
-		{
-			return;
-		}
-
-		/**
-		 * Allow com_ajax. This is required for cookie acceptance in the following scenario. Your session has expired,
-		 * therefore you need to re-apply TFA. Moreover, your cookie acceptance cookie has also expired and you need to
-		 * accept the site's cookies again.
-		 */
-		if ($option == 'com_ajax')
-		{
-			return;
-		}
-
 		// We only kick in when the user has actually set up TFA or must definitely enable TFA.
+		$needsTFA     = $this->needsTFA($user);
 		$disabledTSV  = $this->disabledTSV($user);
 		$mandatoryTSV = $this->mandatoryTSV($user);
 
@@ -501,5 +444,197 @@ class PlgSystemLoginguard extends JPlugin
 		// Otherwise redirect to the LoginGuard TSV setup page after enqueueing a message
 		$url = 'index.php?option=com_loginguard&view=Methods';
 		$app->redirect($url, 307);
+	}
+
+	private function willNeedRedirect()
+	{
+		// If the requirements are not met do not proceed
+		if (!$this->enabled)
+		{
+			return false;
+		}
+
+		// Get the session objects
+		try
+		{
+			$session = JFactory::getSession();
+		}
+		catch (Exception $e)
+		{
+			// Can't get access to the session? Must be under CLI which is not supported.
+			return false;
+		}
+
+		/**
+		 * We only kick in if the session flag is not set AND the user is not flagged for monitoring of their TSV status
+		 *
+		 * In case a user belongs to a group which requires TSV to be always enabled and they logged in without having
+		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
+		 * circumventing the requirement for TSV.
+		 */
+		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
+		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
+
+		if ($tfaChecked && !$tfaRecheck)
+		{
+			return false;
+		}
+
+		// Make sure we are logged in
+		try
+		{
+			$app = JFactory::getApplication();
+
+			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
+			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
+			{
+				$app->loadIdentity();
+			}
+
+			$user = $app->getIdentity();
+		}
+		catch (\Exception $e)
+		{
+			// This would happen if we are in CLI or under an old Joomla! version. Either case is not supported.
+			return false;
+		}
+
+		// The plugin only needs to kick in when you have logged in
+		if ($user->get('guest'))
+		{
+			return false;
+		}
+
+		list($isCLI, $isAdmin) = $this->isCliAdmin();
+
+		// TFA is not applicable under CLI
+		if ($isCLI)
+		{
+			return false;
+		}
+
+		// If we are in the administrator section we only kick in when the user has backend access privileges
+		if ($isAdmin && !$user->authorise('core.login.admin'))
+		{
+			return false;
+		}
+
+		$needsTFA = $this->needsTFA($user);
+
+		if ($tfaChecked && $tfaRecheck && $needsTFA)
+		{
+			return false;
+		}
+
+		// We only kick in if the option and task are not the ones of the captive page
+		$option = strtolower($app->input->getCmd('option'));
+		$task = strtolower($app->input->getCmd('task'));
+		$view = strtolower($app->input->getCmd('view'));
+
+		if ($option == 'com_loginguard')
+		{
+			// In case someone gets any funny ideas...
+			$app->input->set('tmpl', 'index');
+			$app->input->set('format', 'html');
+			$app->input->set('layout', null);
+
+			if (empty($view) && (strpos($task, '.') !== false))
+			{
+				list($view, $task) = explode('.', $task, 2);
+			}
+
+			// The captive login page is always allowed
+			if ($view === 'captive')
+			{
+				return false;
+			}
+
+			// These views are only allowed if you do not have 2SV enabled *or* if you have already logged in.
+			if (!$needsTFA && in_array($view, array('ajax', 'method', 'methods')))
+			{
+				return false;
+			}
+		}
+
+		// Allow the frontend user to log out (in case they forgot their TFA code or something)
+		if (!$isAdmin && ($option == 'com_users') && ($task == 'user.logout'))
+		{
+			return false;
+		}
+
+		// Allow the backend user to log out (in case they forgot their TFA code or something)
+		if ($isAdmin && ($option == 'com_login') && ($task == 'logout'))
+		{
+			return false;
+		}
+
+		/**
+		 * Allow com_ajax. This is required for cookie acceptance in the following scenario. Your session has expired,
+		 * therefore you need to re-apply TFA. Moreover, your cookie acceptance cookie has also expired and you need to
+		 * accept the site's cookies again.
+		 */
+		if ($option == 'com_ajax')
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private function snuffJoomlaPrivacyConsent()
+	{
+		/**
+		 * The privacy suite is not ported to Joomla! 4 yet.
+		 */
+		if (version_compare(JVERSION, '3.9999.9999', 'ge'))
+		{
+			return;
+		}
+
+		// The broken Joomla! consent plugin is not activated
+		if (!class_exists('PlgSystemPrivacyconsent'))
+		{
+			return;
+		}
+
+		// Get the events dispatcher and find which observer is the offending plugin
+		$dispatcher     = JEventDispatcher::getInstance();
+		$refDispatcher  = new ReflectionObject($dispatcher);
+		$refObservers   = $refDispatcher->getProperty('_observers');
+		$refObservers->setAccessible(true);
+		$observers = $refObservers->getValue($dispatcher);
+
+		$jConsentObserverId = 0;
+
+		foreach ($observers as $id => $o)
+		{
+			if (!is_object($o))
+			{
+				continue;
+			}
+
+			if ($o instanceof \PlgSystemPrivacyconsent)
+			{
+				$jConsentObserverId = $id;
+
+				break;
+			}
+		}
+
+		// Nope. Cannot find the offending plugin.
+		if ($jConsentObserverId == 0)
+		{
+			return;
+		}
+
+		// Now we need to remove the offending plugin from the onAfterRoute event.
+		$refMethods = $refDispatcher->getProperty('_methods');
+		$refMethods->setAccessible(true);
+		$methods = $refMethods->getValue($dispatcher);
+
+		$methods['onafterroute'] = array_filter($methods['onafterroute'], function($id) use ($jConsentObserverId) {
+			return $id != $jConsentObserverId;
+		});
+		$refMethods->setValue($dispatcher, $methods);
 	}
 }

@@ -20,6 +20,6 @@ We strongly recommend using the latest published Joomla! version and PHP 7.2 or 
 
 ## Changelog
 
-**Security update**
+**New**
 
-* Fixed an authenticated security bypass which could be used to disable two step verification, discovered by Ivaylo V. 
+* Working around Joomla! 3.9's Privacy Consent breaking captive login.

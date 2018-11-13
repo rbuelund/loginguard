@@ -1,3 +1,9 @@
+# 3.0.3
+
+**New**
+
+* Working around Joomla! 3.9's Privacy Consent breaking captive login.
+
 # 3.0.2
 
 **Security update**
