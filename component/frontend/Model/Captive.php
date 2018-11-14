@@ -184,7 +184,8 @@ class Captive extends Model
 		/** @var TfaRecord $record */
 		foreach ($records as $record)
 		{
-			if (in_array($record->method, $methodNames) || ($record->method == 'backupcodes'))
+			// Backup codes must not be included in the list. We add them in the View, at the end of the list.
+			if (in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
 			{
 				$ret[$record->getId()] = $record;
 			}
