@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -184,7 +184,8 @@ class Captive extends Model
 		/** @var TfaRecord $record */
 		foreach ($records as $record)
 		{
-			if (in_array($record->method, $methodNames) || ($record->method == 'backupcodes'))
+			// Backup codes must not be included in the list. We add them in the View, at the end of the list.
+			if (in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
 			{
 				$ret[$record->getId()] = $record;
 			}

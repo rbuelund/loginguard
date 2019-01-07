@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -129,6 +129,14 @@ class PlgLoginguardU2f extends JPlugin
 
 		// Make sure I can load the server library
 		$this->enabled = class_exists('u2flib_server\\U2F');
+
+		if (!$this->enabled)
+		{
+			return;
+		}
+
+		// Check if we're on a supported browser
+		$this->enabled = $this->isSupportedBrowser();
 
 		if (!$this->enabled)
 		{
@@ -774,7 +782,7 @@ JS;
 	 * would only load by default the U2F support on Google sites. Third party sites needed to load the extension's JS
 	 * file directly. This method detects Google Chrome 38, 39 and 40 and loads the extension Javascript to activate U2F
 	 * support. On newer versions of Google Chrome and browsers made by other vendors this method takes no action. U2F
-	 * is either supported transparently either natively or through an add-on.
+	 * is supported transparently either natively or through an add-on.
 	 *
 	 * NB: If you're still using a browser from late 2013 to late 2014 then being able to use a U2F security key is
 	 *     probably the least of your worries. I wouldn't run such an old browser even at gunpoint!
@@ -886,5 +894,69 @@ JS;
 		}
 
 		return $registrations;
+	}
+
+	/**
+	 * Deactivate on unsupported browsers.
+	 *
+	 * Based on our research, the only browsers where U2F is supported are Google Chrome and Opera 15+. This applies
+	 * to all operating systems except for iOS (see below).
+	 *
+	 * Note that even though FF offers experimental U2F support it doesn't work properly. We've found that only
+	 * security keys registered by Firefox will work on it. Moreover, registering a security key in the frontend
+	 * makes it impossible to use it in the backend (and vice versa). As a result we're now disabling the U2F plugin
+	 * on Firefox.
+	 *
+	 * Finally, iOS devices do not support security keys on any browser. Security keys are USB devices which need a
+	 * full USB host implementation and OS support to interact with them. iOS does not provide such a feature.
+	 * Please note that "security keys" refers to U2F mode *only*. YubiKey OTP mode still works because the device
+	 * works as a USB keyboard or an NFC data tag in that mode. iOS supports USB keyboards if you use the Apple
+	 * USB-C/Lightning to USB-A dongle. Moreover, since iOS 11, it is possible to use a third party NFC reader app
+	 * to get a YubiKey OTP code over NFC, copy it to clipboard and then paste it in the browser of your choice.
+	 *
+	 * @return  bool
+	 */
+	private function isSupportedBrowser()
+	{
+		$agent = '';
+
+		if (isset($_SERVER['HTTP_USER_AGENT']))
+		{
+			$agent = trim($_SERVER['HTTP_USER_AGENT']);
+		}
+
+		/**
+		 * If I have no idea which browser you're using I'm just going to let you try and use U2F. May the Force be with
+		 * you.
+		 */
+		if (empty($agent))
+		{
+			return true;
+		}
+
+		// If you're on iOS I won't let you try and use U2F as it's not supported by your Operating System.
+		if (preg_match('/(iPhone|iPod|iPad|iOS)/i', $agent))
+		{
+			return false;
+		}
+
+		// Getting your browser make and model. Hang on.
+		$jBrowser       = JBrowser::getInstance();
+		$browserMake    = $jBrowser->getBrowser();
+		$browserVersion = $jBrowser->getVersion();
+
+		// Are you on Chrome 38+? Awesome, you can use U2F on Windows, Linux, macOS and Android!
+		if (($browserMake == 'chrome') && version_compare($browserVersion, '38.0', 'ge'))
+		{
+			return true;
+		}
+
+		// Are you using Opera 41 or later? Awesome, you can use U2F on Windows, Linux and macOS!
+		if (($browserMake == 'opera') && version_compare($browserVersion, '41.0', 'ge'))
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

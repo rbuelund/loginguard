@@ -1,3 +1,13 @@
+# 3.0.4
+
+**Other changes**
+
+* Disable U2F on unsupported browsers (gh-66). 
+
+**Bug fixes**
+
+* Backup Codes displayed twice in the "Select a second step method" page (gh-60).
+
 # 3.0.3
 
 **New**
