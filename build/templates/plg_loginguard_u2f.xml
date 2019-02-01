@@ -15,6 +15,9 @@
 
 	<files>
 		<filename plugin="u2f">u2f.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
+
 		<folder>classes</folder>
 		<folder>tmpl</folder>
 	</files>

@@ -1,3 +1,9 @@
+# 3.0.5
+
+**Other changes**
+
+* Protection of all component and plugin folders against direct web access
+
 # 3.0.4
 
 **Other changes**

@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+// Prevent direct access
+defined('_JEXEC') or die;
+
 /** @var Throwable $e */
 /** @var string $title */
 /** @var bool $isPro */

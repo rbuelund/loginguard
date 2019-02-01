@@ -15,6 +15,8 @@
 
 	<files>
 		<filename plugin="fixed">fixed.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 
 	<media folder="media" destination="plg_loginguard_fixed">

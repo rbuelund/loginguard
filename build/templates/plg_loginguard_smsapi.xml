@@ -15,6 +15,9 @@
 
     <files>
         <filename plugin="smsapi">smsapi.php</filename>
+        <filename>.htaccess</filename>
+        <filename>web.config</filename>
+
         <folder>classes</folder>
         <folder>tmpl</folder>
     </files>

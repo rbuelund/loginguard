@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+// Prevent direct access
+defined('_JEXEC') or die;
+
 // PHP 7.0 is modern enough. Anything else gets a warning.
 $minPHPVersion = '5.4.0';
 $recommendedPHPVersion = '7.0.0';

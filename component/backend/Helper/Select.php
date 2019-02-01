@@ -5,18 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
-/**
- * @package     Akeeba\LoginGuard\Admin\Helper
- * @subpackage
- *
- * @copyright   A copyright
- * @license     A "Slug" license name e.g. GPL2
- */
-
 namespace Akeeba\LoginGuard\Admin\Helper;
 
-
 use Joomla\CMS\Helper\UserGroupsHelper;
+
+// Prevent direct access
+defined('_JEXEC') or die;
 
 class Select
 {

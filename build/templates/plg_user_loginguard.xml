@@ -18,6 +18,8 @@
 		<folder>loginguard</folder>
 
 		<filename plugin="loginguard">loginguard.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.ini</language>
