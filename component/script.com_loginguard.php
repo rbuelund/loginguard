@@ -84,7 +84,10 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
                 'components/com_loginguard/views/methods/tmpl',
                 // Obsolete custom renderer
 		        'components/com_loginguard/Render',
-            ]
+
+		        // Common tables (they're installed by FOF)
+		        'administrator/components/com_loginguard/sql/common',
+	        ]
     ];
 
 	/**
@@ -142,20 +145,6 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 			catch (\Exception $e)
 			{
 				$model = null;
-			}
-		}
-
-		if (is_object($model) && class_exists('Akeeba\\LoginGuard\\Admin\\Model\\UsageStatistics')
-			&& ($model instanceof Akeeba\LoginGuard\Admin\Model\UsageStatistics)
-			&& method_exists($model, 'checkAndFixCommonTables'))
-		{
-			try
-			{
-				$model->checkAndFixCommonTables();
-			}
-			catch (Exception $e)
-			{
-				// Do nothing if that failed.
 			}
 		}
 
