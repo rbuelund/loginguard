@@ -161,20 +161,21 @@ class PlgSystemLoginguard extends JPlugin
 
 	/**
 	 * MAGIC TRICK. If you have enabled Joomla's Privacy Consent you'd end up with an infinite redirection loop. That's
-	 * because Joomla! did a partial, naive copy of my original research code on captive Joomla! logins. They did not
-	 * implement configurable exceptions since they do not use the CMS in the real world and do not understand the use
-	 * cases.
+	 * because Joomla! did a partial copy of my original research code on captive Joomla! logins. They did no implement
+	 * configurable exceptions since they do not know or care about third party extensions -- even when it's the same
+	 * extensions they copied code from.
 	 *
-	 * Since fixing Joomla's code is not an option, as we have found from bitter experience, we'll do what we have
-	 * always been doing best: work around it based on our knowledge of real world Joomla usage and how the beast truly
-	 * works under the hood.
+	 * Since fixing Joomla's code is not an option we'll have to work around it based on our knowledge of real world
+	 * Joomla usage and how the beast truly works under the hood. It really helps that yours truly was the guy who
+	 * refactored the plugin system to use proper events for Joomla! 4 AND the person who invented the captive login
+	 * code pattern for Joomla :)
 	 *
-	 * In this episode of Crazy Stuff Nicholas Has To Do To Get Basic Functionlaity Working we will explore how to use
+	 * In this episode of Crazy Stuff Nicholas Has To Do To Get Basic Functionality Working we will explore how to use
 	 * PHP Reflection to detect the offending Joomla! Privacy Consent system plugin and snuff it out before it can issue
-	 * its redirections. Yo, Joomla!, I invented this UI pattern. Do you think your bad aping of it would stop me? HAH!
+	 * its redirections. I invented captive login, I know how to work around it.
 	 *
-	 * @since  3.0.3
-	 * @throws Exception
+	 * @since   3.0.3
+	 * @throws  Exception
 	 */
 	public function onAfterInitialise()
 	{
@@ -344,6 +345,8 @@ class PlgSystemLoginguard extends JPlugin
 	 * Checks if we are running under a CLI script or inside an administrator session
 	 *
 	 * @return  array
+	 *
+	 * @throws  Exception
 	 */
 	protected function isCliAdmin()
 	{
@@ -446,6 +449,13 @@ class PlgSystemLoginguard extends JPlugin
 		$app->redirect($url, 307);
 	}
 
+	/**
+	 * Check whether we'll need to do a redirection to the captive page.
+	 *
+	 * @return  bool
+	 *
+	 * @since   3.0.4
+	 */
 	private function willNeedRedirect()
 	{
 		// If the requirements are not met do not proceed
@@ -581,6 +591,23 @@ class PlgSystemLoginguard extends JPlugin
 		return true;
 	}
 
+	/**
+	 * Kills the Joomla Privacy Consent plugin when we are showing the Two Step Verification.
+	 *
+	 * JPC uses captive login code copied from our DataCompliance component. However, they removed the exceptions we
+	 * have for other captive logins. As a result the JPC captive login interfered with LoginGuard's captive login,
+	 * causing an infinite redirection.
+	 *
+	 * Due to complete lack of support for exceptions, this method here does something evil. It hunts down the observer
+	 * (plugin hook) installed by the JPC plugin and removes it from the loaded plugins. This prevents the redirection
+	 * of the captive login. THIS IS NOT THE BEST WAY TO DO THINGS. You should NOT ever, EVER!!!! copy this code. I am
+	 * someone who has spent 15+ years dealing with Joomla's core code and I know what I'm doing, why I'm doing it and,
+	 * most importantly, how it can possibly break. don't go about merrily copying this code if you do not understand
+	 * how Joomla event dispatching works. You'll break shit and I'm not to blame. Thank you!
+	 *
+	 * @since  3.0.4
+	 * @throws ReflectionException
+	 */
 	private function snuffJoomlaPrivacyConsent()
 	{
 		/**
