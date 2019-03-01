@@ -6,11 +6,13 @@
  */
 
 // Prevent direct access
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
-// PHP 7.0 is modern enough. Anything else gets a warning.
-$minPHPVersion = '5.4.0';
-$recommendedPHPVersion = '7.0.0';
+// PHP 7.2 is modern enough. Anything else gets a warning.
+$minPHPVersion = '5.6.0';
+$recommendedPHPVersion = '7.2.0';
 
 if (!version_compare(PHP_VERSION, $minPHPVersion, 'lt'))
 {
@@ -76,7 +78,7 @@ elseif (version_compare(PHP_VERSION, '7.3.0', 'lt'))
 	<h3>Security advice</h3>
 	<p>
 		Your version of PHP, <?php echo PHP_VERSION ?>, <a href="http://php.net/eol.php">has reached the end
-		of its life</a> on <?php echo $akeebaCommonDatePHP->format(JText::_('DATE_FORMAT_LC1')) ?>. You are
+		of its life</a> on <?php echo $akeebaCommonDatePHP->format(Text::_('DATE_FORMAT_LC1')) ?>. You are
 		strongly urged to upgrade to a current version, as using older versions may expose you to security
 		vulnerabilities and bugs that have been fixed in more recent versions of PHP.
 	</p>

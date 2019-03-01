@@ -12,6 +12,8 @@ use FOF30\Container\Container;
 use FOF30\Dispatcher\Dispatcher as BaseDispatcher;
 use FOF30\Dispatcher\Mixin\ViewAliases;
 use FOF30\Utils\ComponentVersion;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 defined('_JEXEC') or die();
@@ -65,7 +67,7 @@ class Dispatcher extends BaseDispatcher
 		$this->container->renderer->setOption('linkbar_style', 'classic');
 
 		// Create a media version which depends on our version but doesn't leak it publicly
-		$jSecret = \JFactory::getConfig()->get('secret');
+		$jSecret = JFactory::getConfig()->get('secret');
 		$this->container->mediaVersion = md5(ComponentVersion::getFor('com_loginguard') . $jSecret);
 
 		// Load common media files
@@ -152,7 +154,7 @@ class Dispatcher extends BaseDispatcher
 		// If we don't have the core.manage privilege for this component throw an error
 		if (!$this->container->platform->authorise('core.manage', $this->container->componentName))
 		{
-			throw new RuntimeException(\JText::_('JERROR_ALERTNOAUTHOR'), 404);
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 404);
 		}
 	}
 

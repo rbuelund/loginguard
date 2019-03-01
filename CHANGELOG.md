@@ -1,7 +1,8 @@
-# 3.0.5
+# 3.1.0
 
 **Other changes**
 
+* Dropped support for Joomla! 3.4, 3.5, 3.6, 3.7 as well as PHP 5.4 and 5.5
 * Protection of all component and plugin folders against direct web access
 
 # 3.0.4

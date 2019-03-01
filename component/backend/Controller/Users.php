@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Admin\Controller;
 use FOF30\Container\Container;
 use FOF30\Controller\DataController;
 use FOF30\Controller\Mixin\PredefinedTaskList;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access

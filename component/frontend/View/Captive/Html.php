@@ -11,12 +11,8 @@ namespace Akeeba\LoginGuard\Site\View\Captive;
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Captive;
-use Akeeba\LoginGuard\Site\Model\Method;
-use Exception;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
-use JToolbarHelper;
-use JUser;
+use Joomla\CMS\Language\Text as JText;
 
 defined('_JEXEC') or die();
 

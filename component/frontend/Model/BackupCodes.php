@@ -8,12 +8,9 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Exception;
-use FOF30\Container\Container;
 use FOF30\Model\Model;
-use JCrypt;
+use Joomla\CMS\Crypt\Crypt as JCrypt;
 use Joomla\CMS\User\User;
-use JUser;
-use stdClass;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -36,7 +33,7 @@ class BackupCodes extends Model
 	/**
 	 * Get the backup codes record for the specified user
 	 *
-	 * @param   JUser|User  $user  The user in question. Use null for the currently logged in user.
+	 * @param   User  $user  The user in question. Use null for the currently logged in user.
 	 *
 	 * @return  Tfa  Record object or null if none is found
 	 *
@@ -74,7 +71,7 @@ class BackupCodes extends Model
 	 * Returns the backup codes for the specified user. Cached values will be preferentially returned, therefore you
 	 * MUST go through this model's methods ONLY when dealing with backup codes.
 	 *
-	 * @param   JUser|User  $user  The user for which you want the backup codes
+	 * @param   User  $user  The user for which you want the backup codes
 	 *
 	 * @return  array|null  The backup codes, or null if they do not exist
 	 *
@@ -110,7 +107,7 @@ class BackupCodes extends Model
 				// Any db issue is equivalent to "no such record exists"
 			}
 
-			if (!empty($record->options))
+			if (isset($record) && is_object($record) && !empty($record->options))
 			{
 				$this->cache[$user->id] = $record->options;
 			}
@@ -123,9 +120,11 @@ class BackupCodes extends Model
 	 * Generate a new set of backup codes for the specified user. The generated codes are immediately saved to the
 	 * database and the internal cache is updated.
 	 *
-	 * @param   JUser|User  $user  Which user to generate codes for?
+	 * @param   User  $user  Which user to generate codes for?
 	 *
 	 * @since   2.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function regenerateBackupCodes($user = null)
 	{
@@ -175,7 +174,8 @@ class BackupCodes extends Model
 		{
 			return $max;
 		}
-		elseif ($range > PHP_INT_MAX || is_float($range))
+
+		if ($range > PHP_INT_MAX || is_float($range))
 		{
 			/**
 			 * This works, because PHP will auto-convert it to a float at this point,
@@ -183,8 +183,9 @@ class BackupCodes extends Model
 			 * actually store the difference, so we need to check if it's a float
 			 * and hence auto-converted...
 			 */
-			$min = 0;
-			$max = PHP_INT_MAX;
+			$min   = 0;
+			$max   = PHP_INT_MAX;
+			$range = $max - $min;
 		}
 
 		$bits  = (int) floor(log($range, 2) + 1);
@@ -222,13 +223,15 @@ class BackupCodes extends Model
 	 * string) and the codes will be saved to the database. All comparisons are performed in a timing safe manner.
 	 *
 	 * @param   string  $code  The code to check
-	 * @param   JUser   $user  The user to check against
+	 * @param   User    $user  The user to check against
 	 *
 	 * @return  bool
 	 *
 	 * @since   2.0.0
+	 *
+	 * @throws  Exception
 	 */
-	public function isBackupCode($code, JUser $user = null)
+	public function isBackupCode($code, User $user = null)
 	{
 		// Create a fake array
 		$temp1 = array('', '', '', '', '', '', '', '', '', '');
@@ -307,13 +310,14 @@ class BackupCodes extends Model
 	 * Saves the backup codes to the database
 	 *
 	 * @param   array  $codes  An array of exactly 10 elements
-	 * @param   JUser  $user   The user for which to save the backup codes
+	 * @param   User   $user   The user for which to save the backup codes
 	 *
 	 * @return  bool
 	 *
 	 * @since   2.0.0
+	 * @throws  Exception
 	 */
-	public function saveBackupCodes(array $codes, JUser $user = null)
+	public function saveBackupCodes(array $codes, User $user = null)
 	{
 		// Make sure I have a user
 		if (empty($user))

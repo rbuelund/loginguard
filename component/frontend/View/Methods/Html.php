@@ -12,9 +12,8 @@ use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Methods;
 use Exception;
 use FOF30\View\DataView\Html as BaseView;
+use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use JText;
-use JUser;
 
 defined('_JEXEC') or die();
 
@@ -23,48 +22,48 @@ class Html extends BaseView
 	/**
 	 * Is this an administrator page?
 	 *
-	 * @var   bool
-	 * @since 2.0.0
+	 * @var    bool
+	 * @since  2.0.0
 	 */
 	public $isAdmin = false;
 
 	/**
 	 * The TFA methods available for this user
 	 *
-	 * @var   array
-	 * @since 2.0.0
+	 * @var    array
+	 * @since  2.0.0
 	 */
 	public $methods = array();
 
 	/**
 	 * The return URL to use for all links and forms
 	 *
-	 * @var   string
-	 * @since 2.0.0
+	 * @var    string
+	 * @since  2.0.0
 	 */
 	public $returnURL = null;
 
 	/**
 	 * Are there any active TFA methods at all?
 	 *
-	 * @var   bool
-	 * @since 2.0.0
+	 * @var    bool
+	 * @since  2.0.0
 	 */
 	public $tfaActive = false;
 
 	/**
 	 * Which method has the default record?
 	 *
-	 * @var   string
-	 * @since 2.0.0
+	 * @var    string
+	 * @since  2.0.0
 	 */
 	public $defaultMethod = '';
 
 	/**
 	 * The user object used to display this page
 	 *
-	 * @var   JUser|User
-	 * @since 2.0.0
+	 * @var    User
+	 * @since  2.0.0
 	 */
 	public $user = null;
 

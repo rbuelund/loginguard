@@ -14,9 +14,9 @@ use FOF30\Model\Model;
 use JApplicationCms;
 use JFactory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 use Joomla\Event\Event;
-use JText;
 use JUser;
 use stdClass;
 

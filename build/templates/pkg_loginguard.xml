@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4.0" type="package" method="upgrade">
+<extension version="3.8.0" type="package" method="upgrade">
     <name>Akeeba LoginGuard package</name>
     <version>##VERSION##</version>
     <creationDate>##DATE##</creationDate>

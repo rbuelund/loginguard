@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Form\FormHelper;
+use Joomla\CMS\HTML\HTMLHelper;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
@@ -13,10 +16,10 @@ if (class_exists('JFormFieldModulePositions'))
 	return;
 }
 
-JHtml::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_modules/helpers/html');
+HTMLHelper::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_modules/helpers/html');
 require_once JPATH_ADMINISTRATOR . '/components/com_modules/helpers/modules.php';
 
-JFormHelper::loadFieldClass('groupedlist');
+FormHelper::loadFieldClass('groupedlist');
 
 /**
  * ModulePositions Field class for the Joomla Framework.
@@ -49,7 +52,7 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 		$state    = is_null($this->element->attributes()->state) ? 1 : (int) $this->element->attributes()->state;
 
 		// Get all module positions for this client ID
-		$positions = JHtml::_('modules.positions', $clientId, $state, $this->value);
+		$positions = HTMLHelper::_('modules.positions', $clientId, $state, $this->value);
 
 		// There's a junk position added with no content. Remove it.
 		if (isset($positions['']))
@@ -70,7 +73,7 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 			{
 				$item             = (array) $item;
 				$disable          = isset($item['disable']) ? $item['disable'] : false;
-				$groups[$label][] = JHtml::_('select.option', $item['value'], $item['text'], 'value', 'text', $disable);
+				$groups[$label][] = HTMLHelper::_('select.option', $item['value'], $item['text'], 'value', 'text', $disable);
 			}
 		}
 

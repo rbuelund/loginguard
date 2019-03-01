@@ -9,7 +9,7 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access

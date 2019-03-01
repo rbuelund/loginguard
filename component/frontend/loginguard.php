@@ -8,29 +8,11 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-if (version_compare(PHP_VERSION, '5.4.0', 'lt'))
+if (version_compare(PHP_VERSION, '5.6.0', 'lt'))
 {
 	(include_once JPATH_COMPONENT_ADMINISTRATOR . '/View/wrongphp.php') or die('Your PHP version is too old for this component.');
 
 	return;
-}
-
-// Why, oh why, are you people using eAccelerator? Seriously, what's wrong with you, people?!
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		(include_once JPATH_COMPONENT_ADMINISTRATOR . '/View/eaccelerator.php') or die('eAccelerator is broken and abandoned since 2012. Ask your host to disable it before using this component.');
-
-		return;
-	}
 }
 
 // HHVM made sense in 2013, now PHP 7 is a way better solution than an hybrid PHP interpreter
@@ -70,6 +52,7 @@ function mainLoopAkeebaLoginGuard()
 
 function errorHandlerAkeebaLoginGuard($e)
 {
+	// DO NOT REMOVE -- They are used by errorhandler.php below.
 	$title = 'Akeeba LoginGuard';
 	$isPro = false;
 

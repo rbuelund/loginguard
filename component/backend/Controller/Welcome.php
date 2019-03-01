@@ -10,8 +10,8 @@ namespace Akeeba\LoginGuard\Admin\Controller;
 use Akeeba\LoginGuard\Admin\Model\Welcome as WelcomeModel;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JRoute;
-use JText;
+use Joomla\CMS\Router\Route as JRoute;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access

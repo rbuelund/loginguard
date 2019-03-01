@@ -13,10 +13,10 @@ use Akeeba\LoginGuard\Site\Model\Method as MethodModel;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Router\Route as JRoute;
 use Joomla\CMS\User\User;
-use JRoute;
-use JText;
-use JUser;
+use Joomla\CMS\User\User as JUser;
 use RuntimeException;
 
 // Protect from unauthorized access
@@ -334,12 +334,14 @@ class Method extends Controller
 	/**
 	 * Assert that the provided ID is a valid record identified for the given user
 	 *
+	 * @param   int    $id    Record ID
+	 * @param   JUser  $user  Which user should I validate for? Leave null for currently logged in user.
+	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa  The loaded record
 	 * @since   2.0.0
 	 *
-	 * @throws  RuntimeException  When the record ID is invalid or does not belong to the specified user.
 	 */
-	private function _assertValidRecordId($id, $user = null)
+	private function _assertValidRecordId($id, JUser $user = null)
 	{
 		if (is_null($user))
 		{

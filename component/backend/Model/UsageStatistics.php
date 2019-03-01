@@ -11,10 +11,9 @@ namespace Akeeba\LoginGuard\Admin\Model;
 defined('_JEXEC') or die();
 
 use AkeebaUsagestats;
-use FOF30\Database\Installer;
 use FOF30\Model\Model;
-use JCrypt;
-use JUri;
+use Joomla\CMS\Crypt\Crypt as JCrypt;
+use Joomla\CMS\Uri\Uri as JUri;
 
 /**
  * Usage statistics collection model. Implements the anonymous collection of PHP, MySQL and Joomla! version information

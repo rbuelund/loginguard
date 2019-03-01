@@ -14,14 +14,10 @@ use DateInterval;
 use DateTimeZone;
 use Exception;
 use FOF30\Model\Model;
-use FOF30\Utils\Ip;
-use JBrowser;
-use JLoader;
+use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use JText;
 use JUser;
 use RuntimeException;
-use stdClass;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();

@@ -6,6 +6,8 @@
  */
 
 // Protect from unauthorized access
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die();
 
 // Load FOF if not already loaded
@@ -35,14 +37,14 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumPHPVersion = '5.4.0';
+	protected $minimumPHPVersion = '5.6.0';
 
 	/**
 	 * The minimum Joomla! version required to install this extension
 	 *
 	 * @var   string
 	 */
-	protected $minimumJoomlaVersion = '3.4.0';
+	protected $minimumJoomlaVersion = '3.8.0';
 
 	/**
 	 * The maximum Joomla! version this extension can be installed on
@@ -206,7 +208,7 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 */
 	private function warnAboutJSNPowerAdmin()
 	{
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
 		$query = $db->getQuery(true)
 			->select('COUNT(*)')

@@ -11,8 +11,8 @@ use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
+use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use JText;
 use JUser;
 
 // Protect from unauthorized access

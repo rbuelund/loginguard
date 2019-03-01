@@ -11,8 +11,8 @@ namespace Akeeba\LoginGuard\Site\View\Method;
 use Akeeba\LoginGuard\Site\Model\Method;
 use Exception;
 use FOF30\View\DataView\Html as BaseView;
-use JToolbarHelper;
-use JUser;
+use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
+use Joomla\CMS\User\User as JUser;
 
 defined('_JEXEC') or die();
 

@@ -7,6 +7,8 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\User\User;
 use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
@@ -17,7 +19,7 @@ defined('_JEXEC') or die;
  *
  * Renders a button linking to the Two Step Verification setup page
  */
-class plgUserLoginguard extends JPlugin
+class plgUserLoginguard extends CMSPlugin
 {
 	/**
 	 * The component's container object
@@ -52,6 +54,8 @@ class plgUserLoginguard extends JPlugin
 	 * @param   mixed  $data  The associated data for the form.
 	 *
 	 * @return  boolean
+	 *
+	 * @throws  Exception
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
@@ -139,7 +143,7 @@ class plgUserLoginguard extends JPlugin
 	 * Runs after successful login of the user. Used to redirect the user to a page where they can set up their Two Step
 	 * Verification after logging in.
 	 *
-	 * @param   array  $options  Passed by Joomla. user: a JUser object; responseType: string, authentication response
+	 * @param   array  $options  Passed by Joomla. user: a User object; responseType: string, authentication response
 	 *                           type.
 	 */
 	public function onUserAfterLogin($options)
@@ -151,10 +155,10 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure I have a valid user
-		/** @var JUser $user */
+		/** @var User $user */
 		$user = $options['user'];
 
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !(($user instanceof JUser) || ($user instanceof User)))
 		{
 			return;
 		}
@@ -255,12 +259,12 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Does the current user need to complete 2FA authentication before allowed to access the site?
 	 *
-	 * @param   JUser   $user          The user object we are checking
+	 * @param   User    $user          The user object we are checking
 	 * @param   string  $responseType  The login response type (optional)
 	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user, $responseType = null)
+	private function needsTFA(User $user, $responseType = null)
 	{
 		/**
 		 * If the login type is silent (cookie, social login / single sign-on, gmail, ldap) we will not ask for 2SV. The
@@ -326,11 +330,11 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Does the user have a "don't show this again" flag?
 	 *
-	 * @param   JUser  $user  The user to check
+	 * @param   User  $user  The user to check
 	 *
 	 * @return  bool
 	 */
-	private function hasFlag(JUser $user)
+	private function hasFlag(User $user)
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true)

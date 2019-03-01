@@ -9,8 +9,8 @@ namespace Akeeba\LoginGuard\Admin\Model;
 
 use FOF30\Model\Model;
 use FOFEncryptAes;
-use JFactory;
-use JText;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Language\Text as JText;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -270,54 +270,6 @@ class Convert extends Model
 		/** @var Tfa $tfa */
 		$tfa = $this->container->factory->model('Tfa')->tmpInstance();
 		$tfa->create($data);
-	}
-
-	/**
-	 * Convert from Joomla TFA method 'yubikeytotp'. This is a non-standard method, part of the now defunct Akeeba TFA
-	 * plugins for Joomla! 3. It implements TFA with TOTP and/or any number of YubiKeys. We map it to both our TOTP and
-	 * our YubiKey plugins.
-	 *
-	 * @param   string  $json     The JSON-encoded configuration of this method.
-	 * @param   int     $user_id  The ID of the user for this method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	private function convertYubikeytotp($json, $user_id)
-	{
-		// Try to decode the configuration
-		$config = @json_decode($json, true);
-
-		// If the configuration cannot be decoded (corrupt) just give up and don't convert
-
-		if (empty($config))
-		{
-			return;
-		}
-
-		// Handle the TOTP part if there's a non-empty TOTP key code
-		if (isset($config['yubikeytotp_code']) && !empty($config['yubikeytotp_code']))
-		{
-			$fakeConfig= json_encode(array(
-				'code' => $config['yubikeytotp_code']
-			));
-
-			$this->convertTotp($fakeConfig, $user_id);
-		}
-
-		// Handle the YubiKey part if there is an array of YubiKeys in use
-		if (isset($config['yubikeytotp']) && is_array($config['yubikeytotp']) && count($config['yubikeytotp']))
-		{
-			foreach($config['yubikeytotp'] as $yubikey)
-			{
-				$fakeConfig= json_encode(array(
-					'yubikey' => $yubikey
-				));
-
-				$this->convertYubikey($fakeConfig, $user_id);
-			}
-		}
 	}
 
 	/**

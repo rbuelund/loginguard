@@ -11,9 +11,9 @@ use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Methods as MethodsModel;
 use Exception;
 use FOF30\Controller\Controller;
-use JRoute;
-use JText;
-use JUri;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Router\Route as JRoute;
+use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
 
 // Protect from unauthorized access

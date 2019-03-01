@@ -7,72 +7,19 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
-
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
 
 /**
  * Akeeba LoginGuard System Plugin
  *
  * Implements the captive Two Step Verification page
  */
-class PlgSystemLoginguard extends JPlugin
+class PlgSystemLoginguard extends CMSPlugin
 {
 	/**
 	 * Are we enabled, all requirements met etc?
@@ -115,29 +62,27 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		parent::__construct($subject, $config);
+
+		// Load FOF
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 		{
 			return;
 		}
 
-		parent::__construct($subject, $config);
-
+		// Make sure Akeeba LoginGuard is installed
 		try
 		{
-			if (!JComponentHelper::isInstalled('com_loginguard') || !JComponentHelper::isEnabled('com_loginguard'))
+			if (
+				!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard') ||
+				!ComponentHelper::isInstalled('com_loginguard') ||
+				!ComponentHelper::isEnabled('com_loginguard')
+			)
 			{
-				$this->enabled = false;
+				throw new RuntimeException('Akeeba LoginGuard is not installed');
 			}
-			else
-			{
-				$this->container = Container::getInstance('com_loginguard');
-			}
+
+			$this->container = Container::getInstance('com_loginguard');
 		}
 		catch (Exception $e)
 		{
