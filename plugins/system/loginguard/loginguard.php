@@ -8,6 +8,7 @@
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;
 
@@ -124,7 +125,7 @@ class PlgSystemLoginguard extends CMSPlugin
 	 */
 	public function onAfterInitialise()
 	{
-		$app    = JFactory::getApplication();
+		$app    = Factory::getApplication();
 		$option = $app->input->getCmd('option', null);
 
 		/**
@@ -160,7 +161,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// Get the session objects
 		try
 		{
-			$session = JFactory::getSession();
+			$session = Factory::getSession();
 		}
 		catch (Exception $e)
 		{
@@ -171,7 +172,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// Make sure we are logged in
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 
 			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
 			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
@@ -232,8 +233,46 @@ class PlgSystemLoginguard extends CMSPlugin
 		{
 			$session->set('postloginredirect', null, 'com_loginguard');
 
-			JFactory::getApplication()->redirect($redirectionUrl);
+			Factory::getApplication()->redirect($redirectionUrl);
 		}
+	}
+
+	/**
+	 * Hooks on the Joomla! login event. Detects silent logins and disables the Two Step Verification captive page in
+	 * this case.
+	 *
+	 * @param   array  $options  Passed by Joomla. user: a User object; responseType: string, authentication response
+	 *                           type.
+	 */
+	public function onUserAfterLogin($options)
+	{
+		// Should I show 2SV even on silent logins? Default: 1 (yes, show)
+		$switch = $this->params->get('2svonsilent', 1);
+
+		if ($switch == 1)
+		{
+			return;
+		}
+
+		// Make sure I have a valid user
+		/** @var User $user */
+		$user = $options['user'];
+
+		if (!is_object($user) || !($user instanceof User))
+		{
+			return;
+		}
+
+		// Make sure this is a silent login
+		if (!$this->isSilentLogin($user, $options['responseType']))
+		{
+			return;
+		}
+
+		// Set the flag indicating that 2SV is already checked.
+		$session    = Factory::getSession();
+
+		$session->set('tfa_checked', 1, 'com_loginguard');
 	}
 
 	/**
@@ -300,13 +339,13 @@ class PlgSystemLoginguard extends CMSPlugin
 
 		try
 		{
-			if (is_null(\JFactory::$application))
+			if (is_null(Factory::$application))
 			{
 				$isCLI = true;
 			}
 			else
 			{
-				$app   = \JFactory::getApplication();
+				$app   = Factory::getApplication();
 				$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
 			}
 		}
@@ -315,16 +354,9 @@ class PlgSystemLoginguard extends CMSPlugin
 			$isCLI = true;
 		}
 
-		if (!$isCLI && \JFactory::$application)
+		if (!$isCLI && Factory::$application)
 		{
-			if (version_compare(JVERSION, '3.7.0', 'ge'))
-			{
-				$isAdmin = JFactory::getApplication()->isClient('administrator');
-			}
-			else
-			{
-				$isAdmin = JFactory::getApplication()->isAdmin();
-			}
+			$isAdmin = Factory::getApplication()->isClient('administrator');
 		}
 
 		return array($isCLI, $isAdmin);
@@ -373,7 +405,7 @@ class PlgSystemLoginguard extends CMSPlugin
 	{
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 		}
 		catch (\Exception $e)
 		{
@@ -400,6 +432,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * @return  bool
 	 *
 	 * @since   3.0.4
+	 *
+	 * @throws  Exception
 	 */
 	private function willNeedRedirect()
 	{
@@ -412,7 +446,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// Get the session objects
 		try
 		{
-			$session = JFactory::getSession();
+			$session = Factory::getSession();
 		}
 		catch (Exception $e)
 		{
@@ -438,7 +472,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// Make sure we are logged in
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 
 			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
 			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
@@ -608,5 +642,56 @@ class PlgSystemLoginguard extends CMSPlugin
 			return $id != $jConsentObserverId;
 		});
 		$refMethods->setValue($dispatcher, $methods);
+	}
+
+	/**
+	 * Suppress Two Step Verification when Joomla performs a silent login (cookie, social login / single sign-on, GMail,
+	 * LDAP). In these cases the login risk has been managed externally.
+	 *
+	 * For your reference, the Joomla authentication response types are as follows:
+	 *
+	 * - Joomla: username and password login. We recommend using 2SV with it.
+	 * - Cookie: "Remember Me" cookie with a secure, single use token and other safeguards for the user session.
+	 * - GMail: login with GMail credentials (probably no longer works)
+	 * - LDAP: Joomla's LDAP plugin
+	 * - SocialLogin: Akeeba Social Login (login with Facebook etc)
+	 *
+	 * @param   User    $user
+	 * @param   string  $responseType
+	 *
+	 * @return  bool
+	 *
+	 * @since   3.1.0
+	 */
+	private function isSilentLogin(User $user, $responseType)
+	{
+		// Fail early if the user is not properly logged in.
+		if (!is_object($user) || $user->guest)
+		{
+			return false;
+		}
+
+		// Get the custom Joomla login responses we will consider "silent"
+		$rawCustomResponses = $this->params->get('silentresponses', '');
+		$customResponses    = explode(',', $rawCustomResponses);
+		$customResponses    = array_map('trim', $customResponses);
+		$customResponses    = array_filter($customResponses, function ($x) {
+			return !empty($x);
+		});
+		$silentResponses    = array_unique($customResponses);
+
+		// If all else fails, use our default list (Joomla's Remember Me cookie and Akeeba SocialLogin)
+		if (empty($silentResponses))
+		{
+			$silentResponses = array('cookie', 'sociallogin');
+		}
+
+		// Is it a silent login after all?
+		if (is_string($responseType) && !empty($responseType) && in_array(strtolower($responseType), $silentResponses))
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
