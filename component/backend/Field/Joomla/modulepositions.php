@@ -52,30 +52,51 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 		$state    = is_null($this->element->attributes()->state) ? 1 : (int) $this->element->attributes()->state;
 
 		// Get all module positions for this client ID
-		$positions = HTMLHelper::_('modules.positions', $clientId, $state, $this->value);
-
-		// There's a junk position added with no content. Remove it.
-		if (isset($positions['']))
+		if (version_compare(JVERSION, '3.99999.99999', 'le'))
 		{
-			unset($positions['']);
-		}
+			$positions = HTMLHelper::_('modules.positions', $clientId, $state, $this->value);
 
-		foreach ($positions as $label => $position)
-		{
-			if (!isset($position['items']))
+			// There's a junk position added with no content. Remove it.
+			if (isset($positions['']))
 			{
-				continue;
+				unset($positions['']);
 			}
 
-			$groups[$label] = array();
-
-			foreach ($position['items'] as $item)
+			foreach ($positions as $label => $position)
 			{
-				$item             = (array) $item;
-				$disable          = isset($item['disable']) ? $item['disable'] : false;
-				$groups[$label][] = HTMLHelper::_('select.option', $item['value'], $item['text'], 'value', 'text', $disable);
+				if (!isset($position['items']))
+				{
+					continue;
+				}
+
+				$groups[$label] = array();
+
+				foreach ($position['items'] as $item)
+				{
+					$item             = (array) $item;
+					$disable          = isset($item['disable']) ? $item['disable'] : false;
+					$groups[$label][] = HTMLHelper::_('select.option', $item['value'], $item['text'], 'value', 'text', $disable);
+				}
 			}
 		}
+		else
+		{
+			/**
+			 * In Joomla! 4 we get a list of positions based on what is already present in active modules, not positions
+			 * per template. The ModulesHelper::getPositions returns a JHtml::select compatible list of positions. We
+			 * have to add it to group 0 which has a special meaning in JHtml -- it shows no groups. We need to remove
+			 * the first element, though, which is 'none' i.e. assign to no position.
+			 */
+			$positions = ModulesHelper::getPositions($clientId, false);
+
+			array_shift($positions);
+
+			$groups = [
+				0 => $positions,
+			];
+		}
+
+
 
 		return $groups;
 	}
