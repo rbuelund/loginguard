@@ -375,7 +375,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 			try
 			{
-				$response = $http->get($uri->toString(), null, 6);
+				$response = $http->get($uri->toString(), [], 6);
 
 				if (!empty($response))
 				{
