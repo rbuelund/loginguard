@@ -50,44 +50,7 @@
 	</target>
 
 	<target name="git" description="Makes only packages"
-			depends="new-release,setup-properties,plugin-manifests,component-packages">
-	</target>
-
-	<target name="plugin-manifests" depends="setup-properties">
-		<copy file="${phing.dir}/templates/plg_system_loginguard.xml" tofile="${dirs.plugins}/system/loginguard/loginguard.xml" overwrite="true">
-			<filterchain id="manifest-replace-tokens">
-				<replacetokens begintoken="##" endtoken="##">
-					<token key="DATE" value="${build.date}" />
-					<token key="VERSION" value="${version}" />
-				</replacetokens>
-			</filterchain>
-		</copy>
-
-		<copy file="${phing.dir}/templates/plg_loginguard_email.xml" tofile="${dirs.plugins}/loginguard/email/email.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_fixed.xml" tofile="${dirs.plugins}/loginguard/fixed/fixed.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_pushbullet.xml" tofile="${dirs.plugins}/loginguard/pushbullet/pushbullet.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_smsapi.xml" tofile="${dirs.plugins}/loginguard/smsapi/smsapi.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_totp.xml" tofile="${dirs.plugins}/loginguard/totp/totp.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_yubikey.xml" tofile="${dirs.plugins}/loginguard/yubikey/yubikey.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-		<copy file="${phing.dir}/templates/plg_loginguard_u2f.xml" tofile="${dirs.plugins}/loginguard/u2f/u2f.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
-
-		<copy file="${phing.dir}/templates/plg_user_loginguard.xml" tofile="${dirs.plugins}/user/loginguard/loginguard.xml" overwrite="true">
-			<filterchain refid="manifest-replace-tokens" />
-		</copy>
+			depends="new-release,setup-properties,component-packages">
 	</target>
 
 	<!--

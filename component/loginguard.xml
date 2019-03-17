@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.8.0" method="upgrade">
 	<name>LOGINGUARD</name>
-	<version>##VERSION##</version>
-	<creationDate>##DATE##</creationDate>
+	<version>revEEE7A71</version>
+	<creationDate>2019-03-03</creationDate>
 
 	<author>Akeeba Ltd</author>
 	<authorEmail>no-reply@akeebabackup.com</authorEmail>
@@ -53,6 +53,7 @@
 			<folder>Model</folder>
 			<folder>Toolbar</folder>
 			<folder>View</folder>
+			<!--<folder>vendor</folder>-->
 
 			<folder>sql</folder>
 

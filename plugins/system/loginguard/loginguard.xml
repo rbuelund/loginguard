@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.8.0" type="plugin" group="user" method="upgrade">
-	<name>PLG_USER_LOGINGUARD</name>
-	<version>##VERSION##</version>
-	<creationDate>##DATE##</creationDate>
+<extension version="3.8.0" type="plugin" group="system" method="upgrade">
+	<name>PLG_SYSTEM_LOGINGUARD</name>
+	<version>revEEE7A71</version>
+	<creationDate>2019-03-03</creationDate>
 
 	<author>Akeeba Ltd</author>
 	<authorEmail>no-reply@akeebabackup.com</authorEmail>
@@ -11,29 +11,27 @@
 	<copyright>Copyright (c)2016-2019 Akeeba Ltd</copyright>
 	<license>GNU GPL v3 or later</license>
 
-	<description>PLG_USER_LOGINGUARD_DESCRIPTION</description>
+	<description>PLG_SYSTEM_LOGINGUARD_DESCRIPTION</description>
 
 	<files>
-		<folder>fields</folder>
-		<folder>loginguard</folder>
-
 		<filename plugin="loginguard">loginguard.php</filename>
 		<filename>.htaccess</filename>
 		<filename>web.config</filename>
 	</files>
+
 	<languages folder="language">
-		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.ini</language>
-		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_loginguard.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_loginguard.sys.ini</language>
 	</languages>
 
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
 				<field
-						name="redirectonlogin"
+						name="2svonsilent"
 						type="radio"
-						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_LABEL"
-						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_DESC"
+						label="PLG_SYSTEM_LOGINGUARD_CONFIG_2SVONSILENT_LABEL"
+						description="PLG_SYSTEM_LOGINGUARD_CONFIG_2SVONSILENT_DESC"
 						default="1"
 						class="btn-group"
 				>
@@ -42,11 +40,11 @@
 				</field>
 
 				<field
-						name="redirecturl"
+						name="silentresponses"
 						type="text"
-						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_LABEL"
-						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_DESC"
-						default=""
+						label="PLG_USER_LOGINGUARD_CONFIG_SILENTRESPONSES_LABEL"
+						description="PLG_USER_LOGINGUARD_CONFIG_SILENTRESPONSES_DESC"
+						default="cookie, sociallogin"
 				/>
 			</fieldset>
 		</fields>

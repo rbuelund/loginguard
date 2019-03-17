@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.8.0" type="plugin" group="loginguard" method="upgrade">
-	<name>PLG_LOGINGUARD_TOTP</name>
-	<version>##VERSION##</version>
-	<creationDate>##DATE##</creationDate>
+	<name>PLG_LOGINGUARD_FIXED</name>
+	<version>revEEE7A71</version>
+	<creationDate>2019-03-03</creationDate>
 
 	<author>Akeeba Ltd</author>
 	<authorEmail>no-reply@akeebabackup.com</authorEmail>
@@ -11,22 +11,21 @@
 	<copyright>Copyright (c)2016-2019 Akeeba Ltd</copyright>
 	<license>GNU GPL v3 or later</license>
 
-	<description>PLG_LOGINGUARD_TOTP_DESCRIPTION</description>
+	<description>PLG_LOGINGUARD_FIXED_DESCRIPTION</description>
 
 	<files>
-		<filename plugin="totp">totp.php</filename>
+		<filename plugin="fixed">fixed.php</filename>
 		<filename>.htaccess</filename>
 		<filename>web.config</filename>
 	</files>
 
-	<media folder="media" destination="plg_loginguard_totp">
+	<media folder="media" destination="plg_loginguard_fixed">
 		<folder>images</folder>
-		<folder>js</folder>
 	</media>
 
 	<languages folder="language">
-		<language tag="en-GB">en-GB/en-GB.plg_loginguard_totp.ini</language>
-		<language tag="en-GB">en-GB/en-GB.plg_loginguard_totp.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_loginguard_fixed.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_loginguard_fixed.sys.ini</language>
 	</languages>
 
 	<config>
@@ -35,8 +34,8 @@
 				<field
 						name="helpurl"
 						type="text"
-						label="PLG_LOGINGUARD_TOTP_CONFIG_HELPURL_LABEL"
-						description="PLG_LOGINGUARD_TOTP_CONFIG_HELPURL_DESC"
+						label="PLG_LOGINGUARD_FIXED_CONFIG_HELPURL_LABEL"
+						description="PLG_LOGINGUARD_FIXED_CONFIG_HELPURL_DESC"
 						default=""
 						filter="url"
 				/>
