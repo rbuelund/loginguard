@@ -7,9 +7,12 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Application\CliApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
@@ -68,6 +71,8 @@ class PlgSystemLoginguard extends CMSPlugin
 		// Load FOF
 		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 		{
+			$this->enabled = false;
+
 			return;
 		}
 
@@ -90,6 +95,10 @@ class PlgSystemLoginguard extends CMSPlugin
 			$this->enabled = false;
 		}
 
+		// PHP version check
+		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
+
+		// Parse settings
 		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);
 
 		if (!is_array($this->neverTSVUserGroups))
@@ -198,13 +207,13 @@ class PlgSystemLoginguard extends CMSPlugin
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
 			$return_url = $session->get('return_url', '', 'com_loginguard');
 
-			if (empty($return_url) || !JUri::isInternal($return_url))
+			if (empty($return_url) || !Uri::isInternal($return_url))
 			{
-				$session->set('return_url', JUri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
+				$session->set('return_url', Uri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
 			}
 
 			// Redirect
-			$url = JRoute::_('index.php?option=com_loginguard&view=captive', false);
+			$url = Route::_('index.php?option=com_loginguard&view=captive', false);
 			$app->redirect($url, 307);
 
 			return;
@@ -278,9 +287,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	/**
 	 * Does the current user need to complete TFA authentication before being allowed to access the site?
 	 *
+	 * @param   User  $user  The user object
+	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user)
+	private function needsTFA(User $user)
 	{
 		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
 		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
@@ -334,7 +345,6 @@ class PlgSystemLoginguard extends CMSPlugin
 	 */
 	protected function isCliAdmin()
 	{
-		$isCLI = false;
 		$isAdmin = false;
 
 		try
@@ -346,7 +356,7 @@ class PlgSystemLoginguard extends CMSPlugin
 			else
 			{
 				$app   = Factory::getApplication();
-				$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
+				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
 			}
 		}
 		catch (\Exception $e)
@@ -359,7 +369,7 @@ class PlgSystemLoginguard extends CMSPlugin
 			$isAdmin = Factory::getApplication()->isClient('administrator');
 		}
 
-		return array($isCLI, $isAdmin);
+		return [$isCLI, $isAdmin];
 	}
 
 	/**

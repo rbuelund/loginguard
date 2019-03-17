@@ -11,7 +11,7 @@ use Joomla\CMS\Language\Text;
 defined('_JEXEC') or die;
 
 // PHP 7.2 is modern enough. Anything else gets a warning.
-$minPHPVersion = '5.6.0';
+$minPHPVersion = '7.1.0';
 $recommendedPHPVersion = '7.2.0';
 
 if (!version_compare(PHP_VERSION, $minPHPVersion, 'lt'))

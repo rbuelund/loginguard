@@ -53,7 +53,7 @@
 			<folder>Model</folder>
 			<folder>Toolbar</folder>
 			<folder>View</folder>
-			<!--<folder>vendor</folder>-->
+			<folder>vendor</folder>
 
 			<folder>sql</folder>
 

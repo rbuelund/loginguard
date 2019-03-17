@@ -7,9 +7,14 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\User\User;
+use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
@@ -31,6 +36,14 @@ class plgUserLoginguard extends CMSPlugin
 	private $container = null;
 
 	/**
+	 * Should this plugin do anything?
+	 *
+	 * @var   bool
+	 * @since 3.1.0
+	 */
+	private $enabled = true;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -42,8 +55,38 @@ class plgUserLoginguard extends CMSPlugin
 	{
 		parent::__construct($subject, $config);
 
+		// Load FOF
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		{
+			$this->enabled = false;
+
+			return;
+		}
+
+		// Make sure Akeeba LoginGuard is installed
+		try
+		{
+			if (
+				!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard') ||
+				!ComponentHelper::isInstalled('com_loginguard') ||
+				!ComponentHelper::isEnabled('com_loginguard')
+			)
+			{
+				throw new RuntimeException('Akeeba LoginGuard is not installed');
+			}
+
+			$this->container = Container::getInstance('com_loginguard');
+		}
+		catch (Exception $e)
+		{
+			$this->enabled = false;
+		}
+
 		// Get a reference to the component's container
 		$this->container = Container::getInstance('com_loginguard');
+
+		// PHP version check
+		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
 
 		$this->loadLanguage();
 	}
@@ -51,7 +94,7 @@ class plgUserLoginguard extends CMSPlugin
 	/**
 	 * Adds additional fields to the user editing form
 	 *
-	 * @param   JForm  $form  The form to be altered.
+	 * @param   Form   $form  The form to be altered.
 	 * @param   mixed  $data  The associated data for the form.
 	 *
 	 * @return  boolean
@@ -60,7 +103,12 @@ class plgUserLoginguard extends CMSPlugin
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		if (!($form instanceof JForm))
+		if (!$this->enabled)
+		{
+			return true;
+		}
+
+		if (!($form instanceof Form))
 		{
 			throw new InvalidArgumentException('JERROR_NOT_A_FORM');
 		}
@@ -87,7 +135,7 @@ class plgUserLoginguard extends CMSPlugin
 		{
 			$id = isset($data['id']) ? $data['id'] : null;
 		}
-		elseif (is_object($data) && is_null($data) && ($data instanceof JRegistry))
+		elseif (is_object($data) && is_null($data) && ($data instanceof Registry))
 		{
 			$id = $data->get('id');
 		}
@@ -111,7 +159,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 
 		// Add the fields to the form.
-		JForm::addFormPath(dirname(__FILE__) . '/loginguard');
+		Form::addFormPath(dirname(__FILE__) . '/loginguard');
 
 		// Special handling for profile overview page
 		if ($layout == 'default')
@@ -126,7 +174,7 @@ class plgUserLoginguard extends CMSPlugin
 			 * use such a field. So all I can do is pass raw text. Um, whatever.
 			 */
 			$data->loginguard = array(
-				'hastfa' => ($tfaMethods->count() > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
+				'hastfa' => ($tfaMethods->count() > 0) ? Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
 			);
 
 			$form->loadFile('list', false);
@@ -149,6 +197,11 @@ class plgUserLoginguard extends CMSPlugin
 	 */
 	public function onUserAfterLogin($options)
 	{
+		if (!$this->enabled)
+		{
+			return;
+		}
+
 		// Make sure the option to redirect is set
 		if (!$this->params->get('redirectonlogin', 1))
 		{
@@ -182,7 +235,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 
 		// Get the redirection URL to the 2SV setup page or custom redirection per plugin configuration
-		$url           = JRoute::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
+		$url           = Route::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
 		$configuredUrl = $this->params->get('redirecturl', null);
 
 		if ($configuredUrl)
@@ -209,19 +262,17 @@ class plgUserLoginguard extends CMSPlugin
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
+		if (!$this->enabled)
+		{
+			return true;
+		}
+
 		if (!$success)
 		{
 			return false;
 		}
 
-		if (class_exists('Joomla\\Utilities\\ArrayHelper'))
-		{
-			$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
-		}
-		else
-		{
-			$userId	= JArrayHelper::getValue($user, 'id', 0, 'int');
-		}
+		$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
 
 		if (!$userId)
 		{

@@ -15,10 +15,8 @@
         <targetplatform name="joomla" version="3.8"/>
         <targetplatform name="joomla" version="3.9"/>
 
-        <php_minimum>5.6.0</php_minimum>
+        <php_minimum>7.1.0</php_minimum>
 
-        <ars-phpcompat version="5.6"/>
-        <ars-phpcompat version="7.0"/>
         <ars-phpcompat version="7.1"/>
         <ars-phpcompat version="7.2"/>
         <ars-phpcompat version="7.3"/>
