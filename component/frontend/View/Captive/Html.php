@@ -24,7 +24,7 @@ class Html extends BaseView
 	 * @var   \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since 2.0.0
 	 */
-	public $records = array();
+	public $records = [];
 
 	/**
 	 * The currently selected TFA method record against which we'll be authenticating

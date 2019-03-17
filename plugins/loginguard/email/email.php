@@ -5,11 +5,14 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
 
 /**
@@ -93,7 +96,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$key     = isset($options['key']) ? $options['key'] : '';
 
 		// If there's a key in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('emailcode.key', $key, 'com_loginguard');
 
 		// Initialize objects
@@ -109,7 +112,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$session->set('emailcode.user_id', $record->user_id, 'com_loginguard');
 
 		// Send an email message with a new code and ask the user to enter it.
-		$user = JFactory::getUser($record->user_id);
+		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
 		return array(
@@ -169,7 +172,7 @@ class PlgLoginguardEmail extends CMSPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -238,7 +241,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		// Send an email message with a new code and ask the user to enter it.
-		$user = JFactory::getUser($record->user_id);
+		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
 		return array(
@@ -266,12 +269,12 @@ class PlgLoginguardEmail extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -327,18 +330,18 @@ class PlgLoginguardEmail extends CMSPlugin
 	 * Creates a new TOTP code based on secret key $key and sends it to the user via email.
 	 *
 	 * @param   string  $key    The TOTP secret key
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  LoginGuardPushbulletApiException  If something goes wrong
 	 */
-	public function sendCode($key, JUser $user = null)
+	public function sendCode($key, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -349,8 +352,8 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -363,7 +366,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$body = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
 		// Send email
-		$mailer = JFactory::getMailer();
+		$mailer = Factory::getMailer();
 		$mailer->setSubject($subject);
 		$mailer->setBody($body);
 		$mailer->addRecipient($user->email, $user->name);

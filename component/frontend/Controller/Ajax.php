@@ -30,7 +30,7 @@ class Ajax extends Controller
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		if (!isset($config['default_task']))
 		{

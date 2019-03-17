@@ -27,7 +27,7 @@ class Users extends DataController
 {
 	use PredefinedTaskList;
 
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		parent::__construct($container, $config);
 

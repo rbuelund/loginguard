@@ -7,7 +7,9 @@
 
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use Joomla\CMS\Crypt\Crypt;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\User\User;
 
 defined('_JEXEC') or die;
 
@@ -219,12 +221,12 @@ class PlgLoginguardFixed extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -242,7 +244,7 @@ class PlgLoginguardFixed extends CMSPlugin
 		}
 
 		// Check the TFA code for validity
-		return JCrypt::timingSafeCompare($options->fixed_code, $code);
+		return Crypt::timingSafeCompare($options->fixed_code, $code);
 	}
 
 	/**

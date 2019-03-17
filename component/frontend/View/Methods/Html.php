@@ -33,7 +33,7 @@ class Html extends BaseView
 	 * @var    array
 	 * @since  2.0.0
 	 */
-	public $methods = array();
+	public $methods = [];
 
 	/**
 	 * The return URL to use for all links and forms
@@ -150,15 +150,15 @@ class Html extends BaseView
 
 		if (!is_null($backupCodesRecord))
 		{
-			$this->methods['backupcodes'] = array(
+			$this->methods['backupcodes'] = [
 				'name'          => 'backupcodes',
 				'display'       => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 				'shortinfo'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
 				'image'         => 'media/com_loginguard/images/emergency.svg',
 				'canDisable'    => false,
 				'allowMultiple' => false,
-				'active'        => array($backupCodesRecord),
-			);
+				'active'        => [$backupCodesRecord],
+			];
 		}
 
 		// Include CSS

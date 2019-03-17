@@ -5,10 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Plugin\PluginHelper;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
-$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
+$layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
 include $layoutPath;
 
 ?>

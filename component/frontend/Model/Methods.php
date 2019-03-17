@@ -16,7 +16,6 @@ use Exception;
 use FOF30\Model\Model;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use JUser;
 use RuntimeException;
 
 // Protect from unauthorized access
@@ -32,36 +31,36 @@ class Methods extends Model
 	/**
 	 * Returns a list of all available and their currently active records for given user.
 	 *
-	 * @param   JUser|User  $user  The user object. Skip to use the current user.
+	 * @param   User  $user  The user object. Skip to use the current user.
 	 *
 	 * @return  array
 	 * @since   2.0.0
 	 */
 	public function getMethods($user = null)
 	{
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
 			$user = $this->container->platform->getUser();
 		}
 
 		if ($user->guest)
 		{
-			return array();
+			return [];
 		}
 
 		// Get an associative array of TFA methods
 		$rawMethods = Tfa::getTfaMethods();
-		$methods    = array();
+		$methods    = [];
 
 		foreach ($rawMethods as $method)
 		{
-			$method['active'] = array();
+			$method['active']         = [];
 			$methods[$method['name']] = $method;
 		}
 
 		// Put the user TFA records into the methods array
 		/** @var TfaRecord $tfaModel */
-		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+		$tfaModel       = $this->container->factory->model('Tfa')->tmpInstance();
 		$userTfaRecords = $tfaModel->user_id($user->id)->get(true);
 
 		if ($userTfaRecords->count() >= 1)
@@ -83,7 +82,7 @@ class Methods extends Model
 	/**
 	 * Delete all Two Step Verification methods for the given user.
 	 *
-	 * @param   JUser|User  $user  The user object to reset TSV for. Null to use the current user.
+	 * @param   User  $user  The user object to reset TSV for. Null to use the current user.
 	 *
 	 * @return  void
 	 *
@@ -179,15 +178,15 @@ class Methods extends Model
 	/**
 	 * Set the user's "don't show this again" flag.
 	 *
-	 * @param   JUser  $user  The user to check
+	 * @param   User   $user  The user to check
 	 * @param   bool   $flag  True to set the flag, false to unset it (it will be set to 0, actually)
 	 *
 	 * @return  void
 	 * @since   2.0.0
 	 */
-	public function setFlag(JUser $user, $flag = true)
+	public function setFlag(User $user, $flag = true)
 	{
-		$db = $this->container->db;
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
 			->select($db->qn('profile_value'))
 			->from($db->qn('#__user_profiles'))
@@ -205,12 +204,12 @@ class Methods extends Model
 
 		$exists = !is_null($result);
 
-		$object = (object) array(
+		$object = (object) [
 			'user_id'       => $user->id,
 			'profile_key'   => 'loginguard.dontshow',
 			'profile_value' => ($flag ? 1 : 0),
-			'ordering'      => 1
-		);
+			'ordering'      => 1,
+		];
 
 		if (!$exists)
 		{
@@ -218,7 +217,7 @@ class Methods extends Model
 		}
 		else
 		{
-			$db->updateObject('#__user_profiles', $object, array('user_id', 'profile_key'));
+			$db->updateObject('#__user_profiles', $object, ['user_id', 'profile_key']);
 		}
 	}
 }

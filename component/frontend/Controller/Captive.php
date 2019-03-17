@@ -36,7 +36,7 @@ class Captive extends Controller
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		if (!isset($config['default_task']))
 		{
@@ -162,7 +162,7 @@ class Captive extends Controller
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');
-		$jNow      = $this->container->platform->getDate();
+		$jNow = $this->container->platform->getDate();
 
 		$record->last_used = $jNow->toSql();
 

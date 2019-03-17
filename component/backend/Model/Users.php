@@ -67,7 +67,7 @@ class Users extends DataModel
 	 * @param Container $container
 	 * @param array     $config
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		$config['tableName'] = '#__users';
 		$config['idFieldName'] = 'id';
@@ -97,13 +97,13 @@ class Users extends DataModel
 		$query = $db->getQuery(true)
 			->select([
 				$db->qn('u') . '.*',
-				'IF(' . $db->qn('t.tfaMethods') . ' > 0, 1, 0) AS ' . $db->qn('has2SV')
+				'IF(' . $db->qn('t.tfaMethods') . ' > 0, 1, 0) AS ' . $db->qn('has2SV'),
 			])
 			->from($db->qn('#__users') . ' AS ' . $db->qn('u'))
 			->leftJoin("($subQuery) AS " . $db->qn('t') . ' ON ' . $db->qn('t.user_id') . ' = ' . $db->qn('u.id'));
 
 		// Run the "before build query" hook and behaviours
-		$this->triggerEvent('onBeforeBuildQuery', array(&$query, $overrideLimits));
+		$this->triggerEvent('onBeforeBuildQuery', [&$query, $overrideLimits]);
 
 		// Apply custom WHERE clauses
 		if (count($this->whereClauses))
@@ -139,7 +139,7 @@ class Users extends DataModel
 		{
 			$subQueryGroup = $db->getQuery(true)
 				->select([
-					$db->qn('user_id')
+					$db->qn('user_id'),
 				])->from($db->qn('#__user_usergroup_map'))
 				->where($db->qn('group_id') . ' = ' . (int) $filter_group);
 			$query->where($db->qn('id') . ' IN(' . $subQueryGroup . ')');
@@ -157,7 +157,7 @@ class Users extends DataModel
 		$query->order($order . ' ' . $dir);
 
 		// Run the "before after query" hook and behaviours
-		$this->triggerEvent('onAfterBuildQuery', array(&$query, $overrideLimits));
+		$this->triggerEvent('onAfterBuildQuery', [&$query, $overrideLimits]);
 
 		return $query;
 	}

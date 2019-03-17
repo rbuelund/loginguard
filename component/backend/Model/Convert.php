@@ -77,18 +77,18 @@ class Convert extends Model
 			// Perform the conversion of the TFA method and the emergency codes
 			if (method_exists($this, $methodName))
 			{
-				call_user_func(array($this, $methodName), $otpKey, $user->id);
+				call_user_func([$this, $methodName], $otpKey, $user->id);
 
 				$this->convertEmergencyCodes($otep, $user->id);
 			}
 
 			// Disable the TFA in the user's record
-			$update = (object) array(
+			$update = (object) [
 				'id'     => $user->id,
 				'otpKey' => '',
 				'otep'   => '',
-			);
-			$db->updateObject('#__users', $update, array('id'));
+			];
+			$db->updateObject('#__users', $update, ['id']);
 		}
 
 		return true;
@@ -171,14 +171,14 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 			'method'    => 'backupcodes',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
 			'options'   => $json,
-		);
+		];
 
 		// Delete any other record with the same user_id and method
 		$query = $db->getQuery(true)
@@ -217,14 +217,14 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => 'YubiKey ' . $config['yubikey'],
 			'method'    => 'yubikey',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
-			'options'   => array('id' => $config['yubikey']),
-		);
+			'options'   => ['id' => $config['yubikey']],
+		];
 
 		// Insert the new record
 		/** @var Tfa $tfa */
@@ -257,14 +257,14 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => 'Authenticator',
 			'method'    => 'totp',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
-			'options'   => array('key' => $config['code']),
-		);
+			'options'   => ['key' => $config['code']],
+		];
 
 		// Insert the new record
 		/** @var Tfa $tfa */

@@ -37,7 +37,7 @@ class Method extends Controller
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		if (!isset($config['default_task']))
 		{
@@ -241,7 +241,7 @@ class Method extends Controller
 		$model = $this->getModel();
 
 		// Ask the plugin to validate the input by calling onLoginGuardTfaSaveSetup
-		$result = array();
+		$result = [];
 		$input  = $this->input;
 
 		try

@@ -5,10 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Uri\Uri;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
-$baseURL     = JUri::base();
+$baseURL     = Uri::base();
 $backend     = 0;
 
 if (substr($baseURL, -14) == 'administrator/')

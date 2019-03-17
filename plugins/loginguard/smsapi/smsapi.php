@@ -7,7 +7,11 @@
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
 
@@ -129,7 +133,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$phone   = isset($options['phone']) ? $options['phone'] : '';
 
 		// If there's a key or phone number in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('smsapi.key', $key, 'com_loginguard');
 		$phone   = $session->get('smsapi.phone', $phone, 'com_loginguard');
 
@@ -148,7 +152,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		// If there is no phone we need to show the phone entry page
 		if (empty($phone))
 		{
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'smsapi', 'phone');
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'smsapi', 'phone');
 			ob_start();
 			include $layoutPath;
 			$html = ob_get_clean();
@@ -248,7 +252,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -359,12 +363,12 @@ class PlgLoginguardSmsapi extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -422,18 +426,18 @@ class PlgLoginguardSmsapi extends CMSPlugin
 	 *
 	 * @param   string  $key    The TOTP secret key
 	 * @param   string  $phone  The phone number with the international prefix
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  Exception  If something goes wrong
 	 */
-	public function sendCode($key, $phone, JUser $user = null)
+	public function sendCode($key, $phone, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -449,8 +453,8 @@ class PlgLoginguardSmsapi extends CMSPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -486,7 +490,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 			return false;
 		}
 
-		$app   = JFactory::getApplication();
+		$app   = Factory::getApplication();
 		$input = $app->input;
 
 		// Do I have a phone variable?
@@ -500,7 +504,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$phone = preg_replace("/[^0-9]/", "", $phone);
 
 		// Set the phone to the session
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$session->set('smsapi.phone', $phone, 'com_loginguard');
 
 		// Get the User ID for the editor page

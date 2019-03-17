@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
@@ -47,7 +50,7 @@ $model = $this->getModel();
         </div>
 	<?php endif; ?>
 
-    <form action="<?php echo JUri::base() ?>index.php" method="POST" id="loginguard-captive-form" class="akeeba-form--horizontal">
+    <form action="<?php echo Uri::base() ?>index.php" method="POST" id="loginguard-captive-form" class="akeeba-form--horizontal">
 	    <div id="loginguard-captive-form-method-fields">
 		    <?php if ($this->renderOptions['field_type'] == 'custom'): ?>
 			    <?php echo $this->renderOptions['html']; ?>
@@ -88,13 +91,13 @@ JS;
                 </button>
 
 	            <?php if ($this->isAdmin): ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
+                <a href="<?php echo Route::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-power"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php else: ?>
-                <a href="<?php echo JRoute::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
+                <a href="<?php echo Route::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-ios-locked"></span>
                     <?php echo JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
@@ -105,7 +108,7 @@ JS;
 
 	    <?php if (count($this->records) > 1): ?>
             <div id="loginguard-captive-form-choose-another" class="akeeba-form-group--pull-right">
-                <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
+                <a href="<?php echo Route::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
 				    <?php echo JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
                 </a>
             </div>

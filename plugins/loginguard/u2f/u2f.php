@@ -5,11 +5,17 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Environment\Browser;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
 
 /**
@@ -87,7 +93,7 @@ class PlgLoginguardU2f extends CMSPlugin
 		}
 
 		// Try to create a server library object
-		$jURI = JURI::getInstance();
+		$jURI = Uri::getInstance();
 		$appId = $jURI->toString(array('scheme', 'host', 'port'));
 
 		try
@@ -182,49 +188,30 @@ class PlgLoginguardU2f extends CMSPlugin
 		 */
 		if (empty($currentRecordRegistrations))
 		{
-			if (version_compare(JVERSION, '3.6.999', 'le'))
-			{
-				// Load Javascript
-				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-					'version'     => 'auto',
-					'relative'    => true,
-					'detectDebug' => true,
-				), true, false, false, true);
+			// Load Javascript
+			HTMLHelper::_('script', 'plg_loginguard_u2f/u2f-api.min.js', [
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			], [
+				'defer' => false,
+				'async' => false,
+			]);
 
-				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-					'version'     => 'auto',
-					'relative'    => true,
-					'detectDebug' => true,
-				), true, false, false, true);
-			}
-			// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
-			else
-			{
-				// Load Javascript
-				JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-					'version'       => 'auto',
-					'relative'      => true,
-					'detectDebug'   => true,
-					'framework'     => true,
-					'pathOnly'      => false,
-					'detectBrowser' => true,
-				), array(
-					'defer' => false,
-					'async' => false,
-				));
-
-				JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-					'version'       => 'auto',
-					'relative'      => true,
-					'detectDebug'   => true,
-					'framework'     => true,
-					'pathOnly'      => false,
-					'detectBrowser' => true,
-				), array(
-					'defer' => false,
-					'async' => false,
-				));
-			}
+			HTMLHelper::_('script', 'plg_loginguard_u2f/u2f.min.js', [
+				'version'       => 'auto',
+				'relative'      => true,
+				'detectDebug'   => true,
+				'framework'     => true,
+				'pathOnly'      => false,
+				'detectBrowser' => true,
+			], [
+				'defer' => false,
+				'async' => false,
+			]);
 
 			$js = <<< JS
 ;; // Defense against broken scripts
@@ -233,9 +220,9 @@ window.jQuery(document).ready(function() {
 });
 
 JS;
-			JFactory::getDocument()->addScriptDeclaration($js);
+			Factory::getDocument()->addScriptDeclaration($js);
 
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'register');
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'register');
 			ob_start();
 			include $layoutPath;
 			$html = ob_get_clean();
@@ -249,7 +236,7 @@ JS;
 			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
 			// Save the U2F request to the session
-			$session = JFactory::getSession();
+			$session = Factory::getSession();
 			$session->set('u2f.request', $u2fRegData, 'com_loginguard');
 
 			// Special button handling
@@ -331,7 +318,7 @@ JS;
 		}
 
 		// load the registration request from the session
-		$session    = JFactory::getSession();
+		$session    = Factory::getSession();
 		$u2fRegData = $session->get('u2f.request', null, 'com_loginguard');
 		$session->set('u2f.request', null, 'com_loginguard');
 		$registrationRequest = json_decode($u2fRegData);
@@ -382,60 +369,42 @@ JS;
 		// Make sure we are enabled
 		if (!$this->enabled)
 		{
-			return array();
+			return [];
 		}
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Get the media version
 		$mediaVersion = Container::getInstance('com_loginguard')->mediaVersion;
 
 		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
-		if (version_compare(JVERSION, '3.6.999', 'le'))
-		{
-			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'     => $mediaVersion,
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
+		HTMLHelper::_('script', 'plg_loginguard_u2f/u2f-api.min.js', [
+			'version'       => $mediaVersion,
+			'relative'      => true,
+			'detectDebug'   => true,
+			'framework'     => true,
+			'pathOnly'      => false,
+			'detectBrowser' => true,
+		], [
+			'defer' => false,
+			'async' => false,
+		]);
 
-			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'     => $mediaVersion,
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
-		}
-		else
-		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
-		{
-			JHtml::_('script', 'plg_loginguard_u2f/u2f-api.min.js', array(
-				'version'       => $mediaVersion,
-				'relative'      => true,
-				'detectDebug'   => true,
-				'framework'     => true,
-				'pathOnly'      => false,
-				'detectBrowser' => true,
-			), array(
-				'defer' => false,
-				'async' => false,
-			));
-
-			JHtml::_('script', 'plg_loginguard_u2f/u2f.min.js', array(
-				'version'       => $mediaVersion,
-				'relative'      => true,
-				'detectDebug'   => true,
-				'framework'     => true,
-				'pathOnly'      => false,
-				'detectBrowser' => true,
-			), array(
-				'defer' => false,
-				'async' => false,
-			));
-		}
+		HTMLHelper::_('script', 'plg_loginguard_u2f/u2f.min.js', [
+			'version'       => $mediaVersion,
+			'relative'      => true,
+			'detectDebug'   => true,
+			'framework'     => true,
+			'pathOnly'      => false,
+			'detectBrowser' => true,
+		], [
+			'defer' => false,
+			'async' => false,
+		]);
 
 		// Load JS translations
 		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
@@ -476,7 +445,7 @@ JS;
 		 *
 		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
 		 */
-		$session = JFactory::getSession();
+		$session         = Factory::getSession();
 		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
 		$u2fAuthData     = $session->get('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 		$u2fAuthData     = unserialize(base64_decode($u2fAuthData));
@@ -507,16 +476,16 @@ window.jQuery(document).ready(function($) {
 });
 
 JS;
-		JFactory::getDocument()->addScriptDeclaration($js);
+		Factory::getDocument()->addScriptDeclaration($js);
 
-		$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'u2f', 'validate');
+		$layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'validate');
 		ob_start();
 		include $layoutPath;
 		$html = ob_get_clean();
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
 
-		return array(
+		return [
 			// Custom HTML to display above the TFA form
 			'pre_message'        => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
@@ -537,20 +506,20 @@ JS;
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
-		);
+		];
 	}
 
 	/**
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   Tfa       $record  The TFA method's record you're validating against
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are enabled
 		if (!$this->enabled)
@@ -582,7 +551,7 @@ JS;
 			return false;
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$authenticationRequest = $session->get('u2f.authentication', null, 'com_loginguard');
 		$session->set('u2f.authentication', null, 'com_loginguard');
 
@@ -630,7 +599,7 @@ JS;
 		$container = Container::getInstance('com_loginguard');
 		$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$update]);
 
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 		$db->updateObject('#__loginguard_tfa', $update, array('id'));
 
 		return true;
@@ -733,14 +702,14 @@ JS;
 			JLoader::import('joomla.environment.browser');
 		}
 
-		$jBrowser       = JBrowser::getInstance();
+		$jBrowser       = Browser::getInstance();
 		$browserMake    = $jBrowser->getBrowser() == 'chrome';
 		$browserVersion = $jBrowser->getVersion();
 		$isOldChrome    = ($browserMake) && version_compare($browserVersion, '38.0', 'ge') && version_compare($browserVersion, '41.0', 'lt');
 
 		if ($isOldChrome)
 		{
-			JFactory::getDocument()->addScript('chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js');
+			Factory::getDocument()->addScript('chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js');
 		}
 	}
 
@@ -755,7 +724,7 @@ JS;
 	{
 		if (empty($user_id))
 		{
-			$user_id = JFactory::getUser()->id;
+			$user_id = Factory::getUser()->id;
 		}
 
 		$return = array();
@@ -876,7 +845,7 @@ JS;
 		}
 
 		// Getting your browser make and model. Hang on.
-		$jBrowser       = JBrowser::getInstance();
+		$jBrowser       = Browser::getInstance();
 		$browserMake    = $jBrowser->getBrowser();
 		$browserVersion = $jBrowser->getVersion();
 

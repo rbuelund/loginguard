@@ -5,11 +5,15 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
 
 /**
@@ -131,7 +135,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		$key     = isset($options['key']) ? $options['key'] : '';
 
 		// If there's a key in the session use that instead.
-		$session    = JFactory::getSession();
+		$session    = Factory::getSession();
 		$sessionKey = $session->get('totp.key', null, 'com_loginguard');
 
 		if (!empty($sessionKey))
@@ -147,8 +151,8 @@ class PlgLoginguardTotp extends CMSPlugin
 		}
 
 		// Generate a QR code for the key
-		$user     = JFactory::getUser($record->user_id);
-		$hostname = JUri::getInstance()->toString(array('host'));
+		$user     = Factory::getUser($record->user_id);
+		$hostname = Uri::getInstance()->toString(array('host'));
 		$qr       = sprintf("otpauth://totp/%s@%s?secret=%s", $user->username, $hostname, $key);
 		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
@@ -214,7 +218,7 @@ class PlgLoginguardTotp extends CMSPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options    = $this->_decodeRecordOptions($record);
@@ -267,12 +271,12 @@ class PlgLoginguardTotp extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -333,35 +337,22 @@ class PlgLoginguardTotp extends CMSPlugin
 
 		define('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED', 1);
 
-		JHtml::_('jquery.framework');
+		HTMLHelper::_('jquery.framework');
 
-		if (version_compare(JVERSION, '3.6.999', 'le'))
-		{
-			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
-				'version'     => 'auto',
-				'relative'    => true,
-				'detectDebug' => true,
-			), true, false, false, true);
-		}
-		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY BECAUSE JOOMLA IS HORRIBLY BROKEN.
-		else
-		{
-			// Load Javascript
-			JHtml::_('script', 'plg_loginguard_totp/qrcode.min.js', array(
-				'version'       => 'auto',
-				'relative'      => true,
-				'detectDebug'   => true,
-				'framework'     => true,
-				'pathOnly'      => false,
-				'detectBrowser' => true,
-			), array(
-				'defer' => false,
-				'async' => false,
-			));
-		}
+		// Load Javascript
+		HTMLHelper::_('script', 'plg_loginguard_totp/qrcode.min.js', [
+			'version'       => 'auto',
+			'relative'      => true,
+			'detectDebug'   => true,
+			'framework'     => true,
+			'pathOnly'      => false,
+			'detectBrowser' => true,
+		], [
+			'defer' => false,
+			'async' => false,
+		]);
 
-		$js        = /** @lang JavaScript */
+		$js = /** @lang JavaScript */
 			<<< JS
 ;; // Defense against broken scripts
 window.jQuery(document).ready(function ($){
@@ -376,7 +367,7 @@ window.jQuery(document).ready(function ($){
 
 JS;
 
-		JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
+		Factory::getApplication()->getDocument()->addScriptDeclaration($js);
 
 	}
 }

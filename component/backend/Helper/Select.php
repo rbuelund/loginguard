@@ -35,15 +35,15 @@ class Select
 		{
 			static::$groups = [];
 			$groups         = UserGroupsHelper::getInstance()->getAll();
-			$options        = array();
+			$options        = [];
 
 			foreach ($groups as $group)
 			{
-				$options[] = (object) array(
+				$options[] = (object) [
 					'text'  => str_repeat('- ', $group->level) . $group->title,
 					'value' => $group->id,
-					'level' => $group->level
-				);
+					'level' => $group->level,
+				];
 			}
 
 			static::$groups = $options;

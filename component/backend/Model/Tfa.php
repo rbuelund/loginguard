@@ -55,7 +55,7 @@ class Tfa extends DataModel
 	 */
 	private $deleteFlags = [];
 
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		$config['tableName']   = '#__loginguard_tfa';
 		$config['idFieldName'] = 'id';

@@ -5,10 +5,14 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
 
 /**
@@ -229,12 +233,12 @@ class PlgLoginguardYubikey extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -339,15 +343,15 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		$gotResponse = false;
 
-		$http     = JHttpFactory::getHttp();
-		$token    = JSession::getFormToken();
+		$http     = HttpFactory::getHttp();
+		$token    = Session::getFormToken();
 		$nonce    = md5($token . uniqid(mt_rand()));
 		$response = null;
 
 		while (!$gotResponse && !empty($server_queue))
 		{
 			$server = array_shift($server_queue);
-			$uri    = new JUri($server);
+			$uri    = new Uri($server);
 
 			// The client ID for signing the response
 			$uri->setVar('id', $clientID);
@@ -423,7 +427,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		// Validate the signature
 		$h       = isset($data['h']) ? $data['h'] : null;
-		$fakeUri = JUri::getInstance('http://www.example.com');
+		$fakeUri = Uri::getInstance('http://www.example.com');
 		$fakeUri->setQuery($data);
 		$this->signRequest($fakeUri, $secretKey);
 		$calculatedH = $fakeUri->getVar('h', null);
@@ -465,12 +469,12 @@ class PlgLoginguardYubikey extends CMSPlugin
 	 *
 	 * @see   https://developers.yubico.com/yubikey-val/Validation_Protocol_V2.0.html
 	 *
-	 * @param   JUri    $uri     The request URI to sign
+	 * @param   Uri     $uri     The request URI to sign
 	 * @param   string  $secret  The secret key to sign with
 	 *
 	 * @return  void
 	 */
-	public function signRequest(JUri $uri, $secret)
+	public function signRequest(Uri $uri, $secret)
 	{
 		// Make sure we have an encoding secret
 		$secret = trim($secret);

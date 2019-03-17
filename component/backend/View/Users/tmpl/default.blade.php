@@ -44,8 +44,6 @@
 
 defined('_JEXEC') or die();
 
-use FOF30\Utils\FEFHelper\Html as FEFHtml;
-
 /** @var  FOF30\View\DataView\Html  $this */
 
 ?>

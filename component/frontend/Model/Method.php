@@ -13,7 +13,6 @@ use Exception;
 use FOF30\Model\Model;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use JUser;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -63,14 +62,14 @@ class Method extends Model
 	{
 		if (!$this->methodExists($method))
 		{
-			return array(
+			return [
 				'name'          => $method,
 				'display'       => '',
 				'shortinfo'     => '',
 				'image'         => '',
 				'canDisable'    => true,
-				'allowMultiple' => true
-			);
+				'allowMultiple' => true,
+			];
 		}
 
 		return $this->tfaMethods[$method];
@@ -79,7 +78,7 @@ class Method extends Model
 	/**
 	 * Get the specified TFA record. It will return a fake default record when no record ID is specified.
 	 *
-	 * @param   JUser|User  $user  The user record. Null to use the currently logged in user.
+	 * @param   User  $user  The user record. Null to use the currently logged in user.
 	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
@@ -120,12 +119,12 @@ class Method extends Model
 	}
 
 	/**
-	 * @param   JUser   $user        The user record. Null to use the currently logged in user.
+	 * @param   User   $user        The user record. Null to use the currently logged in user.
 	 *
 	 * @return  array
 	 * @since   2.0.0
 	 */
-	public function getRenderOptions(JUser $user = null)
+	public function getRenderOptions(User $user = null)
 	{
 		if (is_null($user))
 		{
@@ -140,9 +139,9 @@ class Method extends Model
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(),
+			'tabular_data'   => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(),
+			'hidden_data'    => [],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -207,7 +206,7 @@ class Method extends Model
 	 */
 	private function populateTfaMethods()
 	{
-		$this->tfaMethods = array();
+		$this->tfaMethods = [];
 		$tfaMethods       = Tfa::getTfaMethods();
 
 		if (empty($tfaMethods))
@@ -221,20 +220,20 @@ class Method extends Model
 		}
 
 		// We also need to add the backup codes method
-		$this->tfaMethods['backupcodes'] = array(
+		$this->tfaMethods['backupcodes'] = [
 			'name'          => 'backupcodes',
 			'display'       => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 			'shortinfo'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_DESCRIPTION'),
 			'image'         => 'media/com_loginguard/images/emergency.svg',
 			'canDisable'    => false,
 			'allowMultiple' => false,
-		);
+		];
 	}
 
 	/**
 	 * Get the default TFA method for the user
 	 *
-	 * @param   JUser|User  $user  The user record. Null to use the current user.
+	 * @param   User  $user  The user record. Null to use the current user.
 	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa
 	 * @since   2.0.0
@@ -259,14 +258,14 @@ class Method extends Model
 			$title = $this->tfaMethods[$method]['display'];
 		}
 
-		$recordData = array(
+		$recordData = [
 			'id'      => null,
 			'user_id' => $user->id,
 			'title'   => $title,
 			'method'  => $method,
 			'default' => 0,
-			'options' => []
-		);
+			'options' => [],
+		];
 
 		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $record */
 		$record = $this->container->factory->model('Tfa');

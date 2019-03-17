@@ -109,20 +109,20 @@ class UsageStatistics extends Model
 		{
 			if (!$count)
 			{
-				$insertObject = (object)array(
+				$insertObject = (object) [
 					'key'   => $key,
 					'value' => $value,
-				);
+				];
 				$db->insertObject('#__akeeba_common', $insertObject);
 			}
 			else
 			{
 				$keyName = version_compare(JVERSION, '1.7.0', 'lt') ? $db->qn('key') : 'key';
 
-				$insertObject = (object)array(
+				$insertObject = (object) [
 					$keyName => $key,
 					'value'  => $value,
-				);
+				];
 
 				$db->updateObject('#__akeeba_common', $insertObject, $keyName);
 			}

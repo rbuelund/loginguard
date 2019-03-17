@@ -46,7 +46,7 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 	 */
 	public function getGroups()
 	{
-		$groups = array();
+		$groups = [];
 
 		$clientId = is_null($this->element->attributes()->client_id) ? 0 : (int) $this->element->attributes()->client_id;
 		$state    = is_null($this->element->attributes()->state) ? 1 : (int) $this->element->attributes()->state;
@@ -69,7 +69,7 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 					continue;
 				}
 
-				$groups[$label] = array();
+				$groups[$label] = [];
 
 				foreach ($position['items'] as $item)
 				{
@@ -95,7 +95,6 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 				0 => $positions,
 			];
 		}
-
 
 
 		return $groups;

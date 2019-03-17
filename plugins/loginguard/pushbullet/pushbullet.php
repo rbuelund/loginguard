@@ -8,7 +8,11 @@
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -147,7 +151,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		$token   = isset($options['token']) ? $options['token'] : '';
 
 		// If there's a key or toekn in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('pushbullet.key', $key, 'com_loginguard');
 		$token   = $session->get('pushbullet.token', $token, 'com_loginguard');
 
@@ -166,7 +170,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// If there is no token we need to show the OAuth2 button
 		if (empty($token))
 		{
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'pushbullet', 'oauth2');
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'pushbullet', 'oauth2');
 			ob_start();
 			include $layoutPath;
 			$html = ob_get_clean();
@@ -266,7 +270,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -377,12 +381,12 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -441,18 +445,18 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 *
 	 * @param   string  $key    The TOTP secret key
 	 * @param   string  $token  The PushBullet access token
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  LoginGuardPushbulletApiException  If something goes wrong
 	 */
-	public function sendCode($key, $token, JUser $user = null)
+	public function sendCode($key, $token, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -464,8 +468,8 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -511,7 +515,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			return false;
 		}
 
-		$app   = JFactory::getApplication();
+		$app   = Factory::getApplication();
 		$input = $app->input;
 
 		// Should I redirect to the back-end?
@@ -532,7 +536,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// Do I have to redirect to the backend?
 		if ($backend == 1)
 		{
-			$redirectURL = JUri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
+			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
 			$app->redirect($redirectURL);
 
 			// Just to make IDEs happy. The application is closed above during the redirection.
@@ -540,7 +544,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// Set the token to the session
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$session->set('pushbullet.token', $token, 'com_loginguard');
 
 		// Get the User ID for the editor page

@@ -28,7 +28,7 @@ class BackupCodes extends Model
 	 * @var   array
 	 * @since 2.0.0
 	 */
-	protected $cache = array();
+	protected $cache = [];
 
 	/**
 	 * Get the backup codes record for the specified user
@@ -135,7 +135,7 @@ class BackupCodes extends Model
 		}
 
 		// Generate backup codes
-		$backupCodes = array();
+		$backupCodes = [];
 
 		for ($i = 0; $i < 10; $i++)
 		{
@@ -234,7 +234,7 @@ class BackupCodes extends Model
 	public function isBackupCode($code, User $user = null)
 	{
 		// Create a fake array
-		$temp1 = array('', '', '', '', '', '', '', '', '', '');
+		$temp1 = ['', '', '', '', '', '', '', '', '', ''];
 		// Load the backup codes
 		$temp2 = $this->getBackupCodes($user);
 
@@ -251,8 +251,8 @@ class BackupCodes extends Model
 
 		// The two arrays let us always add an element to an array, therefore having PHP expend the same amount of time
 		// for the correct code, the incorrect codes and the fake codes.
-		$newArray   = array();
-		$dummyArray = array();
+		$newArray   = [];
+		$dummyArray = [];
 
 		$realLength = count($codes);
 		$restLength = 10 - $realLength;

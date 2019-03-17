@@ -109,7 +109,7 @@ class Methods extends Controller
 	 *
 	 * @throws  Exception
 	 */
-	public function dontshowthisagain($cachable = false, $urlparams = array())
+	public function dontshowthisagain($cachable = false, $urlparams = [])
 	{
 		// CSRF prevention
 		$this->csrfProtection();
