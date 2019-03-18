@@ -33,6 +33,9 @@
 /modules/*/*/language/en-GB
 /plugins/*/*/language/en-GB
 
+### Node.js modules (used to install Babel)
+/node_modules
+
 ### Extension files to be excluded
 
 /component/backend/encrypt_service_key.php
