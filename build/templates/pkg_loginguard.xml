@@ -33,6 +33,7 @@
         <file type="plugin" group="loginguard" id="smsapi">plg_loginguard_smsapi.zip</file>
         <file type="plugin" group="loginguard" id="totp">plg_loginguard_totp.zip</file>
         <file type="plugin" group="loginguard" id="u2f">plg_loginguard_u2f.zip</file>
+        <file type="plugin" group="loginguard" id="webauthn">plg_loginguard_webauthn.zip</file>
         <file type="plugin" group="loginguard" id="yubikey">plg_loginguard_yubikey.zip</file>
 
         <!-- Plugins: user -->
