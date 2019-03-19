@@ -273,7 +273,12 @@ abstract class Credentials
 		{
 			try
 			{
-				$descriptor = new PublicKeyCredentialDescriptor(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $credential->getCredentialId());
+				$descriptor = new PublicKeyCredentialDescriptor(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $credential->getCredentialId(), [
+					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_USB,
+					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_NFC,
+					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_BLE,
+					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_INTERNAL,
+				]);
 			}
 			catch (Exception $e)
 			{
