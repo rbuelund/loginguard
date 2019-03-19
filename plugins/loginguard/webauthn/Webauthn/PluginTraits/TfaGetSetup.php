@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Akeeba\LoginGuard\Webauthn\CredentialRepository;
-use Akeeba\LoginGuard\Webauthn\Helper\CredentialsCreation;
+use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
@@ -81,7 +81,7 @@ trait TfaGetSetup
 
 			// Save the U2F request to the session
 			$user                    = Factory::getUser();
-			$hiddenData['pkRequest'] = base64_encode(CredentialsCreation::createPublicKey($user));
+			$hiddenData['pkRequest'] = base64_encode(Credentials::createPublicKey($user));
 
 			// Special button handling
 			$submitOnClick = "akeeba.LoginGuard.webauthn.setUp(); return false;";

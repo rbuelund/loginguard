@@ -25,7 +25,10 @@ use Webauthn\AttestationStatement\FidoU2FAttestationStatementSupport;
 use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
 use Webauthn\AttestationStatement\PackedAttestationStatementSupport;
 use Webauthn\AttestedCredentialData;
+use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
+use Webauthn\AuthenticatorAssertionResponse;
+use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\AuthenticatorSelectionCriteria;
@@ -33,6 +36,7 @@ use Webauthn\PublicKeyCredentialCreationOptions;
 use Webauthn\PublicKeyCredentialDescriptor;
 use Webauthn\PublicKeyCredentialLoader;
 use Webauthn\PublicKeyCredentialParameters;
+use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialUserEntity;
 use Webauthn\TokenBinding\TokenBindingNotSupportedHandler;
@@ -41,7 +45,7 @@ use Zend\Diactoros\ServerRequestFactory;
 /**
  * Helper class to aid in credentials creation (link an authenticator to a user account)
  */
-abstract class CredentialsCreation
+abstract class Credentials
 {
 	/**
 	 * Create a public key for credentials creation. The result is a JSON string which can be used in Javascript code
@@ -240,9 +244,189 @@ abstract class CredentialsCreation
 	}
 
 	/**
+	 * Creates a WebAuthn Public Key Credential Request (challenge) used by the browser during key verification
+	 *
+	 * @param   int  $user_id
+	 *
+	 * @return  string
+	 *
+	 * @since   3.1.0
+	 */
+	public static function createChallenge(int $user_id): string
+	{
+		// Create a WebAuthn challenge and set it in the session
+		$repository = new CredentialRepository($user_id);
+
+		// Load the saved credentials into an array of PublicKeyCredentialDescriptor objects
+		try
+		{
+			$credentials = $repository->getAll($user_id);
+		}
+		catch (Exception $e)
+		{
+			return json_encode(false);
+		}
+
+		$registeredPublicKeyCredentialDescriptors = [];
+
+		foreach ($credentials as $credential)
+		{
+			try
+			{
+				$descriptor = new PublicKeyCredentialDescriptor(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $credential->getCredentialId());
+			}
+			catch (Exception $e)
+			{
+				continue;
+			}
+
+			$registeredPublicKeyCredentialDescriptors[] = $descriptor;
+		}
+
+		try
+		{
+			$challenge = random_bytes(32);
+		}
+		catch (Exception $e)
+		{
+			$challenge = Crypt::genRandomBytes(32);
+		}
+
+		// Public Key Credential Request Options
+		$publicKeyCredentialRequestOptions = new PublicKeyCredentialRequestOptions(
+			$challenge,
+			60000,
+			Uri::getInstance()->toString(['host']),
+			$registeredPublicKeyCredentialDescriptors,
+			PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_PREFERRED,
+			new AuthenticationExtensionsClientInputs()
+		);
+
+		// Save in session. This is used during the verification stage to prevent replay attacks.
+		$session = Factory::getSession();
+		$session->set('publicKeyCredentialRequestOptions', base64_encode(serialize($publicKeyCredentialRequestOptions)), 'plg_loginguard_webauthn');
+		$session->set('userHandle', $repository->getHandleFromUserId($user_id), 'plg_loginguard_webauthn');
+		$session->set('userId', $user_id, 'plg_loginguard_webauthn');
+
+		// Return the JSON encoded data to the caller
+		return json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+	}
+
+	/**
+	 * Checks if the browser's response to our challenge is valid.
+	 *
+	 * @param   string   $response  Base64-encoded response
+	 *
+	 * @since   3.1.0
+	 *
+	 * @throws  Exception  When something does not check out.
+	 */
+	public static function validateChallenge(string $response): void
+	{
+		$session = Factory::getSession();
+
+		$encodedPkOptions = $session->get('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$userHandle       = $session->get('userHandle', null, 'plg_loginguard_webauthn');
+		$userId           = $session->get('userId', null, 'plg_loginguard_webauthn');
+
+		$session->set('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$session->set('userHandle', null, 'plg_loginguard_webauthn');
+		$session->set('userId', null, 'plg_loginguard_webauthn');
+
+		if (empty($userId))
+		{
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_CREATE_INVALID_LOGIN_REQUEST'));
+		}
+
+		// Make sure the user exists
+		$user = Factory::getUser($userId);
+
+		if ($user->id != $userId)
+		{
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_CREATE_INVALID_LOGIN_REQUEST'));
+		}
+
+		// Make sure the user is ourselves (we cannot perform 2SV on behalf of another user!)
+		if (Factory::getUser()->id != $userId)
+		{
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_CREATE_INVALID_LOGIN_REQUEST'));
+		}
+
+		// Make sure the public key credential request options in the session are valid
+		$serializedOptions = \Safe\base64_decode($encodedPkOptions);
+		$publicKeyCredentialRequestOptions = unserialize($serializedOptions);
+
+		if (!is_object($publicKeyCredentialRequestOptions) || empty($publicKeyCredentialRequestOptions) || !($publicKeyCredentialRequestOptions instanceof PublicKeyCredentialRequestOptions))
+		{
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_CREATE_INVALID_LOGIN_REQUEST'));
+		}
+
+		// Unserialize the browser response data
+		$data = \Safe\base64_decode($response);
+
+		// Create a credentials repository
+		$credentialRepository = new CredentialRepository($userId);
+
+		// Create a CBOR Decoder object
+		$otherObjectManager = new OtherObjectManager();
+		$tagObjectManager   = new TagObjectManager();
+		$decoder            = new Decoder($tagObjectManager, $otherObjectManager);
+
+		// Attestation Statement Support Manager
+		$algorithmManager                   = new Manager();
+		$attestationStatementSupportManager = new AttestationStatementSupportManager();
+		$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
+		$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
+		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $algorithmManager));
+
+		// Attestation Object Loader
+		$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
+
+		// Public Key Credential Loader
+		$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
+
+		// The token binding handler
+		$tokenBindingHandler = new TokenBindingNotSupportedHandler();
+
+		// Authenticator Assertion Response Validator
+		$extensionOutputCheckerHandler           = new ExtensionOutputCheckerHandler();
+		$authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
+			$credentialRepository,
+			$decoder,
+			$tokenBindingHandler,
+			$extensionOutputCheckerHandler
+		);
+
+		// We init the Symfony Request object
+		$request = ServerRequestFactory::fromGlobals();
+
+		// Load the data
+		$publicKeyCredential = $publicKeyCredentialLoader->load($data);
+		$response            = $publicKeyCredential->getResponse();
+
+		// Check if the response is an Authenticator Assertion Response
+		if (!$response instanceof AuthenticatorAssertionResponse)
+		{
+			throw new \RuntimeException('Not an authenticator assertion response');
+		}
+
+		/** @var AuthenticatorAssertionResponse $authenticatorAssertionResponse */
+		$authenticatorAssertionResponse = $publicKeyCredential->getResponse();
+		$authenticatorAssertionResponseValidator->check(
+			$publicKeyCredential->getRawId(),
+			$authenticatorAssertionResponse,
+			$publicKeyCredentialRequestOptions,
+			$request,
+			$userHandle
+		);
+	}
+
+	/**
 	 * Try to find the site's favicon in the site's root, images, media, templates or current template directory.
 	 *
 	 * @return  string|null
+	 *
+	 * @since   3.1.0
 	 */
 	protected static function getSiteIcon(): ?string
 	{
@@ -303,6 +487,8 @@ abstract class CredentialsCreation
 	 * @param   int   $size  The dimensions of the image to fetch (default: 64 pixels)
 	 *
 	 * @return  string  The URL to the user's avatar
+	 *
+	 * @since   3.1.0
 	 */
 	public static function getAvatar(User $user, int $size = 64)
 	{

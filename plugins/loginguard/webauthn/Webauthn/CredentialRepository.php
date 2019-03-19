@@ -240,6 +240,11 @@ class CredentialRepository implements CredentialRepositoryInterface
 				continue;
 			}
 
+			if (is_string($options['attested']))
+			{
+				$options['attested'] = json_decode($options['attested'], true);
+			}
+
 			$return[$result->getId()] = AttestedCredentialData::createFromJson($options['attested']);
 		}
 

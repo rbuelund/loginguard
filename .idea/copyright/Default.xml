@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="keyword" value="Copyright\s*(\(c\))?\s*20[0-9]{2,2}.*(Nicholas|Akeeba)" />
+    <option name="notice" value="@package    solo&#10;@copyright  Copyright (c)2014-&amp;#36;today.year Nicholas K. Dionysopoulos / Akeeba Ltd&#10;@license    GNU GPL version 3 or later" />
+    <option name="myName" value="Default" />
+  </copyright>
+</component>

@@ -12,7 +12,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Akeeba\LoginGuard\Webauthn\CredentialRepository;
-use Akeeba\LoginGuard\Webauthn\Helper\CredentialsCreation;
+use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -69,7 +69,7 @@ trait TfaSaveSetup
 		// In any other case try to authorize the registration
 		try
 		{
-			$attestedCredentialData = CredentialsCreation::validateAuthenticationData($code);
+			$attestedCredentialData = Credentials::validateAuthenticationData($code);
 		}
 		catch (Exception $err)
 		{
