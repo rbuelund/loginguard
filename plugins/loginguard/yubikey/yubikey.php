@@ -69,7 +69,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		);
 	}
 
@@ -109,7 +109,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		);
 	}
 
@@ -252,36 +252,31 @@ class PlgLoginguardYubikey extends CMSPlugin
 			return false;
 		}
 
-		if ($this->params->get('allowEntryBatching', 1))
+		try
 		{
-			try
-			{
-				$container = \FOF30\Container\Container::getInstance('com_loginguard');
-				/** @var Tfa $tfaModel */
-				$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-				$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
-			}
-			catch (Exception $e)
-			{
-				$records = array();
-			}
-
-			// Loop all records, stop if at least one matches
 			$container = \FOF30\Container\Container::getInstance('com_loginguard');
-
-			foreach ($records as $aRecord)
-			{
-				if ($this->validateAgainstRecord($aRecord, $code))
-				{
-					return true;
-				}
-			}
-
-			// None of the records succeeded? Return false.
-			return false;
+			/** @var Tfa $tfaModel */
+			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
+		}
+		catch (Exception $e)
+		{
+			$records = array();
 		}
 
-		return $this->validateAgainstRecord($record, $code);
+		// Loop all records, stop if at least one matches
+		$container = \FOF30\Container\Container::getInstance('com_loginguard');
+
+		foreach ($records as $aRecord)
+		{
+			if ($this->validateAgainstRecord($aRecord, $code))
+			{
+				return true;
+			}
+		}
+
+		// None of the records succeeded? Return false.
+		return false;
 	}
 
 	/**

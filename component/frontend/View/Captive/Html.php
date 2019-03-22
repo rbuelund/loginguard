@@ -125,15 +125,18 @@ class Html extends BaseView
 			}
 		}
 
-		$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
-		$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
-
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
 
 		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
 			$this->setLayout('select');
+			$this->allowEntryBatching = 1;
+		}
+		else
+		{
+			$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
+			$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
 		}
 
 		// Which title should I use for the page?

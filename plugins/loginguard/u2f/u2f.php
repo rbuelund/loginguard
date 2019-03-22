@@ -141,7 +141,7 @@ class PlgLoginguardU2f extends CMSPlugin
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		);
 	}
 
@@ -505,7 +505,7 @@ JS;
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		];
 	}
 
@@ -766,11 +766,6 @@ JS;
 	private function getRegistrations($record)
 	{
 		$options       = $this->_decodeRecordOptions($record);
-
-		if ($this->params->get('allowEntryBatching', 1) == 0)
-		{
-			return isset($options['registrations']) ? $options['registrations'] : array();
-		}
 
 		$registrations = array();
 
