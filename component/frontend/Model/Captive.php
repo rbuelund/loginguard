@@ -157,7 +157,7 @@ class Captive extends Model
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since   2.0.0
 	 */
-	public function getRecords($user = null)
+	public function getRecords($user = null, $includeBackupCodes = false)
 	{
 		if (is_null($user))
 		{
@@ -181,11 +181,26 @@ class Captive extends Model
 		// Filter the records based on currently active TFA methods
 		$ret = [];
 
+		if ($includeBackupCodes)
+		{
+			$methodNames[] = 'backupcodes';
+			$methodNames   = array_unique($methodNames);
+		}
+		else
+		{
+			$pos = array_search('backupcodes', $methodNames);
+
+			if ($pos !== false)
+			{
+				unset($methodNames[$pos]);
+			}
+		}
+
 		/** @var TfaRecord $record */
 		foreach ($records as $record)
 		{
 			// Backup codes must not be included in the list. We add them in the View, at the end of the list.
-			if (in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
+			if (in_array($record->method, $methodNames))
 			{
 				$ret[$record->getId()] = $record;
 			}
@@ -217,7 +232,7 @@ class Captive extends Model
 			$user = $this->container->platform->getUser();
 		}
 
-		$records = $this->getRecords($user);
+		$records = $this->getRecords($user, true);
 
 		if (!isset($records[$id]))
 		{

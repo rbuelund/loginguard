@@ -10,6 +10,10 @@
 * Protection of all component and plugin folders against direct web access
 * Always allow entry batching for Security Key, WebAuthn and YubiKey
 
+**Bug fixes**
+
+* Backup Codes were not selectable during verification
+
 # 3.0.4
 
 **Other changes**
