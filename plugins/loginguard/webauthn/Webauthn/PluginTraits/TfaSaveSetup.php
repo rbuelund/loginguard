@@ -50,6 +50,8 @@ trait TfaSaveSetup
 			return [];
 		}
 
+		$this->loadComposerDependencies();
+
 		$code                = $input->get('code', null, 'base64');
 		$session             = Factory::getSession();
 		$registrationRequest = $session->get('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');

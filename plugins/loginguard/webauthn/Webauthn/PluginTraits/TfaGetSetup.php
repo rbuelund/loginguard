@@ -43,6 +43,8 @@ trait TfaGetSetup
 			return [];
 		}
 
+		$this->loadComposerDependencies();
+
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
 		$submitOnClick = '';
 		$preMessage    = Text::_('PLG_LOGINGUARD_WEBAUTHN_LBL_CONFIGURED');

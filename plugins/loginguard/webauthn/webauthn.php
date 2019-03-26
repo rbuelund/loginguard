@@ -5,6 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Akeeba\LoginGuard\Webauthn\PluginTraits\ComposerDependencies;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaCaptive;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaGetMethod;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaGetSetup;
@@ -36,7 +37,7 @@ Autoloader::getInstance()->addMap('Akeeba\\LoginGuard\\Webauthn\\', [realpath(__
 class PlgLoginguardWebauthn extends CMSPlugin
 {
 	// Load the Traits which implement the LoginGuard methods
-	use TfaGetMethod, TfaGetSetup, TfaSaveSetup, TfaCaptive, TfaValidate;
+	use ComposerDependencies, TfaGetMethod, TfaGetSetup, TfaSaveSetup, TfaCaptive, TfaValidate;
 
 	/**
 	 * The TFA method name handled by this plugin
