@@ -7,79 +7,23 @@
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
 
 // Prevent direct access
 defined('_JEXEC') or die;
 
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
-
-// Load the SMSAPI library
-if (!class_exists('SMSApi\\Client', true))
-{
-	require_once __DIR__ . '/classes/Autoload.php';
-}
-
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by SMS (SMSAPI.com)"
  *
  * Requires entering a 6-digit code sent to the user through a text message. These codes change automatically every 5 minutes.
  */
-class PlgLoginguardSmsapi extends JPlugin
+class PlgLoginguardSmsapi extends CMSPlugin
 {
 	/**
 	 * The SMSAPI.com username.
@@ -112,18 +56,13 @@ class PlgLoginguardSmsapi extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			return;
-		}
-
 		parent::__construct($subject, $config);
+
+		// Load the SMSAPI library
+		if (!class_exists('SMSApi\\Client', true))
+		{
+			require_once __DIR__ . '/classes/Autoload.php';
+		}
 
 		// Load the API parameters
 		/** @var \Joomla\Registry\Registry $params */
@@ -194,7 +133,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		$phone   = isset($options['phone']) ? $options['phone'] : '';
 
 		// If there's a key or phone number in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('smsapi.key', $key, 'com_loginguard');
 		$phone   = $session->get('smsapi.phone', $phone, 'com_loginguard');
 
@@ -213,7 +152,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		// If there is no phone we need to show the phone entry page
 		if (empty($phone))
 		{
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'smsapi', 'phone');
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'smsapi', 'phone');
 			ob_start();
 			include $layoutPath;
 			$html = ob_get_clean();
@@ -313,7 +252,7 @@ class PlgLoginguardSmsapi extends JPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -424,12 +363,12 @@ class PlgLoginguardSmsapi extends JPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -487,18 +426,18 @@ class PlgLoginguardSmsapi extends JPlugin
 	 *
 	 * @param   string  $key    The TOTP secret key
 	 * @param   string  $phone  The phone number with the international prefix
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  Exception  If something goes wrong
 	 */
-	public function sendCode($key, $phone, JUser $user = null)
+	public function sendCode($key, $phone, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -514,8 +453,8 @@ class PlgLoginguardSmsapi extends JPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -551,7 +490,7 @@ class PlgLoginguardSmsapi extends JPlugin
 			return false;
 		}
 
-		$app   = JFactory::getApplication();
+		$app   = Factory::getApplication();
 		$input = $app->input;
 
 		// Do I have a phone variable?
@@ -565,7 +504,7 @@ class PlgLoginguardSmsapi extends JPlugin
 		$phone = preg_replace("/[^0-9]/", "", $phone);
 
 		// Set the phone to the session
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$session->set('smsapi.phone', $phone, 'com_loginguard');
 
 		// Get the User ID for the editor page

@@ -11,8 +11,8 @@ namespace Akeeba\LoginGuard\Site\View\Method;
 use Akeeba\LoginGuard\Site\Model\Method;
 use Exception;
 use FOF30\View\DataView\Html as BaseView;
-use JToolbarHelper;
-use JUser;
+use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
+use Joomla\CMS\User\User as JUser;
 
 defined('_JEXEC') or die();
 
@@ -32,7 +32,7 @@ class Html extends BaseView
 	 * @var   array
 	 * @since 2.0.0
 	 */
-	public $renderOptions = array();
+	public $renderOptions = [];
 
 	/**
 	 * The TFA method record being edited
@@ -72,7 +72,7 @@ class Html extends BaseView
 	 * @var   array
 	 * @since 2.0.0
 	 */
-	public $backupCodes = array();
+	public $backupCodes = [];
 
 	/**
 	 * Am I editing an existing method? If it's false then I'm adding a new method.
@@ -129,7 +129,7 @@ class Html extends BaseView
 
 			if (!is_array($backupCodes))
 			{
-				$backupCodes = array();
+				$backupCodes = [];
 			}
 
 			$backupCodes = array_filter($backupCodes, function ($x) {

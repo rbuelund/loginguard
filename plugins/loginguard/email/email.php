@@ -5,73 +5,22 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
-
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
  * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30 seconds.
  */
-class PlgLoginguardEmail extends JPlugin
+class PlgLoginguardEmail extends CMSPlugin
 {
 	/**
 	 * The TFA method name handled by this plugin
@@ -90,17 +39,6 @@ class PlgLoginguardEmail extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			return;
-		}
-
 		parent::__construct($subject, $config);
 
 		// Load the language files
@@ -158,7 +96,7 @@ class PlgLoginguardEmail extends JPlugin
 		$key     = isset($options['key']) ? $options['key'] : '';
 
 		// If there's a key in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('emailcode.key', $key, 'com_loginguard');
 
 		// Initialize objects
@@ -174,7 +112,7 @@ class PlgLoginguardEmail extends JPlugin
 		$session->set('emailcode.user_id', $record->user_id, 'com_loginguard');
 
 		// Send an email message with a new code and ask the user to enter it.
-		$user = JFactory::getUser($record->user_id);
+		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
 		return array(
@@ -234,7 +172,7 @@ class PlgLoginguardEmail extends JPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -303,7 +241,7 @@ class PlgLoginguardEmail extends JPlugin
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		// Send an email message with a new code and ask the user to enter it.
-		$user = JFactory::getUser($record->user_id);
+		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
 		return array(
@@ -331,12 +269,12 @@ class PlgLoginguardEmail extends JPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -392,18 +330,18 @@ class PlgLoginguardEmail extends JPlugin
 	 * Creates a new TOTP code based on secret key $key and sends it to the user via email.
 	 *
 	 * @param   string  $key    The TOTP secret key
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  LoginGuardPushbulletApiException  If something goes wrong
 	 */
-	public function sendCode($key, JUser $user = null)
+	public function sendCode($key, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -414,8 +352,8 @@ class PlgLoginguardEmail extends JPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -428,7 +366,7 @@ class PlgLoginguardEmail extends JPlugin
 		$body = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
 		// Send email
-		$mailer = JFactory::getMailer();
+		$mailer = Factory::getMailer();
 		$mailer->setSubject($subject);
 		$mailer->setBody($body);
 		$mailer->addRecipient($user->email, $user->name);

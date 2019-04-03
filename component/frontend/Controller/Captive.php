@@ -12,12 +12,10 @@ use Akeeba\LoginGuard\Site\Model\Captive as CaptiveModel;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use FOF30\Utils\Ip;
-use JBrowser;
 use JLoader;
-use JRoute;
-use JText;
-use JUri;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Router\Route as JRoute;
+use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
 
 // Protect from unauthorized access
@@ -38,7 +36,7 @@ class Captive extends Controller
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		if (!isset($config['default_task']))
 		{
@@ -164,15 +162,7 @@ class Captive extends Controller
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');
-		$jNow      = $this->container->platform->getDate();
-		$browser   = JBrowser::getInstance();
-		$collectIp = $this->container->params->get('collect_ip', true);
-		$ip        = $collectIp ? $this->container->platform->getSessionVar('session.client.address') : '';
-
-		if (empty($ip) && $collectIp)
-		{
-			$ip = Ip::getIp();
-		}
+		$jNow = $this->container->platform->getDate();
 
 		$record->last_used = $jNow->toSql();
 

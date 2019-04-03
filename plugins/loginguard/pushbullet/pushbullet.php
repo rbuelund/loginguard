@@ -8,76 +8,21 @@
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
-
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
-
-if (!class_exists('LoginGuardPushbulletApi', true))
-{
-	require_once __DIR__ . '/classes/pushbullet.php';
-}
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
  * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30 seconds.
  */
-class PlgLoginguardPushbullet extends JPlugin
+class PlgLoginguardPushbullet extends CMSPlugin
 {
 	/**
 	 * The PushBullet access token for the PushBullet account which owns the PushBullet OAuth Client defined by the
@@ -126,18 +71,12 @@ class PlgLoginguardPushbullet extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			return;
-		}
-
 		parent::__construct($subject, $config);
+
+		if (!class_exists('LoginGuardPushbulletApi', true))
+		{
+			require_once __DIR__ . '/classes/pushbullet.php';
+		}
 
 		// Get a reference to the component's container
 		$this->container = Container::getInstance('com_loginguard');
@@ -212,7 +151,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		$token   = isset($options['token']) ? $options['token'] : '';
 
 		// If there's a key or toekn in the session use that instead.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$key     = $session->get('pushbullet.key', $key, 'com_loginguard');
 		$token   = $session->get('pushbullet.token', $token, 'com_loginguard');
 
@@ -231,7 +170,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		// If there is no token we need to show the OAuth2 button
 		if (empty($token))
 		{
-			$layoutPath = JPluginHelper::getLayoutPath('loginguard', 'pushbullet', 'oauth2');
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'pushbullet', 'oauth2');
 			ob_start();
 			include $layoutPath;
 			$html = ob_get_clean();
@@ -331,7 +270,7 @@ class PlgLoginguardPushbullet extends JPlugin
 			return array();
 		}
 
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
@@ -442,12 +381,12 @@ class PlgLoginguardPushbullet extends JPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -506,18 +445,18 @@ class PlgLoginguardPushbullet extends JPlugin
 	 *
 	 * @param   string  $key    The TOTP secret key
 	 * @param   string  $token  The PushBullet access token
-	 * @param   JUser   $user   The Joomla! user to use
+	 * @param   User    $user   The Joomla! user to use
 	 *
 	 * @return  void
 	 *
 	 * @throws  LoginGuardPushbulletApiException  If something goes wrong
 	 */
-	public function sendCode($key, $token, JUser $user = null)
+	public function sendCode($key, $token, User $user = null)
 	{
 		// Make sure we have a user
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || !($user instanceof User))
 		{
-			$user = JFactory::getUser();
+			$user = Factory::getUser();
 		}
 
 		// Get the API objects
@@ -529,8 +468,8 @@ class PlgLoginguardPushbullet extends JPlugin
 
 		$replacements = array(
 			'[CODE]'     => $code,
-			'[SITENAME]' => JFactory::getConfig()->get('sitename'),
-			'[SITEURL]'  => JUri::base(),
+			'[SITENAME]' => Factory::getConfig()->get('sitename'),
+			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
@@ -576,7 +515,7 @@ class PlgLoginguardPushbullet extends JPlugin
 			return false;
 		}
 
-		$app   = JFactory::getApplication();
+		$app   = Factory::getApplication();
 		$input = $app->input;
 
 		// Should I redirect to the back-end?
@@ -597,7 +536,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		// Do I have to redirect to the backend?
 		if ($backend == 1)
 		{
-			$redirectURL = JUri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
+			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
 			$app->redirect($redirectURL);
 
 			// Just to make IDEs happy. The application is closed above during the redirection.
@@ -605,7 +544,7 @@ class PlgLoginguardPushbullet extends JPlugin
 		}
 
 		// Set the token to the session
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$session->set('pushbullet.token', $token, 'com_loginguard');
 
 		// Get the User ID for the editor page

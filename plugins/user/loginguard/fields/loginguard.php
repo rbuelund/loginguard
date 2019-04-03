@@ -5,10 +5,13 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Form\FormField;
+use Joomla\CMS\Uri\Uri;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
-class JFormFieldLoginguard extends JFormField
+class JFormFieldLoginguard extends FormField
 {
 	/**
 	 * Element name
@@ -36,7 +39,7 @@ class JFormFieldLoginguard extends JFormField
 				'tempInstance' => true,
 				'input' => [
 					'view'      => 'Methods',
-					'returnurl' => base64_encode(JUri::getInstance()->toString()),
+					'returnurl' => base64_encode(Uri::getInstance()->toString()),
 					'user_id'   => $user_id
 				]
 			))->dispatcher->dispatch();

@@ -5,18 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
-/**
- * @package     Akeeba\LoginGuard\Admin\Helper
- * @subpackage
- *
- * @copyright   A copyright
- * @license     A "Slug" license name e.g. GPL2
- */
-
 namespace Akeeba\LoginGuard\Admin\Helper;
 
-
 use Joomla\CMS\Helper\UserGroupsHelper;
+
+// Prevent direct access
+defined('_JEXEC') or die;
 
 class Select
 {
@@ -41,15 +35,15 @@ class Select
 		{
 			static::$groups = [];
 			$groups         = UserGroupsHelper::getInstance()->getAll();
-			$options        = array();
+			$options        = [];
 
 			foreach ($groups as $group)
 			{
-				$options[] = (object) array(
+				$options[] = (object) [
 					'text'  => str_repeat('- ', $group->level) . $group->title,
 					'value' => $group->id,
-					'level' => $group->level
-				);
+					'level' => $group->level,
+				];
 			}
 
 			static::$groups = $options;

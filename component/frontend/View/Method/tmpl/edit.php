@@ -5,14 +5,18 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
 /** @var  \Akeeba\LoginGuard\Site\View\Method\Html  $this */
 
-JHtml::_('bootstrap.tooltip');
+HTMLHelper::_('bootstrap.tooltip');
 
-$cancelURL = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
+$cancelURL = Route::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
 
 if (!empty($this->returnURL))
 {
@@ -22,7 +26,7 @@ if (!empty($this->returnURL))
 $token = $this->getContainer()->platform->getToken();
 
 ?>
-<form action="<?php echo JUri::base() ?>index.php" method="post" id="loginguard-method-edit" class="akeeba-form--horizontal akeeba-panel--info">
+<form action="<?php echo Uri::base() ?>index.php" method="post" id="loginguard-method-edit" class="akeeba-form--horizontal akeeba-panel--info">
     <header class="akeeba-block-header">
         <h3 id="loginguard-method-edit-head">
 		<span>

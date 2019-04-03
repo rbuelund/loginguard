@@ -7,72 +7,23 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Application\CliApplication;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
 defined('_JEXEC') or die;
-
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
 
 /**
  * Akeeba LoginGuard System Plugin
  *
  * Implements the captive Two Step Verification page
  */
-class PlgSystemLoginguard extends JPlugin
+class PlgSystemLoginguard extends CMSPlugin
 {
 	/**
 	 * Are we enabled, all requirements met etc?
@@ -115,35 +66,39 @@ class PlgSystemLoginguard extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
+		parent::__construct($subject, $config);
+
+		// Load FOF
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 		{
+			$this->enabled = false;
+
 			return;
 		}
 
-		parent::__construct($subject, $config);
-
+		// Make sure Akeeba LoginGuard is installed
 		try
 		{
-			if (!JComponentHelper::isInstalled('com_loginguard') || !JComponentHelper::isEnabled('com_loginguard'))
+			if (
+				!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard') ||
+				!ComponentHelper::isInstalled('com_loginguard') ||
+				!ComponentHelper::isEnabled('com_loginguard')
+			)
 			{
-				$this->enabled = false;
+				throw new RuntimeException('Akeeba LoginGuard is not installed');
 			}
-			else
-			{
-				$this->container = Container::getInstance('com_loginguard');
-			}
+
+			$this->container = Container::getInstance('com_loginguard');
 		}
 		catch (Exception $e)
 		{
 			$this->enabled = false;
 		}
 
+		// PHP version check
+		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
+
+		// Parse settings
 		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);
 
 		if (!is_array($this->neverTSVUserGroups))
@@ -161,24 +116,25 @@ class PlgSystemLoginguard extends JPlugin
 
 	/**
 	 * MAGIC TRICK. If you have enabled Joomla's Privacy Consent you'd end up with an infinite redirection loop. That's
-	 * because Joomla! did a partial, naive copy of my original research code on captive Joomla! logins. They did not
-	 * implement configurable exceptions since they do not use the CMS in the real world and do not understand the use
-	 * cases.
+	 * because Joomla! did a partial copy of my original research code on captive Joomla! logins. They did no implement
+	 * configurable exceptions since they do not know or care about third party extensions -- even when it's the same
+	 * extensions they copied code from.
 	 *
-	 * Since fixing Joomla's code is not an option, as we have found from bitter experience, we'll do what we have
-	 * always been doing best: work around it based on our knowledge of real world Joomla usage and how the beast truly
-	 * works under the hood.
+	 * Since fixing Joomla's code is not an option we'll have to work around it based on our knowledge of real world
+	 * Joomla usage and how the beast truly works under the hood. It really helps that yours truly was the guy who
+	 * refactored the plugin system to use proper events for Joomla! 4 AND the person who invented the captive login
+	 * code pattern for Joomla :)
 	 *
-	 * In this episode of Crazy Stuff Nicholas Has To Do To Get Basic Functionlaity Working we will explore how to use
+	 * In this episode of Crazy Stuff Nicholas Has To Do To Get Basic Functionality Working we will explore how to use
 	 * PHP Reflection to detect the offending Joomla! Privacy Consent system plugin and snuff it out before it can issue
-	 * its redirections. Yo, Joomla!, I invented this UI pattern. Do you think your bad aping of it would stop me? HAH!
+	 * its redirections. I invented captive login, I know how to work around it.
 	 *
-	 * @since  3.0.3
-	 * @throws Exception
+	 * @since   3.0.3
+	 * @throws  Exception
 	 */
 	public function onAfterInitialise()
 	{
-		$app    = JFactory::getApplication();
+		$app    = Factory::getApplication();
 		$option = $app->input->getCmd('option', null);
 
 		/**
@@ -214,7 +170,7 @@ class PlgSystemLoginguard extends JPlugin
 		// Get the session objects
 		try
 		{
-			$session = JFactory::getSession();
+			$session = Factory::getSession();
 		}
 		catch (Exception $e)
 		{
@@ -225,7 +181,7 @@ class PlgSystemLoginguard extends JPlugin
 		// Make sure we are logged in
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 
 			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
 			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
@@ -251,13 +207,13 @@ class PlgSystemLoginguard extends JPlugin
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
 			$return_url = $session->get('return_url', '', 'com_loginguard');
 
-			if (empty($return_url) || !JUri::isInternal($return_url))
+			if (empty($return_url) || !Uri::isInternal($return_url))
 			{
-				$session->set('return_url', JUri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
+				$session->set('return_url', Uri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
 			}
 
 			// Redirect
-			$url = JRoute::_('index.php?option=com_loginguard&view=captive', false);
+			$url = Route::_('index.php?option=com_loginguard&view=captive', false);
 			$app->redirect($url, 307);
 
 			return;
@@ -286,16 +242,56 @@ class PlgSystemLoginguard extends JPlugin
 		{
 			$session->set('postloginredirect', null, 'com_loginguard');
 
-			JFactory::getApplication()->redirect($redirectionUrl);
+			Factory::getApplication()->redirect($redirectionUrl);
 		}
+	}
+
+	/**
+	 * Hooks on the Joomla! login event. Detects silent logins and disables the Two Step Verification captive page in
+	 * this case.
+	 *
+	 * @param   array  $options  Passed by Joomla. user: a User object; responseType: string, authentication response
+	 *                           type.
+	 */
+	public function onUserAfterLogin($options)
+	{
+		// Should I show 2SV even on silent logins? Default: 1 (yes, show)
+		$switch = $this->params->get('2svonsilent', 1);
+
+		if ($switch == 1)
+		{
+			return;
+		}
+
+		// Make sure I have a valid user
+		/** @var User $user */
+		$user = $options['user'];
+
+		if (!is_object($user) || !($user instanceof User))
+		{
+			return;
+		}
+
+		// Make sure this is a silent login
+		if (!$this->isSilentLogin($user, $options['responseType']))
+		{
+			return;
+		}
+
+		// Set the flag indicating that 2SV is already checked.
+		$session    = Factory::getSession();
+
+		$session->set('tfa_checked', 1, 'com_loginguard');
 	}
 
 	/**
 	 * Does the current user need to complete TFA authentication before being allowed to access the site?
 	 *
+	 * @param   User  $user  The user object
+	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user)
+	private function needsTFA(User $user)
 	{
 		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
 		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
@@ -344,22 +340,23 @@ class PlgSystemLoginguard extends JPlugin
 	 * Checks if we are running under a CLI script or inside an administrator session
 	 *
 	 * @return  array
+	 *
+	 * @throws  Exception
 	 */
 	protected function isCliAdmin()
 	{
-		$isCLI = false;
 		$isAdmin = false;
 
 		try
 		{
-			if (is_null(\JFactory::$application))
+			if (is_null(Factory::$application))
 			{
 				$isCLI = true;
 			}
 			else
 			{
-				$app   = \JFactory::getApplication();
-				$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
+				$app   = Factory::getApplication();
+				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
 			}
 		}
 		catch (\Exception $e)
@@ -367,19 +364,12 @@ class PlgSystemLoginguard extends JPlugin
 			$isCLI = true;
 		}
 
-		if (!$isCLI && \JFactory::$application)
+		if (!$isCLI && Factory::$application)
 		{
-			if (version_compare(JVERSION, '3.7.0', 'ge'))
-			{
-				$isAdmin = JFactory::getApplication()->isClient('administrator');
-			}
-			else
-			{
-				$isAdmin = JFactory::getApplication()->isAdmin();
-			}
+			$isAdmin = Factory::getApplication()->isClient('administrator');
 		}
 
-		return array($isCLI, $isAdmin);
+		return [$isCLI, $isAdmin];
 	}
 
 	/**
@@ -425,7 +415,7 @@ class PlgSystemLoginguard extends JPlugin
 	{
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 		}
 		catch (\Exception $e)
 		{
@@ -446,6 +436,15 @@ class PlgSystemLoginguard extends JPlugin
 		$app->redirect($url, 307);
 	}
 
+	/**
+	 * Check whether we'll need to do a redirection to the captive page.
+	 *
+	 * @return  bool
+	 *
+	 * @since   3.0.4
+	 *
+	 * @throws  Exception
+	 */
 	private function willNeedRedirect()
 	{
 		// If the requirements are not met do not proceed
@@ -457,7 +456,7 @@ class PlgSystemLoginguard extends JPlugin
 		// Get the session objects
 		try
 		{
-			$session = JFactory::getSession();
+			$session = Factory::getSession();
 		}
 		catch (Exception $e)
 		{
@@ -483,7 +482,7 @@ class PlgSystemLoginguard extends JPlugin
 		// Make sure we are logged in
 		try
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 
 			// Joomla! 3: make sure the user identity is loaded. This MUST NOT be called in Joomla! 4, though.
 			if (version_compare(JVERSION, '3.99999.99999', 'lt'))
@@ -581,6 +580,23 @@ class PlgSystemLoginguard extends JPlugin
 		return true;
 	}
 
+	/**
+	 * Kills the Joomla Privacy Consent plugin when we are showing the Two Step Verification.
+	 *
+	 * JPC uses captive login code copied from our DataCompliance component. However, they removed the exceptions we
+	 * have for other captive logins. As a result the JPC captive login interfered with LoginGuard's captive login,
+	 * causing an infinite redirection.
+	 *
+	 * Due to complete lack of support for exceptions, this method here does something evil. It hunts down the observer
+	 * (plugin hook) installed by the JPC plugin and removes it from the loaded plugins. This prevents the redirection
+	 * of the captive login. THIS IS NOT THE BEST WAY TO DO THINGS. You should NOT ever, EVER!!!! copy this code. I am
+	 * someone who has spent 15+ years dealing with Joomla's core code and I know what I'm doing, why I'm doing it and,
+	 * most importantly, how it can possibly break. don't go about merrily copying this code if you do not understand
+	 * how Joomla event dispatching works. You'll break shit and I'm not to blame. Thank you!
+	 *
+	 * @since  3.0.4
+	 * @throws ReflectionException
+	 */
 	private function snuffJoomlaPrivacyConsent()
 	{
 		/**
@@ -636,5 +652,56 @@ class PlgSystemLoginguard extends JPlugin
 			return $id != $jConsentObserverId;
 		});
 		$refMethods->setValue($dispatcher, $methods);
+	}
+
+	/**
+	 * Suppress Two Step Verification when Joomla performs a silent login (cookie, social login / single sign-on, GMail,
+	 * LDAP). In these cases the login risk has been managed externally.
+	 *
+	 * For your reference, the Joomla authentication response types are as follows:
+	 *
+	 * - Joomla: username and password login. We recommend using 2SV with it.
+	 * - Cookie: "Remember Me" cookie with a secure, single use token and other safeguards for the user session.
+	 * - GMail: login with GMail credentials (probably no longer works)
+	 * - LDAP: Joomla's LDAP plugin
+	 * - SocialLogin: Akeeba Social Login (login with Facebook etc)
+	 *
+	 * @param   User    $user
+	 * @param   string  $responseType
+	 *
+	 * @return  bool
+	 *
+	 * @since   3.1.0
+	 */
+	private function isSilentLogin(User $user, $responseType)
+	{
+		// Fail early if the user is not properly logged in.
+		if (!is_object($user) || $user->guest)
+		{
+			return false;
+		}
+
+		// Get the custom Joomla login responses we will consider "silent"
+		$rawCustomResponses = $this->params->get('silentresponses', '');
+		$customResponses    = explode(',', $rawCustomResponses);
+		$customResponses    = array_map('trim', $customResponses);
+		$customResponses    = array_filter($customResponses, function ($x) {
+			return !empty($x);
+		});
+		$silentResponses    = array_unique($customResponses);
+
+		// If all else fails, use our default list (Joomla's Remember Me cookie and Akeeba SocialLogin)
+		if (empty($silentResponses))
+		{
+			$silentResponses = array('cookie', 'sociallogin');
+		}
+
+		// Is it a silent login after all?
+		if (is_string($responseType) && !empty($responseType) && in_array(strtolower($responseType), $silentResponses))
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

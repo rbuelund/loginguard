@@ -13,7 +13,7 @@ defined('_JEXEC') or die();
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 /**
@@ -55,7 +55,7 @@ class Tfa extends DataModel
 	 */
 	private $deleteFlags = [];
 
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		$config['tableName']   = '#__loginguard_tfa';
 		$config['idFieldName'] = 'id';

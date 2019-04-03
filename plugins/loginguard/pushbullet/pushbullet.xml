@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8.0" type="plugin" group="loginguard" method="upgrade">
+    <name>PLG_LOGINGUARD_PUSHBULLET</name>
+    <version>3.1.0</version>
+    <creationDate>2019-04-03</creationDate>
+
+    <author>Akeeba Ltd</author>
+    <authorEmail>no-reply@akeebabackup.com</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+
+    <copyright>Copyright (c)2016-2019 Akeeba Ltd</copyright>
+    <license>GNU GPL v3 or later</license>
+
+    <description>PLG_LOGINGUARD_PUSHBULLET_DESCRIPTION</description>
+
+    <files>
+        <filename plugin="pushbullet">pushbullet.php</filename>
+        <filename>.htaccess</filename>
+        <filename>web.config</filename>
+
+        <folder>classes</folder>
+        <folder>tmpl</folder>
+    </files>
+
+    <media folder="media" destination="plg_loginguard_pushbullet">
+        <folder>images</folder>
+    </media>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_loginguard_pushbullet.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_loginguard_pushbullet.sys.ini</language>
+    </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field
+                        name="access_token"
+                        type="text"
+                        label="PLG_LOGINGUARD_PUSHBULLET_CONFIG_TOKEN_LABEL"
+                        description="PLG_LOGINGUARD_PUSHBULLET_CONFIG_TOKEN_DESC"
+                        default=""
+                />
+
+                <field
+                        name="client_id"
+                        type="text"
+                        label="PLG_LOGINGUARD_PUSHBULLET_CONFIG_CLIENTID_LABEL"
+                        description="PLG_LOGINGUARD_PUSHBULLET_CONFIG_CLIENTID_DESC"
+                        default=""
+                />
+
+                <field
+                        name="secret"
+                        type="text"
+                        label="PLG_LOGINGUARD_PUSHBULLET_CONFIG_SECRET_LABEL"
+                        description="PLG_LOGINGUARD_PUSHBULLET_CONFIG_SECRET_DESC"
+                        default=""
+                />
+
+                <field
+                        name="helpurl"
+                        type="text"
+                        label="PLG_LOGINGUARD_PUSHBULLET_CONFIG_HELPURL_LABEL"
+                        description="PLG_LOGINGUARD_PUSHBULLET_CONFIG_HELPURL_DESC"
+                        default=""
+                        filter="url"
+                />
+            </fieldset>
+        </fields>
+    </config>
+
+</extension>

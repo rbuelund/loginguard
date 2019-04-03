@@ -9,7 +9,7 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access
@@ -30,7 +30,7 @@ class Callback extends Controller
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		if (!isset($config['default_task']))
 		{
@@ -56,7 +56,7 @@ class Callback extends Controller
 		}
 
 		$this->container->platform->importPlugin('loginguard');
-		$results = $this->container->platform->runPlugins('onLoginGuardCallback', array($method));
+		$results = $this->container->platform->runPlugins('onLoginGuardCallback', [$method]);
 
 		/**
 		 * The first plugin to handle the request should either redirect or close the application. If we are still here

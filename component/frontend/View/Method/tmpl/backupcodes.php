@@ -5,14 +5,17 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Router\Route;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
 /** @var  \Akeeba\LoginGuard\Site\View\Method\Html $this */
 
-JHtml::_('bootstrap.tooltip');
+HTMLHelper::_('bootstrap.tooltip');
 
-$cancelURL = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
+$cancelURL = Route::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
 
 if (!empty($this->returnURL))
 {
@@ -60,7 +63,7 @@ $token = $this->getContainer()->platform->getToken();
     </p>
 
     <p>
-        <a class="akeeba-btn--red" href="<?php echo JRoute::_('index.php?option=com_loginguard&task=method.regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL) ? '' : '&returnurl=' . $this->returnURL . '&' . $token . '=1')) ?>">
+        <a class="akeeba-btn--red" href="<?php echo Route::_('index.php?option=com_loginguard&task=method.regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL) ? '' : '&returnurl=' . $this->returnURL . '&' . $token . '=1')) ?>">
             <span class="akion-refresh"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_RESET'); ?>
         </a>

@@ -11,12 +11,8 @@ namespace Akeeba\LoginGuard\Site\View\Captive;
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Captive;
-use Akeeba\LoginGuard\Site\Model\Method;
-use Exception;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
-use JToolbarHelper;
-use JUser;
+use Joomla\CMS\Language\Text as JText;
 
 defined('_JEXEC') or die();
 
@@ -28,7 +24,7 @@ class Html extends BaseView
 	 * @var   \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since 2.0.0
 	 */
-	public $records = array();
+	public $records = [];
 
 	/**
 	 * The currently selected TFA method record against which we'll be authenticating
@@ -129,15 +125,18 @@ class Html extends BaseView
 			}
 		}
 
-		$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
-		$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
-
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
 
 		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
 			$this->setLayout('select');
+			$this->allowEntryBatching = 1;
+		}
+		else
+		{
+			$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
+			$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
 		}
 
 		// Which title should I use for the page?

@@ -5,72 +5,22 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 
+// Prevent direct access
 defined('_JEXEC') or die;
-
-// Minimum PHP version check
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	return;
-}
-
-/**
- * Work around the very broken and completely defunct eAccelerator on PHP 5.4 (or, worse, later versions).
- */
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * Well, that is how PHP works. Unfortunately, eAccelerator has some "novel" ideas about how to go about it.
-		 * For very broken values of "novel". What does it do? It ignores the return and parses the plugin class below.
-		 *
-		 * You read that right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration. Therefore the only way to actually NOT load the  plugin when you are using it on a
-		 * server where an irresponsible sysadmin has installed and enabled eAccelerator (IT'S END OF LIFE AND BROKEN
-		 * PER ITS CREATORS FOR CRYING OUT LOUD) is to define a constant and use it to return from the constructor
-		 * method, therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything
-		 * with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
-}
-
-// Make sure Akeeba LoginGuard is installed
-if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard'))
-{
-	return;
-}
-
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-{
-	return;
-}
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Yubikey"
  *
  * Use a YubiKey secure hardware token. Supports both the default, centralized key servers and your own custom key server.
  */
-class PlgLoginguardYubikey extends JPlugin
+class PlgLoginguardYubikey extends CMSPlugin
 {
 	/**
 	 * The TFA method name handled by this plugin
@@ -89,17 +39,6 @@ class PlgLoginguardYubikey extends JPlugin
 	 */
 	public function __construct($subject, array $config = array())
 	{
-		/**
-		 * Required to work around eAccelerator on PHP 5.4 and later.
-		 *
-		 * PUBLIC SERVICE ANNOUNCEMENT: eAccelerator IS DEFUNCT AND INCOMPATIBLE WITH PHP 5.4 AND ANY LATER VERSION. If
-		 * you have it enabled on your server go ahead and uninstall it NOW. It's officially dead since 2012. Thanks.
-		 */
-		if (defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			return;
-		}
-
 		parent::__construct($subject, $config);
 
 		$this->loadLanguage();
@@ -130,7 +69,7 @@ class PlgLoginguardYubikey extends JPlugin
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		);
 	}
 
@@ -170,7 +109,7 @@ class PlgLoginguardYubikey extends JPlugin
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => $this->params->get('allowEntryBatching', 1),
+			'allowEntryBatching' => 1,
 		);
 	}
 
@@ -294,12 +233,12 @@ class PlgLoginguardYubikey extends JPlugin
 	 * the record does not correspond to your plugin return FALSE.
 	 *
 	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   JUser     $user    The user record
+	 * @param   User      $user    The user record
 	 * @param   string    $code    The submitted code
 	 *
 	 * @return  bool
 	 */
-	public function onLoginGuardTfaValidate(Tfa $record, JUser $user, $code)
+	public function onLoginGuardTfaValidate(Tfa $record, User $user, $code)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -313,36 +252,31 @@ class PlgLoginguardYubikey extends JPlugin
 			return false;
 		}
 
-		if ($this->params->get('allowEntryBatching', 1))
+		try
 		{
-			try
-			{
-				$container = \FOF30\Container\Container::getInstance('com_loginguard');
-				/** @var Tfa $tfaModel */
-				$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-				$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
-			}
-			catch (Exception $e)
-			{
-				$records = array();
-			}
-
-			// Loop all records, stop if at least one matches
 			$container = \FOF30\Container\Container::getInstance('com_loginguard');
-
-			foreach ($records as $aRecord)
-			{
-				if ($this->validateAgainstRecord($aRecord, $code))
-				{
-					return true;
-				}
-			}
-
-			// None of the records succeeded? Return false.
-			return false;
+			/** @var Tfa $tfaModel */
+			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
+		}
+		catch (Exception $e)
+		{
+			$records = array();
 		}
 
-		return $this->validateAgainstRecord($record, $code);
+		// Loop all records, stop if at least one matches
+		$container = \FOF30\Container\Container::getInstance('com_loginguard');
+
+		foreach ($records as $aRecord)
+		{
+			if ($this->validateAgainstRecord($aRecord, $code))
+			{
+				return true;
+			}
+		}
+
+		// None of the records succeeded? Return false.
+		return false;
 	}
 
 	/**
@@ -404,15 +338,15 @@ class PlgLoginguardYubikey extends JPlugin
 
 		$gotResponse = false;
 
-		$http     = JHttpFactory::getHttp();
-		$token    = JSession::getFormToken();
+		$http     = HttpFactory::getHttp();
+		$token    = Session::getFormToken();
 		$nonce    = md5($token . uniqid(mt_rand()));
 		$response = null;
 
 		while (!$gotResponse && !empty($server_queue))
 		{
 			$server = array_shift($server_queue);
-			$uri    = new JUri($server);
+			$uri    = new Uri($server);
 
 			// The client ID for signing the response
 			$uri->setVar('id', $clientID);
@@ -440,7 +374,7 @@ class PlgLoginguardYubikey extends JPlugin
 
 			try
 			{
-				$response = $http->get($uri->toString(), null, 6);
+				$response = $http->get($uri->toString(), [], 6);
 
 				if (!empty($response))
 				{
@@ -488,7 +422,7 @@ class PlgLoginguardYubikey extends JPlugin
 
 		// Validate the signature
 		$h       = isset($data['h']) ? $data['h'] : null;
-		$fakeUri = JUri::getInstance('http://www.example.com');
+		$fakeUri = Uri::getInstance('http://www.example.com');
 		$fakeUri->setQuery($data);
 		$this->signRequest($fakeUri, $secretKey);
 		$calculatedH = $fakeUri->getVar('h', null);
@@ -530,12 +464,12 @@ class PlgLoginguardYubikey extends JPlugin
 	 *
 	 * @see   https://developers.yubico.com/yubikey-val/Validation_Protocol_V2.0.html
 	 *
-	 * @param   JUri    $uri     The request URI to sign
+	 * @param   Uri     $uri     The request URI to sign
 	 * @param   string  $secret  The secret key to sign with
 	 *
 	 * @return  void
 	 */
-	public function signRequest(JUri $uri, $secret)
+	public function signRequest(Uri $uri, $secret)
 	{
 		// Make sure we have an encoding secret
 		$secret = trim($secret);

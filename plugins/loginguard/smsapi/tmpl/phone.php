@@ -5,22 +5,26 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Uri\Uri;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
 // Load media
-JHtml::_('stylesheet', 'plg_loginguard_smsapi/telinput.min.css', array(
+HTMLHelper::_('stylesheet', 'plg_loginguard_smsapi/telinput.min.css', array(
 	'version'     => 'auto',
 	'relative'    => true,
 	'detectDebug' => true
 ), true, false, false, true);
-JHtml::_('jquery.framework');
-JHtml::_('bootstrap.framework');
-JHtml::_('script', 'plg_loginguard_smsapi/telinput.min.js', true, true, false, false, true);
-JHtml::_('script', 'plg_loginguard_smsapi/utils.min.js', true, true, false, false, true);
+HTMLHelper::_('jquery.framework');
+HTMLHelper::_('bootstrap.framework');
+HTMLHelper::_('script', 'plg_loginguard_smsapi/telinput.min.js', true, true, false, false, true);
+HTMLHelper::_('script', 'plg_loginguard_smsapi/utils.min.js', true, true, false, false, true);
 
-$token     = JFactory::getApplication()->getSession()->getFormToken();
-$actionURL = JUri::base() . 'index.php?option=com_loginguard&task=callback.callback&method=smsapi&' . $token . '=1';
+$token     = Factory::getApplication()->getSession()->getFormToken();
+$actionURL = Uri::base() . 'index.php?option=com_loginguard&task=callback.callback&method=smsapi&' . $token . '=1';
 $js        = /** @lang JavaScript */
 	<<< JS
 ;; // Defense against broken scripts
@@ -38,7 +42,7 @@ function loginGuardSMSAPISendCode()
 
 JS;
 
-JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
+Factory::getApplication()->getDocument()->addScriptDeclaration($js);
 ?>
 <div class="akeeba-form--horizontal" id="loginGuardSMSAPIForm">
     <div class="akeeba-form-group">

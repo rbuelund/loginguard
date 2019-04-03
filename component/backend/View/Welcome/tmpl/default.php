@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Router\Route;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
@@ -106,7 +109,7 @@ defined('_JEXEC') or die;
 		<?php echo JText::_('COM_LOGINGUARD_LBL_CONVERT_INFO'); ?>
     </p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=convert.convert&' . $this->getContainer()->platform->getToken() . '=1')?>"
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&task=convert.convert&' . $this->getContainer()->platform->getToken() . '=1')?>"
            class="akeeba-btn--success--large">
             <span class="akion-play"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_BTN_CONVERT'); ?>
@@ -146,7 +149,7 @@ defined('_JEXEC') or die;
         <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BODY'); ?>
     </p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=welcome&task=updategeoip&' . JFactory::getSession()->getToken() . '=1') ?>"
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=welcome&task=updategeoip&' . Factory::getSession()->getToken() . '=1') ?>"
            class="akeeba-btn--primary">
             <span class="akion-refresh"></span>
             <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BUTTON'); ?>
@@ -165,7 +168,7 @@ defined('_JEXEC') or die;
 		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BODY'); ?>
 	</p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&view=welcome&task=upgradegeoip&' . JFactory::getSession()->getToken() . '=1')?>"
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=welcome&task=upgradegeoip&' . Factory::getSession()->getToken() . '=1')?>"
            class="akeeba-btn--ghost">
             <span class="akion-refresh"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BUTTON'); ?>
@@ -184,11 +187,11 @@ defined('_JEXEC') or die;
         <?php echo JText::_('COM_LOGINGUARD_LBL_MANAGE_BODY'); ?>
     </p>
     <p>
-        <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.display') ?>" class="akeeba-btn--primary--large">
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&task=methods.display') ?>" class="akeeba-btn--primary--large">
             <span class="akion-android-lock"></span>
             <?php echo JText::_('COM_LOGINGUARD_BTN_MANAGE_SELF'); ?>
         </a>
-        <a href="<?php echo JRoute::_('index.php?option=com_users') ?>" class="akeeba-btn--ghost--small">
+        <a href="<?php echo Route::_('index.php?option=com_users') ?>" class="akeeba-btn--ghost--small">
             <span class="akion-person-stalker"></span>
             <?php echo JText::_('COM_LOGINGUARD_BTN_MANAGE_OTHERS'); ?>
         </a>

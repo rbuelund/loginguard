@@ -9,8 +9,8 @@ namespace Akeeba\LoginGuard\Admin\Model;
 
 use FOF30\Model\Model;
 use FOFEncryptAes;
-use JFactory;
-use JText;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Language\Text as JText;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -77,18 +77,18 @@ class Convert extends Model
 			// Perform the conversion of the TFA method and the emergency codes
 			if (method_exists($this, $methodName))
 			{
-				call_user_func(array($this, $methodName), $otpKey, $user->id);
+				call_user_func([$this, $methodName], $otpKey, $user->id);
 
 				$this->convertEmergencyCodes($otep, $user->id);
 			}
 
 			// Disable the TFA in the user's record
-			$update = (object) array(
+			$update = (object) [
 				'id'     => $user->id,
 				'otpKey' => '',
 				'otep'   => '',
-			);
-			$db->updateObject('#__users', $update, array('id'));
+			];
+			$db->updateObject('#__users', $update, ['id']);
 		}
 
 		return true;
@@ -171,14 +171,14 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 			'method'    => 'backupcodes',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
 			'options'   => $json,
-		);
+		];
 
 		// Delete any other record with the same user_id and method
 		$query = $db->getQuery(true)
@@ -217,14 +217,14 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => 'YubiKey ' . $config['yubikey'],
 			'method'    => 'yubikey',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
-			'options'   => array('id' => $config['yubikey']),
-		);
+			'options'   => ['id' => $config['yubikey']],
+		];
 
 		// Insert the new record
 		/** @var Tfa $tfa */
@@ -257,67 +257,19 @@ class Convert extends Model
 
 		// Get the TSV object to insert
 		$db   = $this->container->db;
-		$data = array(
+		$data = [
 			'user_id'   => $user_id,
 			'title'     => 'Authenticator',
 			'method'    => 'totp',
 			'default'   => 0,
 			'last_used' => $db->getNullDate(),
-			'options'   => array('key' => $config['code']),
-		);
+			'options'   => ['key' => $config['code']],
+		];
 
 		// Insert the new record
 		/** @var Tfa $tfa */
 		$tfa = $this->container->factory->model('Tfa')->tmpInstance();
 		$tfa->create($data);
-	}
-
-	/**
-	 * Convert from Joomla TFA method 'yubikeytotp'. This is a non-standard method, part of the now defunct Akeeba TFA
-	 * plugins for Joomla! 3. It implements TFA with TOTP and/or any number of YubiKeys. We map it to both our TOTP and
-	 * our YubiKey plugins.
-	 *
-	 * @param   string  $json     The JSON-encoded configuration of this method.
-	 * @param   int     $user_id  The ID of the user for this method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	private function convertYubikeytotp($json, $user_id)
-	{
-		// Try to decode the configuration
-		$config = @json_decode($json, true);
-
-		// If the configuration cannot be decoded (corrupt) just give up and don't convert
-
-		if (empty($config))
-		{
-			return;
-		}
-
-		// Handle the TOTP part if there's a non-empty TOTP key code
-		if (isset($config['yubikeytotp_code']) && !empty($config['yubikeytotp_code']))
-		{
-			$fakeConfig= json_encode(array(
-				'code' => $config['yubikeytotp_code']
-			));
-
-			$this->convertTotp($fakeConfig, $user_id);
-		}
-
-		// Handle the YubiKey part if there is an array of YubiKeys in use
-		if (isset($config['yubikeytotp']) && is_array($config['yubikeytotp']) && count($config['yubikeytotp']))
-		{
-			foreach($config['yubikeytotp'] as $yubikey)
-			{
-				$fakeConfig= json_encode(array(
-					'yubikey' => $yubikey
-				));
-
-				$this->convertYubikey($fakeConfig, $user_id);
-			}
-		}
 	}
 
 	/**

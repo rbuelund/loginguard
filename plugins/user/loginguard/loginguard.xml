@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8.0" type="plugin" group="user" method="upgrade">
+	<name>PLG_USER_LOGINGUARD</name>
+	<version>3.1.0</version>
+	<creationDate>2019-04-03</creationDate>
+
+	<author>Akeeba Ltd</author>
+	<authorEmail>no-reply@akeebabackup.com</authorEmail>
+	<authorUrl>https://www.akeebabackup.com</authorUrl>
+
+	<copyright>Copyright (c)2016-2019 Akeeba Ltd</copyright>
+	<license>GNU GPL v3 or later</license>
+
+	<description>PLG_USER_LOGINGUARD_DESCRIPTION</description>
+
+	<files>
+		<folder>fields</folder>
+		<folder>loginguard</folder>
+
+		<filename plugin="loginguard">loginguard.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.sys.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+						name="redirectonlogin"
+						type="radio"
+						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_LABEL"
+						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_DESC"
+						default="1"
+						class="btn-group"
+				>
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field
+						name="redirecturl"
+						type="text"
+						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_LABEL"
+						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTURL_DESC"
+						default=""
+				/>
+			</fieldset>
+		</fields>
+	</config>
+
+</extension>

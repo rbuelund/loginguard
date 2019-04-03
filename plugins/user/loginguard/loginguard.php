@@ -7,6 +7,14 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use FOF30\Container\Container;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\User\User;
+use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
@@ -17,7 +25,7 @@ defined('_JEXEC') or die;
  *
  * Renders a button linking to the Two Step Verification setup page
  */
-class plgUserLoginguard extends JPlugin
+class plgUserLoginguard extends CMSPlugin
 {
 	/**
 	 * The component's container object
@@ -26,6 +34,14 @@ class plgUserLoginguard extends JPlugin
 	 * @since 2.0.0
 	 */
 	private $container = null;
+
+	/**
+	 * Should this plugin do anything?
+	 *
+	 * @var   bool
+	 * @since 3.1.0
+	 */
+	private $enabled = true;
 
 	/**
 	 * Constructor
@@ -39,8 +55,38 @@ class plgUserLoginguard extends JPlugin
 	{
 		parent::__construct($subject, $config);
 
+		// Load FOF
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		{
+			$this->enabled = false;
+
+			return;
+		}
+
+		// Make sure Akeeba LoginGuard is installed
+		try
+		{
+			if (
+				!file_exists(JPATH_ADMINISTRATOR . '/components/com_loginguard') ||
+				!ComponentHelper::isInstalled('com_loginguard') ||
+				!ComponentHelper::isEnabled('com_loginguard')
+			)
+			{
+				throw new RuntimeException('Akeeba LoginGuard is not installed');
+			}
+
+			$this->container = Container::getInstance('com_loginguard');
+		}
+		catch (Exception $e)
+		{
+			$this->enabled = false;
+		}
+
 		// Get a reference to the component's container
 		$this->container = Container::getInstance('com_loginguard');
+
+		// PHP version check
+		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
 
 		$this->loadLanguage();
 	}
@@ -48,14 +94,21 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Adds additional fields to the user editing form
 	 *
-	 * @param   JForm  $form  The form to be altered.
+	 * @param   Form   $form  The form to be altered.
 	 * @param   mixed  $data  The associated data for the form.
 	 *
 	 * @return  boolean
+	 *
+	 * @throws  Exception
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		if (!($form instanceof JForm))
+		if (!$this->enabled)
+		{
+			return true;
+		}
+
+		if (!($form instanceof Form))
 		{
 			throw new InvalidArgumentException('JERROR_NOT_A_FORM');
 		}
@@ -68,7 +121,7 @@ class plgUserLoginguard extends JPlugin
 			return true;
 		}
 
-		$layout = JFactory::getApplication()->input->getCmd('layout', 'default');
+		$layout = Factory::getApplication()->input->getCmd('layout', 'default');
 
 		if (!$this->container->platform->isBackend() && !in_array($layout, array('edit', 'default')))
 		{
@@ -82,7 +135,7 @@ class plgUserLoginguard extends JPlugin
 		{
 			$id = isset($data['id']) ? $data['id'] : null;
 		}
-		elseif (is_object($data) && is_null($data) && ($data instanceof JRegistry))
+		elseif (is_object($data) && is_null($data) && ($data instanceof Registry))
 		{
 			$id = $data->get('id');
 		}
@@ -91,7 +144,7 @@ class plgUserLoginguard extends JPlugin
 			$id = isset($data->id) ? $data->id : null;
 		}
 
-		$user = JFactory::getUser($id);
+		$user = Factory::getUser($id);
 
 		// Make sure the loaded user is the correct one
 		if ($user->id != $id)
@@ -106,7 +159,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Add the fields to the form.
-		JForm::addFormPath(dirname(__FILE__) . '/loginguard');
+		Form::addFormPath(dirname(__FILE__) . '/loginguard');
 
 		// Special handling for profile overview page
 		if ($layout == 'default')
@@ -121,7 +174,7 @@ class plgUserLoginguard extends JPlugin
 			 * use such a field. So all I can do is pass raw text. Um, whatever.
 			 */
 			$data->loginguard = array(
-				'hastfa' => ($tfaMethods->count() > 0) ? JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : JText::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
+				'hastfa' => ($tfaMethods->count() > 0) ? Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
 			);
 
 			$form->loadFile('list', false);
@@ -139,11 +192,16 @@ class plgUserLoginguard extends JPlugin
 	 * Runs after successful login of the user. Used to redirect the user to a page where they can set up their Two Step
 	 * Verification after logging in.
 	 *
-	 * @param   array  $options  Passed by Joomla. user: a JUser object; responseType: string, authentication response
+	 * @param   array  $options  Passed by Joomla. user: a User object; responseType: string, authentication response
 	 *                           type.
 	 */
 	public function onUserAfterLogin($options)
 	{
+		if (!$this->enabled)
+		{
+			return;
+		}
+
 		// Make sure the option to redirect is set
 		if (!$this->params->get('redirectonlogin', 1))
 		{
@@ -151,28 +209,33 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Make sure I have a valid user
-		/** @var JUser $user */
+		/** @var User $user */
 		$user = $options['user'];
 
-		if (!is_object($user) || !($user instanceof JUser))
+		if (!is_object($user) || ($user instanceof User))
 		{
 			return;
 		}
 
-		// Make sure this user does not already have 2SV enabled
-		if ($this->needsTFA($user, $options['responseType']))
+		/**
+		 * If the user already has 2SV enabled and we need to show the captive page we won't redirect them to the 2SV
+		 * setup page, of course.
+		 */
+		if ($this->needsCaptivePage($user, $options['responseType']))
 		{
 			return;
 		}
 
-		// Make sure the user does not have a flag to not bother him again with the 2SV setup page
-		if ($this->hasFlag($user))
+		/**
+		 * If the user has already asked us to not show him the 2SV setup page we have to honour their wish.
+		 */
+		if ($this->hasDoNotShowAgainFlag($user))
 		{
 			return;
 		}
 
-		// Get the redirection URL
-		$url           = JRoute::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
+		// Get the redirection URL to the 2SV setup page or custom redirection per plugin configuration
+		$url           = Route::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
 		$configuredUrl = $this->params->get('redirecturl', null);
 
 		if ($configuredUrl)
@@ -181,7 +244,7 @@ class plgUserLoginguard extends JPlugin
 		}
 
 		// Prepare to redirect
-		JFactory::getSession()->set('postloginredirect', $url, 'com_loginguard');
+		Factory::getSession()->set('postloginredirect', $url, 'com_loginguard');
 	}
 
 	/**
@@ -199,26 +262,24 @@ class plgUserLoginguard extends JPlugin
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
+		if (!$this->enabled)
+		{
+			return true;
+		}
+
 		if (!$success)
 		{
 			return false;
 		}
 
-		if (class_exists('Joomla\\Utilities\\ArrayHelper'))
-		{
-			$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
-		}
-		else
-		{
-			$userId	= JArrayHelper::getValue($user, 'id', 0, 'int');
-		}
+		$userId = ArrayHelper::getValue($user, 'id', 0, 'int');
 
 		if (!$userId)
 		{
 			return true;
 		}
 
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
 		// Delete user profile records
 		$query = $db->getQuery(true)
@@ -255,47 +316,28 @@ class plgUserLoginguard extends JPlugin
 	/**
 	 * Does the current user need to complete 2FA authentication before allowed to access the site?
 	 *
-	 * @param   JUser   $user          The user object we are checking
+	 * @param   User    $user          The user object we are checking
 	 * @param   string  $responseType  The login response type (optional)
 	 *
 	 * @return  bool
 	 */
-	private function needsTFA(JUser $user, $responseType = null)
+	private function needsCaptivePage(User $user, $responseType = null)
 	{
-		/**
-		 * If the login type is silent (cookie, social login / single sign-on, gmail, ldap) we will not ask for 2SV. The
-		 * login risk has already been managed by the external authentication method. For your reference, the
-		 * authentication response types are as follows:
-		 *
-		 * - Joomla: username and password login
-		 * - Cookie: "Remember Me" cookie with a secure, single use token and other safeguards for the user session
-		 * - GMail: login with GMail credentials (probably no longer works)
-		 * - LDAP: Joomla's LDAP plugin
-		 * - SocialLogin: Akeeba Social Login (login with Facebook etc)
-		 */
-		$silentResponses = array('cookie', 'gmail', 'ldap', 'sociallogin');
-
-		if (is_string($responseType) && !empty($responseType) && in_array(strtolower($responseType), $silentResponses))
-		{
-			return false;
-		}
-
-		// Get the user's TFA records
+		// Get the user's 2SV records
 		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
 		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
 		$records = $tfaModel->user_id($user->id)->get(true);
 
-
-		// No TFA methods? Then we obviously don't need to display a captive login page.
+		// No 2SV methods? Then we obviously don't need to display a captive login page.
 		if ($records->count() < 1)
 		{
 			return false;
 		}
 
-		// Let's get a list of all currently active TFA methods
+		// Let's get a list of all currently active 2SV methods
 		$tfaMethods = Tfa::getTfaMethods();
 
-		// If not TFA method is active we can't really display a captive login page.
+		// If not 2SV method is active we can't really display a captive login page.
 		if (empty($tfaMethods))
 		{
 			return false;
@@ -309,7 +351,7 @@ class plgUserLoginguard extends JPlugin
 			$methodNames[] = $tfaMethod['name'];
 		}
 
-		// Filter the records based on currently active TFA methods
+		// Filter the records based on currently active 2SV methods
 		foreach($records as $record)
 		{
 			if (in_array($record->method, $methodNames))
@@ -319,20 +361,20 @@ class plgUserLoginguard extends JPlugin
 			}
 		}
 
-		// No viable TFA method found. We won't show the captive page.
+		// No viable 2SV method found. We won't show the captive page.
 		return false;
 	}
 
 	/**
 	 * Does the user have a "don't show this again" flag?
 	 *
-	 * @param   JUser  $user  The user to check
+	 * @param   User  $user  The user to check
 	 *
 	 * @return  bool
 	 */
-	private function hasFlag(JUser $user)
+	private function hasDoNotShowAgainFlag(User $user)
 	{
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 		$query = $db->getQuery(true)
 			->select($db->qn('profile_value'))
 			->from($db->qn('#__user_profiles'))

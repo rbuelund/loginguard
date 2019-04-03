@@ -8,9 +8,10 @@
 namespace Akeeba\LoginGuard\Admin\Toolbar;
 
 use FOF30\Toolbar\Toolbar as BaseToolbar;
-use JRoute;
-use JText;
-use JToolbarHelper;
+use Joomla\CMS\Router\Route as JRoute;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Toolbar\Toolbar as JToolbar;
+use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -48,7 +49,7 @@ class Toolbar extends BaseToolbar
 
 		if ($this->container->platform->authorise('loginguard.userlist', 'com_loginguard'))
 		{
-			$bar = \JToolBar::getInstance('toolbar');
+			$bar = JToolbar::getInstance('toolbar');
 			$bar->appendButton('Link', 'user', JText::_('COM_LOGINGUARD_HEAD_USERS'), 'index.php?option=com_loginguard&view=Users');
 		}
 

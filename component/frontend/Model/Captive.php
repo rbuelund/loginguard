@@ -11,13 +11,13 @@ use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
-use JApplicationCms;
-use JFactory;
+use Joomla\CMS\Application\CMSApplication as JApplicationCms;
+use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 use Joomla\Event\Event;
-use JText;
-use JUser;
+use Joomla\CMS\User\User as JUser;
 use stdClass;
 
 // Protect from unauthorized access
@@ -131,12 +131,12 @@ class Captive extends Model
 
 		if (empty($allowedPositions))
 		{
-			$modules = array();
+			$modules = [];
 
 			return;
 		}
 
-		$filtered = array();
+		$filtered = [];
 
 		foreach ($modules as $module)
 		{
@@ -157,7 +157,7 @@ class Captive extends Model
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since   2.0.0
 	 */
-	public function getRecords($user = null)
+	public function getRecords($user = null, $includeBackupCodes = false)
 	{
 		if (is_null($user))
 		{
@@ -167,25 +167,40 @@ class Captive extends Model
 		// Get the user's TFA records
 		/** @var TfaRecord $tfaModel */
 		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
-		$records = $tfaModel->user_id($user->id)->get(true);
+		$records  = $tfaModel->user_id($user->id)->get(true);
 
 		// No TFA methods? Then we obviously don't need to display a captive login page.
 		if ($records->count() < 1)
 		{
-			return array();
+			return [];
 		}
 
 		// Get the enabled TFA methods' names
 		$methodNames = $this->getActiveMethodNames();
 
 		// Filter the records based on currently active TFA methods
-		$ret = array();
+		$ret = [];
+
+		if ($includeBackupCodes)
+		{
+			$methodNames[] = 'backupcodes';
+			$methodNames   = array_unique($methodNames);
+		}
+		else
+		{
+			$pos = array_search('backupcodes', $methodNames);
+
+			if ($pos !== false)
+			{
+				unset($methodNames[$pos]);
+			}
+		}
 
 		/** @var TfaRecord $record */
 		foreach ($records as $record)
 		{
 			// Backup codes must not be included in the list. We add them in the View, at the end of the list.
-			if (in_array($record->method, $methodNames) && ($record->method != 'backupcodes'))
+			if (in_array($record->method, $methodNames))
 			{
 				$ret[$record->getId()] = $record;
 			}
@@ -217,7 +232,7 @@ class Captive extends Model
 			$user = $this->container->platform->getUser();
 		}
 
-		$records = $this->getRecords($user);
+		$records = $this->getRecords($user, true);
 
 		if (!isset($records[$id]))
 		{
@@ -237,7 +252,7 @@ class Captive extends Model
 	 */
 	public function loadCaptiveRenderOptions($record)
 	{
-		$renderOptions = array(
+		$renderOptions = [
 			'pre_message'        => '',
 			'field_type'         => 'input',
 			'input_type'         => 'text',
@@ -248,14 +263,14 @@ class Captive extends Model
 			'hide_submit'        => false,
 			'help_url'           => '',
 			'allowEntryBatching' => false,
-		);
+		];
 
 		if (empty($record))
 		{
 			return $renderOptions;
 		}
 
-		$results = $this->container->platform->runPlugins('onLoginGuardTfaCaptive', array($record));
+		$results = $this->container->platform->runPlugins('onLoginGuardTfaCaptive', [$record]);
 
 		if (empty($results))
 		{
@@ -308,7 +323,7 @@ class Captive extends Model
 
 		if (!is_array($map))
 		{
-			$map = array();
+			$map        = [];
 			$tfaMethods = Tfa::getTfaMethods();
 
 			if (!empty($tfaMethods))
@@ -342,7 +357,7 @@ class Captive extends Model
 
 		if (!is_array($map))
 		{
-			$map = array();
+			$map        = [];
 			$tfaMethods = Tfa::getTfaMethods();
 
 			if (!empty($tfaMethods))
@@ -374,7 +389,7 @@ class Captive extends Model
 
 		// Load the list of allowed module positions from the component's settings. May be different for front- and back-end
 		$configKey = 'allowed_positions_' . ($isAdmin ? 'backend' : 'frontend');
-		$res = $this->container->params->get($configKey, array());
+		$res       = $this->container->params->get($configKey, []);
 
 		// In the backend we must always add the 'title' module position
 		if ($isAdmin)
@@ -401,12 +416,13 @@ class Captive extends Model
 			// If not TFA method is active we can't really display a captive login page.
 			if (empty($tfaMethods))
 			{
-				$this->activeTFAMethodNames = array();
+				$this->activeTFAMethodNames = [];
+
 				return $this->activeTFAMethodNames;
 			}
 
 			// Get a list of just the method names
-			$this->activeTFAMethodNames = array();
+			$this->activeTFAMethodNames = [];
 
 			foreach ($tfaMethods as $tfaMethod)
 			{

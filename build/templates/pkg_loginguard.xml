@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4.0" type="package" method="upgrade">
+<extension version="3.8.0" type="package" method="upgrade">
     <name>Akeeba LoginGuard package</name>
     <version>##VERSION##</version>
     <creationDate>##DATE##</creationDate>
@@ -33,6 +33,7 @@
         <file type="plugin" group="loginguard" id="smsapi">plg_loginguard_smsapi.zip</file>
         <file type="plugin" group="loginguard" id="totp">plg_loginguard_totp.zip</file>
         <file type="plugin" group="loginguard" id="u2f">plg_loginguard_u2f.zip</file>
+        <file type="plugin" group="loginguard" id="webauthn">plg_loginguard_webauthn.zip</file>
         <file type="plugin" group="loginguard" id="yubikey">plg_loginguard_yubikey.zip</file>
 
         <!-- Plugins: user -->

@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 // Prevent direct access
 defined('_JEXEC') or die;
 
@@ -23,7 +25,7 @@ window.jQuery(document).ready(function($){
 
 JS;
 
-JFactory::getDocument()->addScriptDeclaration($js);
+Factory::getDocument()->addScriptDeclaration($js);
 
 ?>
 <div id="loginguard-u2f-missing">

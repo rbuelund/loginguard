@@ -1,34 +1,46 @@
-.idea/
+### phpStorm
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
 
-/build/bin
-/build/buildlang
-/build/epub
-/build/phingext
-/build/tools
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Editor-based Rest Client
+.idea/httpRequests
+
+
+### Akeeba BuildFiles integration
 /build/override.properties
+/build/release.json
+/release.json
 
-/component/loginguard.xml
-
-/component/backend/encrypt_service_key.php
-
-/component/media/css/fef.min.css
-/component/media/js/*.map
-/component/media/fonts
-/component/media/images/akeeba-logo.svg
-
-/documentation/*/*.*~
-
-/experiment
-
-/installers/angie
-
-/plugins/**/**/*.xml
-!/plugins/user/loginguard/loginguard/*.xml
-/plugins/loginguard/encrypt/secretkey.php
-
-/release
-
-# Internal language symlinks
+### Language symlinks
 /component/language/*/en-GB
 /modules/*/*/language/en-GB
 /plugins/*/*/language/en-GB
+
+### Node.js modules (used to install Babel)
+/node_modules
+
+### Extension files to be excluded
+
+/component/backend/encrypt_service_key.php
+/component/backend/vendor
+
+### Release files
+
+/release

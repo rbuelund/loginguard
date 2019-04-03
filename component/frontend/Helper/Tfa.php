@@ -8,11 +8,8 @@
 namespace Akeeba\LoginGuard\Site\Helper;
 
 // Protect from unauthorized access
-use Exception;
 use FOF30\Container\Container;
 use Joomla\CMS\User\User;
-use JUser;
-use stdClass;
 
 defined('_JEXEC') or die();
 
@@ -115,11 +112,11 @@ abstract class Tfa
 	 * account OR I have to be a Super User editing a non-superuser's account. Important to note: nobody can edit the
 	 * accounts of Super Users except themselves. Therefore make damn sure you keep those backup codes safe!
 	 *
-	 * @param   JUser|User  $user  The user you want to know if we're allowed to edit
+	 * @param   User  $user  The user you want to know if we're allowed to edit
 	 *
 	 * @return  bool
 	 */
-	public static function canEditUser($user = null)
+	public static function canEditUser(User $user = null)
 	{
 		// I can edit myself
 		if (empty($user))

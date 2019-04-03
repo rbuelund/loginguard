@@ -6,6 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Site\View\Methods\Html;
+use Joomla\CMS\Router\Route;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -25,7 +26,7 @@ defined('_JEXEC') or die;
 			<?php echo JText::_('COM_LOGINGUARD_LBL_FIRSTTIME_INSTRUCTIONS'); ?>
 		</p>
         <p>
-            <a href="<?php echo JRoute::_('index.php?option=com_loginguard&task=methods.dontshowthisagain' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id . '&' . $this->getContainer()->platform->getToken() . '=1')?>"
+            <a href="<?php echo Route::_('index.php?option=com_loginguard&task=methods.dontshowthisagain' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id . '&' . $this->getContainer()->platform->getToken() . '=1')?>"
                class="akeeba-btn--red">
 		        <?php echo JText::_('COM_LOGINGUARD_LBL_FIRSTTIME_NOTINTERESTED'); ?>
             </a>

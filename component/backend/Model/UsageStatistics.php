@@ -11,10 +11,9 @@ namespace Akeeba\LoginGuard\Admin\Model;
 defined('_JEXEC') or die();
 
 use AkeebaUsagestats;
-use FOF30\Database\Installer;
 use FOF30\Model\Model;
-use JCrypt;
-use JUri;
+use Joomla\CMS\Crypt\Crypt as JCrypt;
+use Joomla\CMS\Uri\Uri as JUri;
 
 /**
  * Usage statistics collection model. Implements the anonymous collection of PHP, MySQL and Joomla! version information
@@ -22,28 +21,6 @@ use JUri;
  */
 class UsageStatistics extends Model
 {
-	/**
-	 * Make sure the #__akeeba_common table exists or create it from scratch
-	 *
-	 * @return  $this
-	 */
-	public function checkAndFixCommonTables()
-	{
-		// Install or update database
-		try
-		{
-
-		}
-		catch (\Exception $e)
-		{
-			$container   = $this->container;
-			$dbInstaller = new Installer($container->db, $container->backEndPath . '/sql/common');
-			$dbInstaller->updateSchema();
-		}
-
-		return $this;
-	}
-
 	/**
 	 * Get an existing unique site ID or create a new one
 	 *
@@ -132,20 +109,20 @@ class UsageStatistics extends Model
 		{
 			if (!$count)
 			{
-				$insertObject = (object)array(
+				$insertObject = (object) [
 					'key'   => $key,
 					'value' => $value,
-				);
+				];
 				$db->insertObject('#__akeeba_common', $insertObject);
 			}
 			else
 			{
 				$keyName = version_compare(JVERSION, '1.7.0', 'lt') ? $db->qn('key') : 'key';
 
-				$insertObject = (object)array(
+				$insertObject = (object) [
 					$keyName => $key,
 					'value'  => $value,
-				);
+				];
 
 				$db->updateObject('#__akeeba_common', $insertObject, $keyName);
 			}
