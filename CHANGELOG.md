@@ -1,3 +1,9 @@
+# 3.1.1
+
+**Bug fixes**
+
+* User Profile fields not displayed correctly when using an Edit Profile menu item
+
 # 3.1.0
 
 **New**
