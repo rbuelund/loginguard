@@ -12,7 +12,10 @@ Akeeba LoginGuard requires at least PHP 7.1. It's also compatible with PHP 7.2 a
 
 We strongly recommend using the latest published Joomla! version and PHP 7.2 or later _for optimal security of your site_.
 
-**IMPORTANT!** Starting March 2019 we will drop support for all versions of PHP which are [officially considered End Of Life (EOL) by the PHP project](http://php.net/eol.php). EOL  versions of PHP _no longer receive security updates_ and MUST NOT be used on production sites. 
+**IMPORTANT!** Starting March 2019 we dropped support for all versions of PHP which are [officially considered End Of Life (EOL) by the PHP project](http://php.net/eol.php). EOL  versions of PHP _no longer receive security updates_ and MUST NOT be used on production sites. 
 
 ## Changelog
 
+**Bug fixes**
+
+* User Profile fields not displayed correctly when using an Edit Profile menu item
