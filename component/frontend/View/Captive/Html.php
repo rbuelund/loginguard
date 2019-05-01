@@ -132,11 +132,17 @@ class Html extends BaseView
 		{
 			$this->setLayout('select');
 			$this->allowEntryBatching = 1;
+
+			$this->container->platform->runPlugins('onComLoginguardCaptiveShowSelect', []);
 		}
 		else
 		{
 			$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
 			$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
+
+			$this->container->platform->runPlugins('onComLoginguardCaptiveShowCaptive', [
+				$this->escape($this->record->title)
+			]);
 		}
 
 		// Which title should I use for the page?
