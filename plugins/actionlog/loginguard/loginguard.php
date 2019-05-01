@@ -6,6 +6,8 @@
  */
 
 use FOF30\Container\Container;
+use FOF30\Controller\Controller;
+use FOF30\View\View;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
@@ -17,6 +19,11 @@ if (!version_compare(PHP_VERSION, '5.6.0', '>='))
 	return;
 }
 
+/**
+ * LoginGuard integration with Joomla's User Actions Log
+ *
+ * @since  3.1.2
+ */
 class plgActionlogLoginguard extends CMSPlugin
 {
 	/** @var Container */
@@ -65,9 +72,11 @@ class plgActionlogLoginguard extends CMSPlugin
 	/**
 	 * Logs converting from Joomla's TFA
 	 *
+	 * @param   Controller  $controller  The controller we are called from
+	 *
 	 * @return  void
 	 */
-	public function onComLoginguardControllerConvertAfterConvert()
+	public function onComLoginguardControllerConvertAfterConvert(Controller $controller)
 	{
 		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_CONVERT', 'com_loginguard');
 	}
@@ -75,9 +84,11 @@ class plgActionlogLoginguard extends CMSPlugin
 	/**
 	 * Logs updating the GeoIP database
 	 *
+	 * @param   Controller  $controller  The controller we are called from
+	 *
 	 * @return  void
 	 */
-	public function onComLoginguardControllerWelcomeAfterUpdategeoip()
+	public function onComLoginguardControllerWelcomeAfterUpdategeoip(Controller $controller)
 	{
 		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_WELCOME_UPDATEGEOIP', 'com_loginguard');
 	}
@@ -99,8 +110,190 @@ class plgActionlogLoginguard extends CMSPlugin
 	 *
 	 * @return  void
 	 */
-	public function onComLoginguardCaptiveShowCaptive($methodTitleEscaped)
+	public function onComLoginguardCaptiveShowCaptive(string $methodTitleEscaped)
 	{
 		$this->container->platform->logUserAction($methodTitleEscaped, 'PLG_ACTIONLOG_LOGINGUARD_ACTION_CAPTIVE_CAPTIVE', 'com_loginguard');
+	}
+
+	/**
+	 * Log displaying a user's Two Step Verification methods
+	 *
+	 * @param   View  $view
+	 *
+	 * @return  void
+	 */
+	public function onComLoginGuardViewMethodsAfterDisplay(View $view)
+	{
+		$layout = $view->getLayout();
+		$key    = 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHODS_SHOW';
+
+		if ($layout == 'firsttime')
+		{
+			$key    = 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHODS_FIRSTTIME';
+		}
+
+		$this->container->platform->logUserAction('', $key, 'com_loginguard');
+	}
+
+	/**
+	 * Log regenerating backup codes
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodAfterRegenbackupcodes(Controller $controller)
+	{
+		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_REGENBACKUPCODES', 'com_loginguard');
+	}
+
+	/**
+	 * Log adding a new TSV method
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodBeforeAdd(Controller $controller)
+	{
+		$method = $controller->input->getCmd('method');
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'method'   => $method,
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_ADD', 'com_loginguard');
+	}
+
+	/**
+	 * Log editing a TSV method
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodBeforeEdit(Controller $controller)
+	{
+		$id     = $controller->input->getCmd('id');
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'id'       => $id,
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_EDIT', 'com_loginguard');
+	}
+
+	/**
+	 * Log removing a TSV method
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodBeforeDelete(Controller $controller)
+	{
+		$id     = $controller->input->getCmd('id');
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'id'       => $id,
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_DELETE', 'com_loginguard');
+	}
+
+	/**
+	 * Log saving a TSV method
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodBeforeSave(Controller $controller)
+	{
+		$id     = $controller->input->getCmd('id');
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'id'       => $id,
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_SAVE', 'com_loginguard');
+	}
+
+	/**
+	 * Log completely disabling TSV
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodsBeforeDisable(Controller $controller)
+	{
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_DISABLE', 'com_loginguard');
+	}
+
+	/**
+	 * Log opting out of TSV
+	 *
+	 * @param   Controller  $controller
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardControllerMethodsBeforeDontshowthisagain(Controller $controller)
+	{
+		$userId = $controller->input->getInt('user_id', null);
+		$user   = $this->container->platform->getUser($userId);
+
+		$this->container->platform->logUserAction([
+			'user_id'  => $userId,
+			'otheruser' => $user->username,
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHODS_DONTSHOWTHISAGAIN', 'com_loginguard');
+	}
+
+	/**
+	 * Log TSV failure due to invalid method
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardCaptiveValidateInvalidMethod()
+	{
+		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_VALIDATE_INVALID_METHOD', 'com_loginguard');
+	}
+
+	/**
+	 * Log TSV failure
+	 *
+	 * @param   string  $methodTitle
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardCaptiveValidateFailed($methodTitle)
+	{
+		$this->container->platform->logUserAction(htmlspecialchars($methodTitle), 'PLG_ACTIONLOG_LOGINGUARD_ACTION_VALIDATE_FAILED', 'com_loginguard');
+	}
+
+	/**
+	 * Log TSV success
+	 *
+	 * @param   string  $methodTitle
+	 *
+	 * @return  void
+	 */
+	public function onComLoginguardCaptiveValidateSuccess($methodTitle)
+	{
+		$this->container->platform->logUserAction(htmlspecialchars($methodTitle), 'PLG_ACTIONLOG_LOGINGUARD_ACTION_VALIDATE_SUCCESS', 'com_loginguard');
 	}
 }

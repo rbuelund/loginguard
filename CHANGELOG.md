@@ -1,3 +1,9 @@
+# 3.1.2
+
+**New**
+
+* Joomla User Actions Log integration
+
 # 3.1.1
 
 **Bug fixes**
