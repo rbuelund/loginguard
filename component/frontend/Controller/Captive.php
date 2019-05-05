@@ -104,6 +104,8 @@ class Captive extends Controller
 
 		if (empty($record))
 		{
+			$this->container->platform->runPlugins('onComLoginguardCaptiveValidateInvalidMethod', []);
+
 			throw new RuntimeException(JText::_('COM_LOGINGUARD_ERR_INVALID_METHOD'), 500);
 		}
 
@@ -152,6 +154,10 @@ class Captive extends Controller
 
 		if (!$isValidCode)
 		{
+			$this->container->platform->runPlugins('onComLoginguardCaptiveValidateFailed', [
+				$record->title
+			]);
+
 			// The code is wrong. Display an error and go back.
 			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record_id, false);
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
@@ -159,6 +165,10 @@ class Captive extends Controller
 
 			return;
 		}
+
+		$this->container->platform->runPlugins('onComLoginguardCaptiveValidateSuccess', [
+			$record->title
+		]);
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');

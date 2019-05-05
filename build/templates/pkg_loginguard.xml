@@ -23,6 +23,9 @@
         <!-- Component -->
         <file type="component" id="com_loginguard">com_loginguard.zip</file>
 
+        <!-- Plugins: actionlog -->
+        <file type="plugin" group="actionlog" id="loginguard">plg_actionlog_loginguard.zip</file>
+
         <!-- Plugins: system -->
         <file type="plugin" group="system" id="loginguard">plg_system_loginguard.zip</file>
 
