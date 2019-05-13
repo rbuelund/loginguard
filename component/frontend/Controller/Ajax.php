@@ -48,6 +48,12 @@ class Ajax extends Controller
 	 */
 	public function json()
 	{
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		$result = $this->getResult();
 
 		echo json_encode($result);
@@ -70,6 +76,12 @@ class Ajax extends Controller
 	 */
 	public function hashjson()
 	{
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		$result = $this->getResult();
 
 		echo '###' . json_encode($result) . '###';
@@ -88,6 +100,12 @@ class Ajax extends Controller
 	 */
 	public function raw()
 	{
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		// Note: we return no result. The first plugin which handles the request is supposed to do that.
 		$result = $this->getResult();
 

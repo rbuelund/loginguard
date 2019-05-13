@@ -14,6 +14,7 @@ use FOF30\Container\Container;
 use FOF30\Controller\Controller;
 use JLoader;
 use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route as JRoute;
 use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
@@ -53,6 +54,12 @@ class Captive extends Controller
 	 */
 	public function captive()
 	{
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		// If we're already logged in go to the site's home page
 		if ($this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard') == 1)
 		{
@@ -92,6 +99,12 @@ class Captive extends Controller
 	{
 		$this->csrfProtection();
 
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		// Get the TFA parameters from the request
 		$record_id = $this->input->getInt('record_id', null);
 		$code      = $this->input->get('code', null, 'raw');
@@ -104,6 +117,8 @@ class Captive extends Controller
 
 		if (empty($record))
 		{
+			$this->container->platform->runPlugins('onComLoginguardCaptiveValidateInvalidMethod', []);
+
 			throw new RuntimeException(JText::_('COM_LOGINGUARD_ERR_INVALID_METHOD'), 500);
 		}
 
@@ -152,6 +167,10 @@ class Captive extends Controller
 
 		if (!$isValidCode)
 		{
+			$this->container->platform->runPlugins('onComLoginguardCaptiveValidateFailed', [
+				$record->title
+			]);
+
 			// The code is wrong. Display an error and go back.
 			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record_id, false);
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
@@ -159,6 +178,10 @@ class Captive extends Controller
 
 			return;
 		}
+
+		$this->container->platform->runPlugins('onComLoginguardCaptiveValidateSuccess', [
+			$record->title
+		]);
 
 		// Update the Last Used, UA and IP columns
 		JLoader::import('joomla.environment.browser');

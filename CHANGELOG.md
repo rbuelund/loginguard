@@ -1,3 +1,13 @@
+# 3.2.0
+
+**New**
+
+* Joomla User Actions Log integration
+
+**Bug fixes**
+
+* Security: Guest users can view a list of Two Step Verification method name for all users (but NOT their settings; 2SV security was NOT compromised).
+
 # 3.1.1
 
 **Bug fixes**
