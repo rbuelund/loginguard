@@ -1,8 +1,11 @@
 ## Release highlights
 
-**Option to disable Two Step Verification on silent login**. For example, when Remember Me is used or when you log in with a social network profile or passwordless authentication.
+**Security release**. A guest (not logged in) user could see a list of the names of all Two Step Verification methods for all users of the site but NOT their settings. The list only shows the method type, the method name the user has entered and a link to select that method which contains the numeric user ID (but not the username, email, full name or any other personally identifiable information).
 
-**W3C Web Authentication (WebAuthn) support**. You can now use WebAuthn for multi-factor authentication. This standard supersedes U2F security keys and can be used instead of them. Please note that due to lack of browser and third party library support this only supports security keys, not TPM-stored tokens.  
+ This is a low priority security issue because it only divulges the names of 2SV methods. It **DOES NOT** compromise the security of 2SV since guest users **CANNOT** see or change the 2SV method settings. They can, however, select a method which might trigger sending an email (Email method), push message (PushBullet method) or text message (SMS / Text method). This could range from annoying (receiving lots of emails and push messages) to having a financial impact (sending too many text messages).
+ 
+ **Joomla User Actions Log integration**. We have created an `actionlog` plugin to let you log user interactions with LoginGuard to the Joomla! User Actions Log component.
+
  
 ## Joomla and PHP Compatibility
 
@@ -16,6 +19,10 @@ We strongly recommend using the latest published Joomla! version and PHP 7.2 or 
 
 ## Changelog
 
+**New**
+
+* Joomla User Actions Log integration
+
 **Bug fixes**
 
-* User Profile fields not displayed correctly when using an Edit Profile menu item
+* Security: Guest users can view a list of Two Step Verification method name for all users (but NOT their settings; 2SV security was NOT compromised).

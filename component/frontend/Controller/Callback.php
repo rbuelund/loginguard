@@ -36,6 +36,7 @@ class Callback extends Controller
 		{
 			$config['default_task'] = 'callback';
 		}
+
 		parent::__construct($container, $config);
 	}
 
@@ -47,6 +48,12 @@ class Callback extends Controller
 	 */
 	public function callback()
 	{
+		// Only allow logged in users
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
 		// Get the method and make sure it's non-empty
 		$method = $this->input->getCmd('method', '');
 
