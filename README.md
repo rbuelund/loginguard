@@ -14,11 +14,13 @@ Pre-built packages of Akeeba LoginGuard are available through [our GitHub reposi
 
 Akeeba LoginGuard comes with English (Great Britain) language built-in. We do not offer official translations in any other language nor do we accept pull requests for language files. You are free to provide free of charge translations for your own language, licensed under the GNU GPL v3 license, the same license the original files are licensed under.
 
-## No support - For developers only
+## Support policy
 
-This software is provided **WITHOUT ANY KIND OF END USER SUPPORT**. You are free to consult [consult the documentation Wiki](https://github.com/akeeba/loginguard/wiki).
+See [our Support resources page](.github/SUPPORT.md) and read our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 
-If you are a developer you are free to submit a pull request with your code fix, as long as there is a clear description of what was not working for you, why and how you fixed it. 
+## Contributing
+
+Please read [our Contributing page](.github/CONTRIBUTING.md).
  
 ## Prerequisites
 
