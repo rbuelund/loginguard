@@ -1,3 +1,9 @@
+# 3.2.1
+
+**New**
+
+* Support for Dark Mode
+
 # 3.2.0
 
 **New**

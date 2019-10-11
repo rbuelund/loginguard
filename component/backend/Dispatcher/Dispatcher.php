@@ -20,7 +20,8 @@ defined('_JEXEC') or die();
 
 class Dispatcher extends BaseDispatcher
 {
-	use ViewAliases {
+	use ViewAliases
+	{
 		onBeforeDispatch as onBeforeDispatchViewAliases;
 	}
 
@@ -37,7 +38,7 @@ class Dispatcher extends BaseDispatcher
 		parent::__construct($container, $config);
 
 		$this->viewNameAliases = [
-			'cpanel'             => 'ControlPanel',
+			'cpanel' => 'ControlPanel',
 		];
 	}
 
@@ -64,10 +65,13 @@ class Dispatcher extends BaseDispatcher
 		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, null, true, false);
 
 		// Set the link toolbar style to Classic (Bootstrap tabs).
-		$this->container->renderer->setOption('linkbar_style', 'classic');
+		$this->container->renderer->setOptions([
+			'linkbar_style' => 'classic',
+			'fef_dark'      => $this->container->params->get('dark_mode', -1),
+		]);
 
 		// Create a media version which depends on our version but doesn't leak it publicly
-		$jSecret = JFactory::getConfig()->get('secret');
+		$jSecret                       = JFactory::getConfig()->get('secret');
 		$this->container->mediaVersion = md5(ComponentVersion::getFor('com_loginguard') . $jSecret);
 
 		// Load common media files
@@ -139,8 +143,8 @@ class Dispatcher extends BaseDispatcher
 	 *
 	 * @return  void
 	 *
-	 * @since   2.0.0
 	 * @throws  RuntimeException
+	 * @since   2.0.0
 	 */
 	protected function checkPrivileges()
 	{
