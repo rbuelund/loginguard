@@ -236,7 +236,7 @@ class plgUserLoginguard extends CMSPlugin
 		/** @var User $user */
 		$user = $options['user'];
 
-		if (!is_object($user) || ($user instanceof User))
+		if (!is_object($user) || !($user instanceof User))
 		{
 			return;
 		}
