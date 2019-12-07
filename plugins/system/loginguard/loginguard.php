@@ -504,7 +504,39 @@ class PlgSystemLoginguard extends CMSPlugin
 			return false;
 		}
 
-		list($isCLI, $isAdmin) = $this->isCliAdmin();
+		/**
+		 * Special handling when the requireReset flag is set on the user account.
+		 *
+		 * Joomla checks the requireReset flag on the user account in the application's doExecute method. If it is set
+		 * it will call CMSApplication::checkUserRequireReset() which issues a redirection for the user to reset their
+		 * password.
+		 *
+		 * One easy option here is to say "if the user must reset their password don't show the 2SV captive page"
+		 * Unfortunately, that would be a bad idea because of the naive and insecure manner Joomla goes about the forced
+		 * password reset. Instead of going through the actual password reset (“Forgot your password?”) page it instead
+		 * redirects the user the user profile editor page! This allows the logged in user to view and change everything
+		 * in the user profile, including disabling and changing the 2SV options. Considering that forced password reset
+		 * is meant to be primarily used when we suspect that the user's account has been compromised this creates a
+		 * grave security risk. The attacker in possession of the username and password can trick a Super User into
+		 * forcing a password reset, thereby allowing them to bypass Two Step Verification and take over the user
+		 * account.
+		 *
+		 * Instead, we unset the requireReset user flag for the duration of the page load when this method here is
+		 * called. This prevents Joomla from redirecting. As a result you need to go through Two Step Verification as
+		 * per usual. Once you do that the tfa_checked flag is set in the session and this method never reaches this
+		 * point of execution where we unset the requireReset flag. Therefore Joomla now sees the requireReset flag and
+		 * shows you the user profile edit page. Now it's safe to do so since you have already proven your identity by
+		 * means of Two Step Verification i.e. there's no doubt we should let you make any kind of user account change.
+		 *
+		 * @see \Joomla\CMS\Application\SiteApplication::doExecute()
+		 * @see \Joomla\CMS\Application\CMSApplication::checkUserRequireReset()
+		 */
+		if ($user->get('requireReset', 0))
+		{
+			$user->set('requireReset', 0);
+		}
+
+		[$isCLI, $isAdmin] = $this->isCliAdmin();
 
 		// TFA is not applicable under CLI
 		if ($isCLI)
@@ -539,7 +571,7 @@ class PlgSystemLoginguard extends CMSPlugin
 
 			if (empty($view) && (strpos($task, '.') !== false))
 			{
-				list($view, $task) = explode('.', $task, 2);
+				[$view, $task] = explode('.', $task, 2);
 			}
 
 			// The captive login page is always allowed

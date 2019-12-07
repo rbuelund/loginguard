@@ -7,6 +7,7 @@
 **Bug fixes**
 
 * You could see an inactive (therefore confusing) 2SV method registration page while not logged in.
+* Joomla's forced password reset makes LoginGuard go into an infinite redirection loop (gh-76)
 
 # 3.2.0
 
