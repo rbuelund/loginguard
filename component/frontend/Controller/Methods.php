@@ -10,7 +10,9 @@ namespace Akeeba\LoginGuard\Site\Controller;
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Methods as MethodsModel;
 use Exception;
+use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Controller\Mixin\PredefinedTaskList;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Router\Route as JRoute;
 use Joomla\CMS\Uri\Uri as JUri;
@@ -26,6 +28,15 @@ defined('_JEXEC') or die();
  */
 class Methods extends Controller
 {
+	use PredefinedTaskList;
+
+	public function __construct(Container $container, array $config = [])
+	{
+		parent::__construct($container, $config);
+
+		$this->setPredefinedTaskList(['main', 'display', 'dontshowthisagain']);
+	}
+
 	/**
 	 * List all available Two Step Validation methods available and guide the user to setting them up
 	 *
@@ -34,6 +45,8 @@ class Methods extends Controller
 	 */
 	public function main()
 	{
+		$this->assertLoggedInUser();
+
 		// Make sure I am allowed to edit the specified user
 		$user_id = $this->input->getInt('user_id', null);
 		$user    = $this->container->platform->getUser($user_id);
@@ -61,6 +74,8 @@ class Methods extends Controller
 	 */
 	public function disable()
 	{
+		$this->assertLoggedInUser();
+
 		// CSRF prevention
 		$this->csrfProtection();
 
@@ -111,6 +126,8 @@ class Methods extends Controller
 	 */
 	public function dontshowthisagain($cachable = false, $urlparams = [])
 	{
+		$this->assertLoggedInUser();
+
 		// CSRF prevention
 		$this->csrfProtection();
 
@@ -137,5 +154,13 @@ class Methods extends Controller
 		}
 
 		$this->setRedirect($url);
+	}
+
+	private function assertLoggedInUser()
+	{
+		if ($this->container->platform->getUser()->guest)
+		{
+			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
 	}
 }

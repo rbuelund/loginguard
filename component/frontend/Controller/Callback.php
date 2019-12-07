@@ -9,6 +9,7 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Controller\Mixin\PredefinedTaskList;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
@@ -22,6 +23,8 @@ defined('_JEXEC') or die();
  */
 class Callback extends Controller
 {
+	use PredefinedTaskList;
+
 	/**
 	 * Callback constructor.
 	 *
@@ -38,6 +41,8 @@ class Callback extends Controller
 		}
 
 		parent::__construct($container, $config);
+
+		$this->setPredefinedTaskList(['callback']);
 	}
 
 	/**

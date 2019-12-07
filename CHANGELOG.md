@@ -4,6 +4,10 @@
 
 * Support for Dark Mode
 
+**Bug fixes**
+
+* You could see an inactive (therefore confusing) 2SV method registration page while not logged in.
+
 # 3.2.0
 
 **New**

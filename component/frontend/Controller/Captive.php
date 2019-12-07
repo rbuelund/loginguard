@@ -12,6 +12,7 @@ use Akeeba\LoginGuard\Site\Model\Captive as CaptiveModel;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Controller\Mixin\PredefinedTaskList;
 use JLoader;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Language\Text;
@@ -29,6 +30,8 @@ defined('_JEXEC') or die();
  */
 class Captive extends Controller
 {
+	use PredefinedTaskList;
+
 	/**
 	 * Constructor. Sets up the default task
 	 *
@@ -45,6 +48,8 @@ class Captive extends Controller
 		}
 
 		parent::__construct($container, $config);
+
+		$this->setPredefinedTaskList(['captive', 'validate']);
 	}
 
 	/**

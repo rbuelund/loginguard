@@ -9,6 +9,7 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Controller\Mixin\PredefinedTaskList;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
@@ -22,6 +23,8 @@ defined('_JEXEC') or die();
  */
 class Ajax extends Controller
 {
+	use PredefinedTaskList;
+
 	/**
 	 * Ajax constructor.
 	 *
@@ -36,7 +39,10 @@ class Ajax extends Controller
 		{
 			$config['default_task'] = 'json';
 		}
+
 		parent::__construct($container, $config);
+
+		$this->setPredefinedTaskList(['json', 'hashjson', 'raw']);
 	}
 
 	/**
