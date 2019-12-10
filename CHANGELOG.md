@@ -3,6 +3,7 @@
 **New**
 
 * Support for Dark Mode
+* Common PHP version warning scripts
 
 **Bug fixes**
 

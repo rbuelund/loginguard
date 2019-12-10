@@ -14,6 +14,13 @@ defined('_JEXEC') or die;
 /** @var \Akeeba\LoginGuard\Admin\View\Welcome\Html $this */
 
 ?>
+<?php
+// Obsolete PHP version check
+echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
+	'softwareName'  => 'Akeeba LoginGuard',
+	'minPHPVersion' => '7.1.0',
+]);
+?>
 
 <?php if ($this->noMethods || $this->notInstalled || $this->noSystemPlugin): ?>
 <div class="akeeba-block--failure">
