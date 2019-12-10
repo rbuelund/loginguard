@@ -9,7 +9,6 @@ namespace Akeeba\LoginGuard\Site\Model;
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
-use AkeebaGeoipProvider;
 use DateInterval;
 use DateTimeZone;
 use Exception;

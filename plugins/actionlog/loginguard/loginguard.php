@@ -82,18 +82,6 @@ class plgActionlogLoginguard extends CMSPlugin
 	}
 
 	/**
-	 * Logs updating the GeoIP database
-	 *
-	 * @param   Controller  $controller  The controller we are called from
-	 *
-	 * @return  void
-	 */
-	public function onComLoginguardControllerWelcomeAfterUpdategeoip(Controller $controller)
-	{
-		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_WELCOME_UPDATEGEOIP', 'com_loginguard');
-	}
-
-	/**
 	 * Logs showing the TSV selection method
 	 *
 	 * @return  void

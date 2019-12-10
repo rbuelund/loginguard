@@ -5,6 +5,10 @@
 * Support for Dark Mode
 * Common PHP version warning scripts
 
+**Removed features**
+
+* We do not need the GeoIP plugin integration since 3.0.0; related functionality has been removed
+
 **Bug fixes**
 
 * You could see an inactive (therefore confusing) 2SV method registration page while not logged in.
