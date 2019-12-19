@@ -56,7 +56,7 @@
       <option name="outputFromStdout" value="false" />
       <option name="program" value="$ProjectFileDir$/node_modules/.bin/babel" />
       <option name="runOnExternalChanges" value="true" />
-      <option name="scopeName" value="Babel - Webauthn" />
+      <option name="scopeName" value="Babel - WebAuthn" />
       <option name="trackOnlyRoot" value="false" />
       <option name="workingDir" value="$ProjectFileDir$/plugins/loginguard/webauthn/media/js" />
       <envs />

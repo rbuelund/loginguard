@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Non-minified CSS files" pattern="file:component/media/css/backend.css||file:component/media/css/captive.css||file:component/media/css/dark.css||file:component/media/css/methods.css||file:plugins/loginguard/smsapi/media/css/telinput.css" />
+</component>
