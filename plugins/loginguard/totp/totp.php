@@ -361,7 +361,8 @@ window.jQuery(document).ready(function ($){
     	ecLevel: 'Q',
     	size: 300,
     	quiet: 2,
-    	text: '$QRContent'
+    	text: '$QRContent',
+    	background: 'white'
     });
 });
 
