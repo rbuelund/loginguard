@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- ~ @package   AkeebaLoginGuard
- ~ @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- ~ @license   GNU General Public License version 3, or later
--->
+  ~ @package   AkeebaLoginGuard
+  ~ @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
 
 <extension version="3.8.0" type="plugin" group="actionlog" method="upgrade">
 	<name>PLG_ACTIONLOG_LOGINGUARD</name>
