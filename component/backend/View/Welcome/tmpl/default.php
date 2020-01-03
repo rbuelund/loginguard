@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14,13 +14,20 @@ defined('_JEXEC') or die;
 /** @var \Akeeba\LoginGuard\Admin\View\Welcome\Html $this */
 
 ?>
+<?php
+// Obsolete PHP version check
+echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
+	'softwareName'  => 'Akeeba LoginGuard',
+	'minPHPVersion' => '7.1.0',
+]);
+?>
 
 <?php if ($this->noMethods || $this->notInstalled || $this->noSystemPlugin): ?>
 <div class="akeeba-block--failure">
 	<span class="akeeba-label--failure"><?php echo JText::_('COM_LOGINGUARD_STATUS_NOTREADY'); ?></span>
 	<?php echo JText::_('COM_LOGINGUARD_STATUS_NOTREADY_INFO'); ?>
 </div>
-<?php elseif ($this->noGeoIP || $this->noUserPlugin): ?>
+<?php elseif ($this->noUserPlugin): ?>
 <div class="akeeba-block--warning">
 	<span class="akeeba-label--warning"><?php echo JText::_('COM_LOGINGUARD_STATUS_ALMOSTREADY'); ?></span>
 	<?php echo JText::_('COM_LOGINGUARD_STATUS_ALMOSTREADY_INFO'); ?>
@@ -113,65 +120,6 @@ defined('_JEXEC') or die;
            class="akeeba-btn--success--large">
             <span class="akion-play"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_BTN_CONVERT'); ?>
-        </a>
-    </p>
-</div>
-<?php endif; ?>
-
-<?php if ($this->noGeoIP): ?>
-<div class="akeeba-panel--info">
-    <header class="akeeba-block-header">
-        <h3>
-            <span class="akion-android-wifi"></span>
-            <?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_HEAD'); ?>
-        </h3>
-    </header>
-    <p>
-        <?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BODY'); ?>
-    </p>
-    <p>
-        <a href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank"
-           class="akeeba-btn--primary">
-            <span class="akion-ios-cloud-download"></span>
-            <?php echo JText::_('COM_LOGINGUARD_ERR_GEOIP_NOTINSTALLED_BUTTON'); ?>
-        </a>
-    </p>
-</div>
-<?php elseif ($this->geoIPNeedsUpdate): ?>
-<div class="akeeba-panel--info">
-    <header class="akeeba-block-header">
-        <h3>
-            <span class="akion-refresh"></span>
-            <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_HEAD'); ?>
-        </h3>
-    </header>
-    <p>
-        <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BODY'); ?>
-    </p>
-    <p>
-        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=welcome&task=updategeoip&' . Factory::getSession()->getToken() . '=1') ?>"
-           class="akeeba-btn--primary">
-            <span class="akion-refresh"></span>
-            <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPDATE_BUTTON'); ?>
-        </a>
-    </p>
-</div>
-<?php elseif ($this->geoIPNeedsUpgrade): ?>
-<div class="akeeba-panel--info">
-    <header class="akeeba-block-header">
-        <h3>
-            <span class="akion-refresh"></span>
-            <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_HEAD'); ?>
-        </h3>
-    </header>
-	<p>
-		<?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BODY'); ?>
-	</p>
-    <p>
-        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=welcome&task=upgradegeoip&' . Factory::getSession()->getToken() . '=1')?>"
-           class="akeeba-btn--ghost">
-            <span class="akion-refresh"></span>
-		    <?php echo JText::_('COM_LOGINGUARD_LBL_GEOIP_UPGRADE_BUTTON'); ?>
         </a>
     </p>
 </div>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -48,31 +48,6 @@ class Html extends BaseView
 	public $notInstalled = false;
 
 	/**
-	 * Is the GeoIP plugin not installed?
-	 *
-	 * @var   bool
-	 * @since 1.0.0
-	 */
-	public $noGeoIP = false;
-
-	/**
-	 * Does the GeoIP database require an update?
-	 *
-	 * @var   bool
-	 * @since 1.0.0
-	 */
-	public $geoIPNeedsUpdate = false;
-
-	/**
-	 * Does the GeoIP database require an upgrade from country-only data to city-level data? Only available when you use
-	 * the GeoIP provider plugin v.2.0 or later.
-	 *
-	 * @var   bool
-	 * @since 1.0.0
-	 */
-	public $geoIPNeedsUpgrade = false;
-
-	/**
 	 * Do we have to migrate from Joomla's Two Factor Authentication?
 	 *
 	 * @var   bool
@@ -87,9 +62,6 @@ class Html extends BaseView
 
 		$this->noMethods         = !$model->hasPublishedPlugins();
 		$this->notInstalled      = !$model->hasInstalledPlugins();
-		$this->noGeoIP           = !$model->hasGeoIPPlugin();
-		$this->geoIPNeedsUpdate  = $model->needsGeoIPUpdate();
-		$this->geoIPNeedsUpgrade = $model->needsGeoIPUpgrade();
 		$this->noUserPlugin      = !$model->isLoginGuardPluginPublished('user');
 		$this->noSystemPlugin    = !$model->isLoginGuardPluginPublished('system');
 		$this->needsMigration    = $model->needsMigration();

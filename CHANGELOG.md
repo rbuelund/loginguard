@@ -1,3 +1,19 @@
+# 3.2.1
+
+**New**
+
+* Support for Dark Mode
+* Common PHP version warning scripts
+
+**Removed features**
+
+* We do not need the GeoIP plugin integration since 3.0.0; related functionality has been removed
+
+**Bug fixes**
+
+* You could see an inactive (therefore confusing) 2SV method registration page while not logged in.
+* Joomla's forced password reset makes LoginGuard go into an infinite redirection loop (gh-76)
+
 # 3.2.0
 
 **New**
@@ -86,13 +102,16 @@
 
 # 2.0.1
 
+**Removed features**
+
+* Removed unused GeoIP feature
+
 **Other changes**
 
 * Using the built-in FOF page renderer instead of a custom one
 
 **Bug fixes**
 
-* Cannot update the GeoIP database from inside the component
 * TOTP (Google Authenticator) plugin does not display the QR code due to missing JS file
 * Leftover records after the user is deleted from Joomla
 

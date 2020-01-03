@@ -1,8 +1,8 @@
 <?php
 /**
- * @package    solo
- * @copyright  Copyright (c)2014-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license    GNU GPL version 3 or later
+ * @package   AkeebaLoginGuard
+ * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 use FOF30\Container\Container;
@@ -79,18 +79,6 @@ class plgActionlogLoginguard extends CMSPlugin
 	public function onComLoginguardControllerConvertAfterConvert(Controller $controller)
 	{
 		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_CONVERT', 'com_loginguard');
-	}
-
-	/**
-	 * Logs updating the GeoIP database
-	 *
-	 * @param   Controller  $controller  The controller we are called from
-	 *
-	 * @return  void
-	 */
-	public function onComLoginguardControllerWelcomeAfterUpdategeoip(Controller $controller)
-	{
-		$this->container->platform->logUserAction('', 'PLG_ACTIONLOG_LOGINGUARD_ACTION_WELCOME_UPDATEGEOIP', 'com_loginguard');
 	}
 
 	/**

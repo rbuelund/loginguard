@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Babel - WebAuthn" pattern="file:plugins/loginguard/webauthn/media/js/webauthn.js" />
+</component>

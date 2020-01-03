@@ -1,3 +1,3 @@
 <component name="DependencyValidationManager">
-  <scope name="Copyright" pattern="(file[loginguard]:component//*||file[loginguard]:plugins//*)&amp;&amp;!file[loginguard]:plugins/loginguard/smsapi/classes//*&amp;&amp;!file:plugins/loginguard/u2f/classes/u2f.php||file[loginguard]:translations//*" />
+  <scope name="Copyright" pattern="((file:component//*||file:plugins//*)&amp;&amp;!file:plugins/loginguard/smsapi/classes//*&amp;&amp;!file:plugins/loginguard/u2f/classes/u2f.php||file:translations//*||file:build/templates//*||file:build/build.xml)&amp;&amp;!file:component/backend/View/wrongphp.php&amp;&amp;!file:component/backend/View/Welcome/tmpl/phpversion_warning.php&amp;&amp;!file:component/language//*&amp;&amp;!file:component/backend/vendor//*" />
 </component>

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ @package   AkeebaLoginGuard
+  ~ @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
 <extension version="3.8.0" type="plugin" group="loginguard" method="upgrade">
     <name>PLG_LOGINGUARD_PUSHBULLET</name>
-    <version>3.2.0</version>
-    <creationDate>2019-05-13</creationDate>
+    <version>3.2.1</version>
+    <creationDate>2020-01-03</creationDate>
 
     <author>Akeeba Ltd</author>
     <authorEmail>no-reply@akeebabackup.com</authorEmail>

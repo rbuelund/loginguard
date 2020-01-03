@@ -1,17 +1,20 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-if (version_compare(PHP_VERSION, '7.1.0', 'lt'))
-{
-	(include_once __DIR__ . '/View/wrongphp.php') or die('Your PHP version is too old for this component.');
+define('AKEEBA_COMMON_WRONGPHP', 1);
+$minPHPVersion         = '7.1.0';
+$recommendedPHPVersion = '7.3';
+$softwareName          = 'Akeeba LoginGuard';
 
+if (!require_once(__DIR__ . '/View/wrongphp.php'))
+{
 	return;
 }
 

@@ -1,45 +1,8 @@
 <?php
 /**
- * @package   AkeebaSubs
- * @copyright Copyright (c)2016-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   AkeebaLoginGuard
+ * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
- *
- * Template for Browse views
- *
- * Use this by extending it (I'm using -at- instead of the at-sign)
- * -at-extends('admin:com_akeebasubs/Common/browse')
- *
- * Override the following sections in your Blade template:
- *
- * browse-page-top
- *      Content to put above the form
- *
- * browse-page-bottom
- *      Content to put below the form
- *
- * browse-filters
- *      Filters to place above the table. They are placed inside an inline form. Wrap them in
- *      <div class="akeeba-filter-element akeeba-form-group">
- *
- * browse-table-header
- *      The table header. At the very least you need to add the table column headers. You can
- *      optionally add one or more <tr> with filters at the top.
- *
- * browse-table-body-withrecords
- *      ] Loop through the records and create <tr>s.
- *
- * browse-table-body-norecords
- *      [ Optional ] The <tr> to show when no records are present. Default is the "no records" text.
- *
- * browse-table-footer
- *      [ Optional ] The table footer. By default that's just the pagination footer.
- *
- * browse-hidden-fields
- *      [ Optional ] Any additional hidden INPUTs to add to the form. By default this is empty.
- *      The default hidden fields (option, view, task, ordering fields, boxchecked and token) can
- *      not be removed.
- *
- * Do not override any other section
  */
 
 defined('_JEXEC') or die();
