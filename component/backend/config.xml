@@ -53,7 +53,7 @@
 		</field>
 
 		<field name="dark_mode" type="radio" default="0"
-			   label="COM_LOGINGUARD_BACKEND_DARKMODE_LABEL"
+			   label="COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_LABEL"
 			   description="COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_DESC"
 			   class="switcher btn-group">
 			<option value="-1">COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_AUTO</option>

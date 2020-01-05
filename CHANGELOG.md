@@ -1,3 +1,9 @@
+# 3.2.2
+
+**Bug fixes**
+
+* Dark Mode “Auto” setting ended up being the same as “Always”
+
 # 3.2.1
 
 **New**
