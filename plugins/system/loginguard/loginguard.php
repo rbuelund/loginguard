@@ -255,6 +255,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	 */
 	public function onUserAfterLogin($options)
 	{
+		// Always reset the browser ID to avoid session poisoning attacks
+		$session = Factory::getSession();
+		$session->set('browserId', null, 'com_loginguard');
+		$session->set('browserIdCodeLoaded', false, 'com_loginguard');
+
 		// Should I show 2SV even on silent logins? Default: 1 (yes, show)
 		$switch = $this->params->get('2svonsilent', 1);
 
@@ -279,8 +284,6 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// Set the flag indicating that 2SV is already checked.
-		$session    = Factory::getSession();
-
 		$session->set('tfa_checked', 1, 'com_loginguard');
 	}
 

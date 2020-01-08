@@ -11,13 +11,13 @@ use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
 use FOF30\Model\Model;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Application\CMSApplication as JApplicationCms;
 use Joomla\CMS\Factory as JFactory;
-use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
-use Joomla\Event\Event;
 use Joomla\CMS\User\User as JUser;
+use Joomla\Event\Event;
 use stdClass;
 
 // Protect from unauthorized access
@@ -117,42 +117,9 @@ class Captive extends Model
 	}
 
 	/**
-	 * This is the method which actually filters the sites modules based on the allowed module positions specified by
-	 * the user.
-	 *
-	 * @param   array  $modules  The list of the site's modules. Passed by reference.
-	 *
-	 * @return  void  The by-reference value is modified instead.
-	 * @since   2.0.0
-	 */
-	private function filterModules(&$modules)
-	{
-		$allowedPositions = $this->getAllowedModulePositions();
-
-		if (empty($allowedPositions))
-		{
-			$modules = [];
-
-			return;
-		}
-
-		$filtered = [];
-
-		foreach ($modules as $module)
-		{
-			if (in_array($module->position, $allowedPositions))
-			{
-				$filtered[] = $module;
-			}
-		}
-
-		$modules = $filtered;
-	}
-
-	/**
 	 * Get the TFA records for the user which correspond to active plugins
 	 *
-	 * @param   JUser|User  $user   The user for which to fetch records. Skip to use the current user.
+	 * @param   JUser|User  $user  The user for which to fetch records. Skip to use the current user.
 	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa[]
 	 * @since   2.0.0
@@ -245,7 +212,7 @@ class Captive extends Model
 	/**
 	 * Load the captive login page render options for a specific TFA record
 	 *
-	 * @param   stdClass  $record      The TFA record to process
+	 * @param   stdClass  $record  The TFA record to process
 	 *
 	 * @return  array  The rendering options
 	 * @since   2.0.0
@@ -375,6 +342,91 @@ class Captive extends Model
 		}
 
 		return isset($map[$name]) ? $map[$name] : $name;
+	}
+
+	/**
+	 * Is the specified browser ID known and trusted for the given user?
+	 *
+	 * @param   int     $user_id
+	 * @param   string  $browserId
+	 *
+	 * @return  bool
+	 */
+	public function hasBrowserId(int $user_id, string $browserId): bool
+	{
+		//return (($user_id == 70) && ($browserId == '549aa05a6cdf8c779c030c29813575a0'));
+		return false;
+		// TODO
+	}
+
+	/**
+	 * Add a trusted browser ID for the given user
+	 *
+	 * @param   int     $user_id
+	 * @param   string  $browserId
+	 *
+	 * @return  void
+	 */
+	public function addBrowserId(int $user_id, string $browserId): void
+	{
+		// TODO
+	}
+
+	/**
+	 * Remove a browser ID (or all browser IDs) for the specified user
+	 *
+	 * @param   int          $user_id
+	 * @param   string|null  $browserId
+	 *
+	 * @return  void
+	 */
+	public function removeBrowserId(int $user_id, ?string $browserId): void
+	{
+		// TODO
+	}
+
+	/**
+	 * Renews the validity date of the given browser ID for the specified user
+	 *
+	 * @param   int     $user_id
+	 * @param   string  $browserId
+	 */
+	public function hitBrowserId(int $user_id, string $browserId): void
+	{
+		// TODO
+	}
+
+	/**
+	 * This is the method which actually filters the sites modules based on the allowed module positions specified by
+	 * the user.
+	 *
+	 * @param   array  $modules  The list of the site's modules. Passed by reference.
+	 *
+	 * @return  void  The by-reference value is modified instead.
+	 * @since   2.0.0
+	 */
+	private function filterModules(&$modules)
+	{
+		$allowedPositions = $this->getAllowedModulePositions();
+
+		if (empty($allowedPositions))
+		{
+			$modules = [];
+
+			return;
+		}
+
+		$filtered = [];
+
+		foreach ($modules as $module)
+		{
+			if (in_array($module->position, $allowedPositions))
+			{
+				$filtered[] = $module;
+			}
+		}
+
+		$modules = $filtered;
 	}
 
 	/**

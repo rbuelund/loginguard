@@ -75,6 +75,14 @@ class Html extends BaseView
 	public $tfaMethods;
 
 	/**
+	 * Browser identification hash (fingerprint)
+	 *
+	 * @var   string|null
+	 * @since 3.3.0
+	 */
+	public $browserId;
+
+	/**
 	 * Executes before displaying the captive login page
 	 *
 	 * @return  void
@@ -86,21 +94,22 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		// Load data from the model
-		$this->isAdmin         = $this->container->platform->isBackend();
-		$this->records         = $this->get('records');
-		$this->record          = $this->get('record');
-		$this->tfaMethods      = Tfa::getTfaMethods();
+		$this->isAdmin    = $this->container->platform->isBackend();
+		$this->records    = $this->get('records');
+		$this->record     = $this->get('record');
+		$this->tfaMethods = Tfa::getTfaMethods();
+		$this->browserId  = $this->container->session->get('browserId', null, 'com_loginguard');
 
 		if (!empty($this->records))
 		{
 			/** @var BackupCodes $codesModel */
-			$codesModel = $this->container->factory->model('BackupCodes');
+			$codesModel        = $this->container->factory->model('BackupCodes');
 			$backupCodesRecord = $codesModel->getBackupCodesRecord();
 
 			if (!is_null($backupCodesRecord))
 			{
 				$backupCodesRecord->title = JText::_('COM_LOGINGUARD_LBL_BACKUPCODES');
-				$this->records[] = $backupCodesRecord;
+				$this->records[]          = $backupCodesRecord;
 			}
 		}
 
@@ -128,21 +137,40 @@ class Html extends BaseView
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
 
+		// If we have no record selected or explicitly asked to run the 'select' task use the correct layout
 		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
 			$this->setLayout('select');
-			$this->allowEntryBatching = 1;
-
-			$this->container->platform->runPlugins('onComLoginguardCaptiveShowSelect', []);
 		}
-		else
+		// If there's no browser ID try to fingerprint the browser instead of showing the 2SV page
+		elseif (is_null($this->browserId))
 		{
-			$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
-			$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
+			$this->setLayout('fingerprint');
 
-			$this->container->platform->runPlugins('onComLoginguardCaptiveShowCaptive', [
-				$this->escape($this->record->title)
-			]);
+		}
+
+		switch ($this->getLayout())
+		{
+			case 'select':
+				$this->allowEntryBatching = 1;
+
+				$this->container->platform->runPlugins('onComLoginguardCaptiveShowSelect', []);
+				break;
+
+			case 'fingerprint':
+				// This flag tells the Captive model that we are sending a new browser ID now
+				$this->container->session->set('browserIdCodeLoaded', true, 'com_loginguard');
+				break;
+
+			case 'default':
+			default:
+				$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
+				$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
+
+				$this->container->platform->runPlugins('onComLoginguardCaptiveShowCaptive', [
+					$this->escape($this->record->title),
+				]);
+				break;
 		}
 
 		// Which title should I use for the page?
@@ -151,8 +179,7 @@ class Html extends BaseView
 		// Include CSS
 		$this->addCssFile('media://com_loginguard/css/captive.min.css', null, 'text/css', null, [
 			'relative'    => true,
-			'detectDebug' => true
+			'detectDebug' => true,
 		]);
 	}
-
 }
