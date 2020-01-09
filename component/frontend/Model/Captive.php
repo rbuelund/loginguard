@@ -345,58 +345,6 @@ class Captive extends Model
 	}
 
 	/**
-	 * Is the specified browser ID known and trusted for the given user?
-	 *
-	 * @param   int     $user_id
-	 * @param   string  $browserId
-	 *
-	 * @return  bool
-	 */
-	public function hasBrowserId(int $user_id, string $browserId): bool
-	{
-		//return (($user_id == 70) && ($browserId == '549aa05a6cdf8c779c030c29813575a0'));
-		return false;
-		// TODO
-	}
-
-	/**
-	 * Add a trusted browser ID for the given user
-	 *
-	 * @param   int     $user_id
-	 * @param   string  $browserId
-	 *
-	 * @return  void
-	 */
-	public function addBrowserId(int $user_id, string $browserId): void
-	{
-		// TODO
-	}
-
-	/**
-	 * Remove a browser ID (or all browser IDs) for the specified user
-	 *
-	 * @param   int          $user_id
-	 * @param   string|null  $browserId
-	 *
-	 * @return  void
-	 */
-	public function removeBrowserId(int $user_id, ?string $browserId): void
-	{
-		// TODO
-	}
-
-	/**
-	 * Renews the validity date of the given browser ID for the specified user
-	 *
-	 * @param   int     $user_id
-	 * @param   string  $browserId
-	 */
-	public function hitBrowserId(int $user_id, string $browserId): void
-	{
-		// TODO
-	}
-
-	/**
 	 * This is the method which actually filters the sites modules based on the allowed module positions specified by
 	 * the user.
 	 *

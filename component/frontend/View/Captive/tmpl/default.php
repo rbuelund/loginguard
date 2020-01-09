@@ -15,7 +15,8 @@ defined('_JEXEC') or die;
 /** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
 /** @var \Akeeba\LoginGuard\Site\Model\Captive $model */
 
-$model = $this->getModel();
+$model           = $this->getModel();
+$allowRememberMe = $this->container->params->get('allow_rememberme', 1);
 ?>
 <div class="loginguard-captive akeeba-panel--info">
     <header class="akeeba-block-header">
@@ -82,6 +83,7 @@ JS;
                 </div>
 		    <?php endif;?>
 
+			<?php if (!empty($this->browserId) && $allowRememberMe): ?>
 			<div id="loginguard-captive-form-remember-me" class="akeeba-form-group">
 				<label for="loginguard-rememberme-yes">
 					<?= Text::_('JGLOBAL_REMEMBER_ME') ?>
@@ -93,6 +95,7 @@ JS;
 					<label for="loginguard-rememberme-no" class="red"><?= Text::_('JNO') ?></label>
 				</div>
 			</div>
+			<?php endif; ?>
         </div>
 
         <div id="loginguard-captive-form-standard-buttons" class="akeeba-form-group--pull-right">

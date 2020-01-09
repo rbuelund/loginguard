@@ -59,19 +59,3 @@ phing git
 popd 
 ```
 This will create a dev release ZIP package in `loginguard/release`.
-
-# TODO
-
-    WebAuthn, U2F: show the button to authenticate after error
-    Remember Me toggle in Captive page, preselected
-    Save browser ID on successful Captive::validate() if Remember Me is enabled
-    Configurable fingerprint feature (global disable)
-    Configurable max time to remember browser ID
-    Implement DB storage for browser ID
-    Documentation
-
-Changelog
-
-**New**
-
-* Browser fingerprinting to reduce 2SV prompts

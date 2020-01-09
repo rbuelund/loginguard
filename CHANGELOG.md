@@ -1,5 +1,9 @@
 # 3.3.0
 
+**New**
+
+* Browser fingerprinting to reduce 2SV prompts
+
 **Bug fixes**
 
 * Dark Mode “Auto” setting ended up being the same as “Always”

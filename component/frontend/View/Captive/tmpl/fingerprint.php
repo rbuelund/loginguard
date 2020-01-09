@@ -57,19 +57,35 @@ JS;
 
 
 $this->addJavascriptInline($js);
-?>
+
+use Joomla\CMS\Language\Text; ?>
 <div class="akeeba-panel--info">
 	<header class="akeeba-block-header">
 		<h2>
-			<?= JText::_('COM_LOGINGUARD_HEAD_FINGERPRINTING'); ?>
+			<?= Text::_('COM_LOGINGUARD_HEAD_FINGERPRINTING'); ?>
 		</h2>
 	</header>
-	<p>
-		<?= JText::_('COM_LOGINGUARD_LBL_FINGERPRINTING_MESSAGE'); ?>
+	<p id="loginguard-captive-fingeprint-info" style="display: none">
+		<?= Text::_('COM_LOGINGUARD_LBL_FINGERPRINTING_MESSAGE'); ?>
 	</p>
-</div>
 
-<form id="akeebaLoginguardForm" method="post" action="<?= JRoute::_('index.php?option=com_loginguard&view=Captive') ?>">
-	<input type="hidden" name="<?= $this->container->platform->getToken(true) ?>" value="1">
-	<input type="hidden" id="akeebaLoginguardFormBrowserId" name="browserId" value="">
-</form>
+	<script type="text/javascript">
+		document.getElementById('loginguard-captive-fingeprint-info').style.display = 'block';
+	</script>
+
+	<form id="akeebaLoginguardForm" method="post" action="<?= JRoute::_('index.php?option=com_loginguard&view=Captive') ?>">
+		<input type="hidden" name="<?= $this->container->platform->getToken(true) ?>" value="1">
+		<input type="hidden" id="akeebaLoginguardFormBrowserId" name="browserId" value="">
+
+		<noscript>
+			<h3>
+				<?= Text::_('COM_LOGINGUARD_LBL_FINGERPRINTING_NOSCRIPT_HEAD') ?>
+			</h3>
+			<p>
+				<?= Text::_('COM_LOGINGUARD_LBL_FINGERPRINTING_NOSCRIPT_BODY') ?>
+			</p>
+
+			<input type="submit">
+		</noscript>
+	</form>
+</div>

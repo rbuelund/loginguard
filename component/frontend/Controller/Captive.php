@@ -9,6 +9,7 @@ namespace Akeeba\LoginGuard\Site\Controller;
 
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Captive as CaptiveModel;
+use Akeeba\LoginGuard\Site\Model\RememberMe;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
@@ -93,12 +94,11 @@ class Captive extends Controller
 
 		// Validate by Browser ID
 		$browserId = $this->getBrowserId();
+		/** @var RememberMe $rememberMeModel */
+		$rememberMeModel = $this->container->factory->model('RememberMe');
 
-		if (!is_null($browserId) && is_string($browserId) && $model->hasBrowserId($user->id, $browserId))
+		if (!is_null($browserId) && $rememberMeModel->setBrowserId($browserId)->hasValidCookie())
 		{
-			// Reaffirm the validity of the browser ID
-			$model->hitBrowserId($user->id, $browserId);
-
 			// Tell the plugins that we successfully applied 2SV – used by our User Actions Log plugin.
 			$this->container->platform->runPlugins('onComLoginguardCaptiveValidateSuccess', [
 				JText::_('COM_LOGINGUARD_LBL_METHOD_BROWSERID'),
@@ -142,8 +142,9 @@ class Captive extends Controller
 		}
 
 		// Get the TFA parameters from the request
-		$record_id = $this->input->getInt('record_id', null);
-		$code      = $this->input->get('code', null, 'raw');
+		$record_id  = $this->input->getInt('record_id', null);
+		$rememberMe = $this->input->getBool('rememberme', false);
+		$code       = $this->input->get('code', null, 'raw');
 		/** @var CaptiveModel $model */
 		$model = $this->getModel();
 
@@ -215,6 +216,20 @@ class Captive extends Controller
 			return;
 		}
 
+		// Handle the Remember Me option
+		$browserId = $this->getBrowserId();
+
+		if ($rememberMe && !empty($browserId))
+		{
+			/** @var RememberMe $rememberModel */
+			$rememberModel = $this->container->factory->model('RememberMe');
+			$rememberModel
+				->setBrowserId($browserId)
+				->setUsername($user->username)
+				->setCookie();
+		}
+
+		// Run the plugins for the User Action Log plugin
 		$this->container->platform->runPlugins('onComLoginguardCaptiveValidateSuccess', [
 			$record->title,
 		]);
