@@ -65,14 +65,14 @@ class Dispatcher extends BaseDispatcher
 		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, null, true, false);
 
 		// Set the link toolbar style to Classic (Bootstrap tabs).
-		$darkMode = $this->container->params->get('dark_mode', -1) != 0;
+		$darkMode = $this->container->params->get('dark_mode', -1);
 		$options  = [
 			'linkbar_style' => 'classic',
 			'fef_dark'      => $darkMode,
 			'custom_css'    => 'media://com_loginguard/css/dark.min.css',
 		];
 
-		if (!$darkMode)
+		if ($darkMode == 0)
 		{
 			unset($options['custom_css']);
 		}

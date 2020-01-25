@@ -6,6 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
+use Akeeba\LoginGuard\Site\Model\RememberMe;
 use FOF30\Container\Container;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -269,6 +270,46 @@ class plgUserLoginguard extends CMSPlugin
 
 		// Prepare to redirect
 		Factory::getSession()->set('postloginredirect', $url, 'com_loginguard');
+	}
+
+	/**
+	 * Fires after the user has logged out
+	 *
+	 * Used to remove the 2SV Remember Me cookie from the browser.
+	 *
+	 * @param   array|null  $options
+	 *
+	 * @return  bool  Always true
+	 */
+	public function onUserAfterLogout(?array $options): bool
+	{
+		// Is the Remember Me feature enabled?
+		$allowRememberMe = $this->container->params->get('allow_rememberme', 1);
+
+		if ($allowRememberMe)
+		{
+			return true;
+		}
+
+		// Make sure I can get an non-empty username
+		if (!is_array($options) || !array_key_exists('username', $options))
+		{
+			return true;
+		}
+
+		$userName = $options['username'] ?? '';
+
+		if (empty($userName))
+		{
+			return true;
+		}
+
+		// Finally, remove the Remember Me cookie
+		/** @var RememberMe $rememberModel */
+		$rememberModel = $this->container->factory->model('RememberMe');
+		$rememberModel->setUsername($userName)->removeCookie();
+
+		return true;
 	}
 
 	/**

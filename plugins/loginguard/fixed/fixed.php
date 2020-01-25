@@ -104,8 +104,6 @@ class PlgLoginguardFixed extends CMSPlugin
 			'html'         => '',
 			// Custom HTML to display below the TFA form
 			'post_message' => JText::_('PLG_LOGINGUARD_FIXED_LBL_POSTMESSAGE'),
-			// Should I hide the submit button? Useful if you need to render your own buttons or use a method which is meant to auto-submit upon doing a certain action.
-			'hide_submit'        => true,
 			// URL for help content
 			'help_url'     => $helpURL,
 		);

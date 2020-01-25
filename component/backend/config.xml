@@ -52,8 +52,39 @@
 			<option value="0">COM_LOGINGUARD_CONFIG_LBL_NOGROUP</option>
 		</field>
 
+		<field name="allow_rememberme" type="radio"
+			   default="1"
+			   label="COM_LOGINGUARD_CONFIG_FRONTEND_ALLOW_REMEMBERME_LABEL"
+			   description="COM_LOGINGUARD_CONFIG_FRONTEND_ALLOW_REMEMBERME_DESC"
+			   class="btn-group">
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field
+				name="cookie_lifetime"
+				type="number"
+				label="COM_LOGINGUARD_CONFIG_FRONTEND_COOKIE_LIFETIME_LABEL"
+				description="COM_LOGINGUARD_CONFIG_FRONTEND_COOKIE_LIFETIME_DESC"
+				min="1"
+				max="365"
+				step="1"
+				default="15"
+		/>
+
+		<field
+				name="cookie_key_length"
+				type="number"
+				label="COM_LOGINGUARD_CONFIG_FRONTEND_COOKIE_KEY_LENGTH_LABEL"
+				description="COM_LOGINGUARD_CONFIG_FRONTEND_COOKIE_KEY_LENGTH_DESC"
+				min="16"
+				max="120"
+				step="1"
+				default="64"
+		/>
+
 		<field name="dark_mode" type="radio" default="0"
-			   label="COM_LOGINGUARD_BACKEND_DARKMODE_LABEL"
+			   label="COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_LABEL"
 			   description="COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_DESC"
 			   class="switcher btn-group">
 			<option value="-1">COM_LOGINGUARD_CONFIG_BACKEND_DARKMODE_AUTO</option>

@@ -1,10 +1,6 @@
 ## Release highlights
 
-**Removed unused GeoIP feature**. We have not been collecting IP addresses for well over a year. There is no point having the GeoIP plugin integration in LoginGuard anymore.
-
-**Support for Dark Mode**. A new dark theme has been added. You can choose if you want to always enable it, have it follow the browser's preferences or disable it.
-
-**Common PHP version warning scripts**. We have normalized the wording of warnings about old, End of Life and dangerously old PHP versions. You will get a reminder to update PHP if it has entered its final year of support, a warning to update PHP if it has recently become End of Life, a much more urgent warning if it's been End of Life for over 6 months and an error if it's no longer supported by our software.
+**Browser fingerprinting to reduce 2SV prompts**. On popular request, we added an optional feature to disable 2SV prompts for a period of time as long as the user is logging in from a device and browser previously marked as secure. 
 
 ## Joomla and PHP Compatibility
 
@@ -20,14 +16,8 @@ We strongly recommend using the latest published Joomla! version and PHP 7.3 or 
 
 **New**
 
-* Support for Dark Mode
-* Common PHP version warning scripts
-
-**Removed features**
-
-* We do not need the GeoIP plugin integration since 3.0.0; related functionality has been removed
+* Browser fingerprinting to reduce 2SV prompts
 
 **Bug fixes**
 
-* You could see an inactive (therefore confusing) 2SV method registration page while not logged in.
-* Joomla's forced password reset makes LoginGuard go into an infinite redirection loop (gh-76)
+* Dark Mode “Auto” setting ended up being the same as “Always”
