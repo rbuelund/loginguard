@@ -89,6 +89,11 @@ akeeba.LoginGuard.webauthn.setUp = function () {
 };
 
 akeeba.LoginGuard.webauthn.handle_error = function (message) {
+  try {
+    $('#loginguard-webauthn-button').show();
+  } catch (e) {}
+
+  ;
   alert(message);
   console.log(message);
 };

@@ -1,3 +1,9 @@
+# 3.3.1
+
+**Bug fixes**
+
+* U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
+
 # 3.3.0
 
 **New**

@@ -10,9 +10,9 @@ var akeeba = akeeba || {};
 akeeba.LoginGuard = akeeba.LoginGuard || {};
 
 akeeba.LoginGuard.u2f = akeeba.LoginGuard.u2f || {
-	regData: null,
-	authData: null,
-	handledError: false
+	regData:       null,
+	authData:      null,
+	handlingError: false
 };
 
 /**
@@ -61,12 +61,12 @@ akeeba.LoginGuard.u2f.showError = function(errorCode)
      * Firefox sends two responses with error codes 4 and 1 when the device is already registered. Using this trick
      * we only display the relevant error message (4), discarding the secondary generic error.
      */
-    if (akeeba.LoginGuard.u2f.handledError)
+    if (akeeba.LoginGuard.u2f.handlingError)
     {
         return;
     }
 
-    akeeba.LoginGuard.u2f.handledError = true;
+    akeeba.LoginGuard.u2f.handlingError = true;
 
     switch (errorCode)
     {
@@ -88,7 +88,7 @@ akeeba.LoginGuard.u2f.showError = function(errorCode)
             {
                 alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN'));
 
-                return;
+                break;
             }
 
             alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE'));
@@ -97,16 +97,16 @@ akeeba.LoginGuard.u2f.showError = function(errorCode)
         case 5:
             alert(Joomla.JText._('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT'));
 
-            try
-            {
-                $('#loginguard-u2f-button').show();
-            }
-            catch (e) {};
-
             break;
     }
 
-    akeeba.LoginGuard.u2f.handledError = false;
+    try
+    {
+        $('#loginguard-u2f-button').show();
+    }
+    catch (e) {};
+
+    akeeba.LoginGuard.u2f.handlingError = false;
 };
 
 /**
