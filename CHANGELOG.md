@@ -3,6 +3,7 @@
 **Bug fixes**
 
 * U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
+* Missing file css/dark.min.css from the media folder
 
 # 3.3.0
 
