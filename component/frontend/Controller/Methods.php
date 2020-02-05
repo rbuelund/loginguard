@@ -34,7 +34,7 @@ class Methods extends Controller
 	{
 		parent::__construct($container, $config);
 
-		$this->setPredefinedTaskList(['main', 'display', 'dontshowthisagain']);
+		$this->setPredefinedTaskList(['main', 'display', 'dontshowthisagain', 'disable']);
 	}
 
 	/**

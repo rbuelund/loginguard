@@ -1,10 +1,3 @@
-# 3.3.1
-
-**Bug fixes**
-
-* U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
-* Missing file css/dark.min.css from the media folder
-
 # 3.3.0
 
 **New**
@@ -14,6 +7,8 @@
 **Bug fixes**
 
 * Dark Mode “Auto” setting ended up being the same as “Always”
+* U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
+* Missing file css/dark.min.css from the media folder
 
 # 3.2.1
 
