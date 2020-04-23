@@ -7,6 +7,9 @@
 **Bug fixes**
 
 * Dark Mode “Auto” setting ended up being the same as “Always”
+* U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
+* Missing file css/dark.min.css from the media folder
+* Cannot access backend if you have TFA enabled and you're not a Super User (or have the core.manage privilege for LoginGuard)
 
 # 3.2.1
 

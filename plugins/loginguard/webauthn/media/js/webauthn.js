@@ -19,7 +19,7 @@ akeeba.LoginGuard.webauthn = akeeba.LoginGuard.webauthn || {
 akeeba.LoginGuard.webauthn.arrayToBase64String = (a) =>
 {
     return btoa(String.fromCharCode(...a));
-}
+};
 
 /**
  * Ask the user to link an authenticator using the provided public key (created server-side).
@@ -79,6 +79,12 @@ akeeba.LoginGuard.webauthn.setUp = () =>
 
 akeeba.LoginGuard.webauthn.handle_error = (message) =>
 {
+    try
+    {
+        $('#loginguard-webauthn-button').show();
+    }
+    catch (e) {};
+
     alert(message);
 
     console.log(message);

@@ -163,12 +163,29 @@ class Dispatcher extends BaseDispatcher
 			return;
 		}
 
-		// TODO This should be per view / task, otherwise backend users cannot edit their own TFA from the backend.
-		// If we don't have the core.manage privilege for this component throw an error
-		if (!$this->container->platform->authorise('core.manage', $this->container->componentName))
+		$view = strtolower($this->input->get('view', $this->defaultView));
+
+		switch ($view)
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 404);
+			// Special administrative pages require the core.manage privilege
+			case 'convert':
+			case 'converts':
+			case 'users':
+			case 'user':
+				// If we don't have the core.manage privilege for this component throw an error
+				if (!$this->container->platform->authorise('core.manage', $this->container->componentName))
+				{
+					throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 404);
+				}
+				break;
+
+			// Everything else is managed on a task-by-task basis
+			default:
+				return;
+				break;
 		}
+
+
 	}
 
 	/**
