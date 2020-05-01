@@ -3,6 +3,7 @@
 **New**
 
 * LoginGuard will fix and update its database if necessary when you visit its backend page as a Super User
+* Joomla 4 compatible
 
 # 3.3.0
 
