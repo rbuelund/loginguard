@@ -1,3 +1,9 @@
+# 3.3.1
+
+**New**
+
+* LoginGuard will fix and update its database if necessary when you visit its backend page as a Super User
+
 # 3.3.0
 
 **New**

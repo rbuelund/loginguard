@@ -8,7 +8,9 @@
 namespace Akeeba\LoginGuard\Admin\Model;
 
 use Exception;
+use FOF30\Database\Installer;
 use FOF30\Model\Model;
+use RuntimeException;
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
@@ -134,4 +136,24 @@ class Welcome extends Model
 
 		return !empty($result);
 	}
+
+	/**
+	 * Checks the database for missing / outdated tables and runs the appropriate SQL scripts if necessary.
+	 *
+	 * @return  $this
+	 * @throws  RuntimeException|Exception
+	 */
+	public function checkAndFixDatabase()
+	{
+		// Install or update database
+		$dbInstaller = new Installer(
+			$this->container->db,
+			JPATH_ADMINISTRATOR . '/components/com_loginguard/sql/xml'
+		);
+
+		$dbInstaller->updateSchema();
+
+		return $this;
+	}
+
 }

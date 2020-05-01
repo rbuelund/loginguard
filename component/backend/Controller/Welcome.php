@@ -65,6 +65,8 @@ class Welcome extends Controller
 	 */
 	public function welcome()
 	{
+		$this->getModel()->checkAndFixDatabase();
+
 		$this->display();
 	}
 
