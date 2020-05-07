@@ -43,6 +43,8 @@ class Ajax extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['json', 'hashjson', 'raw']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

@@ -33,6 +33,8 @@ class Users extends DataController
 
 		// Only allow a Browse view.
 		$this->predefinedTaskList = ['browse'];
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 

@@ -50,6 +50,8 @@ class Captive extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['captive', 'validate']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

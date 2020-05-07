@@ -43,6 +43,8 @@ class Callback extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['callback']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

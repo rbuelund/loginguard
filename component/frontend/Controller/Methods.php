@@ -35,6 +35,8 @@ class Methods extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['main', 'display', 'dontshowthisagain', 'disable']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

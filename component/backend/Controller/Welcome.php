@@ -44,6 +44,9 @@ class Welcome extends Controller
 		}
 
 		parent::__construct($container, $config);
+
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

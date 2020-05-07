@@ -50,6 +50,8 @@ class Method extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['add', 'edit', 'regenbackupcodes', 'delete', 'save']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**

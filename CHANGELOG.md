@@ -9,6 +9,10 @@
 
 * Internal changes to use proper-cased views everywhere instead of legacy task=viewname.taskname when building public URLs
 
+**Bug fixes**
+
+* Unable to change 2SV method on Chrome when caching is enabled either at the Joomla or web server level.
+
 # 3.3.0
 
 **New**
