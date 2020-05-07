@@ -513,7 +513,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 
 		// Redirect to the editor page
 		$userPart    = empty($user_id) ? '' : ('&user_id=' . $user_id);
-		$redirectURL = 'index.php?option=com_loginguard&task=method.add&method=smsapi' . $userPart;
+		$redirectURL = 'index.php?option=com_loginguard&view=Method&task=add&method=smsapi' . $userPart;
 
 		$app->redirect($redirectURL);
 

@@ -124,7 +124,7 @@ JS;
 
 	    <?php if (count($this->records) > 1): ?>
             <div id="loginguard-captive-form-choose-another" class="akeeba-form-group--pull-right">
-                <a href="<?= Route::_('index.php?option=com_loginguard&view=captive&task=select') ?>">
+                <a href="<?= Route::_('index.php?option=com_loginguard&view=Captive&task=select') ?>">
 				    <?= JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
                 </a>
             </div>

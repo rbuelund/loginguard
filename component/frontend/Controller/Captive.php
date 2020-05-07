@@ -70,7 +70,7 @@ class Captive extends Controller
 		// If we're already logged in go to the site's home page
 		if ($this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard') == 1)
 		{
-			$url = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+			$url = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display', false);
 			$this->setRedirect($url);
 
 			return;
@@ -209,7 +209,7 @@ class Captive extends Controller
 			]);
 
 			// The code is wrong. Display an error and go back.
-			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record_id, false);
+			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=Captive&record_id=' . $record_id, false);
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
 			$this->setRedirect($captiveURL, $message, 'error');
 

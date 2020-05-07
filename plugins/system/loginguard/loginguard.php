@@ -213,7 +213,7 @@ class PlgSystemLoginguard extends CMSPlugin
 			}
 
 			// Redirect
-			$url = Route::_('index.php?option=com_loginguard&view=captive', false);
+			$url = Route::_('index.php?option=com_loginguard&view=Captive', false);
 			$app->redirect($url, 307);
 
 			return;

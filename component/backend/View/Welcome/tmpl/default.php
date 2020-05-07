@@ -116,7 +116,7 @@ echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
 		<?php echo JText::_('COM_LOGINGUARD_LBL_CONVERT_INFO'); ?>
     </p>
     <p>
-        <a href="<?php echo Route::_('index.php?option=com_loginguard&task=convert.convert&' . $this->getContainer()->platform->getToken() . '=1')?>"
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=Convert&task=convert&' . $this->getContainer()->platform->getToken() . '=1')?>"
            class="akeeba-btn--success--large">
             <span class="akion-play"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_BTN_CONVERT'); ?>
@@ -135,7 +135,7 @@ echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
         <?php echo JText::_('COM_LOGINGUARD_LBL_MANAGE_BODY'); ?>
     </p>
     <p>
-        <a href="<?php echo Route::_('index.php?option=com_loginguard&task=methods.display') ?>" class="akeeba-btn--primary--large">
+        <a href="<?php echo Route::_('index.php?option=com_loginguard&view=Methods&task=display') ?>" class="akeeba-btn--primary--large">
             <span class="akion-android-lock"></span>
             <?php echo JText::_('COM_LOGINGUARD_BTN_MANAGE_SELF'); ?>
         </a>

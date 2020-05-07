@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 
 HTMLHelper::_('bootstrap.tooltip');
 
-$cancelURL = Route::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $this->user->id);
+$cancelURL = Route::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $this->user->id);
 
 if (!empty($this->returnURL))
 {
@@ -63,7 +63,7 @@ $token = $this->getContainer()->platform->getToken();
     </p>
 
     <p>
-        <a class="akeeba-btn--red" href="<?php echo Route::_('index.php?option=com_loginguard&task=method.regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL) ? '' : '&returnurl=' . $this->returnURL . '&' . $token . '=1')) ?>">
+        <a class="akeeba-btn--red" href="<?php echo Route::_('index.php?option=com_loginguard&view=Method&task=regenbackupcodes&user_id=' . $this->user->id . (empty($this->returnURL) ? '' : '&returnurl=' . $this->returnURL . '&' . $token . '=1')) ?>">
             <span class="akion-refresh"></span>
 		    <?php echo JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_RESET'); ?>
         </a>

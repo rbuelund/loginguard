@@ -5,6 +5,10 @@
 * LoginGuard will fix and update its database if necessary when you visit its backend page as a Super User
 * Joomla 4 compatible
 
+**Other Changes**
+
+* Internal changes to use proper-cased views everywhere instead of legacy task=viewname.taskname when building public URLs
+
 # 3.3.0
 
 **New**

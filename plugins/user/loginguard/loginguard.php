@@ -260,7 +260,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 
 		// Get the redirection URL to the 2SV setup page or custom redirection per plugin configuration
-		$url           = Route::_('index.php?option=com_loginguard&task=methods.display&layout=firsttime', false);
+		$url           = Route::_('index.php?option=com_loginguard&view=Methods&task=display&layout=firsttime', false);
 		$configuredUrl = $this->params->get('redirecturl', null);
 
 		if ($configuredUrl)

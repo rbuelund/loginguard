@@ -19,7 +19,7 @@ if (substr($baseURL, -14) == 'administrator/')
 	$backend = 1;
 }
 
-$redirectURL = urlencode($baseURL . 'index.php?option=com_loginguard&task=callback.callback&method=pushbullet');
+$redirectURL = urlencode($baseURL . 'index.php?option=com_loginguard&view=Callback&task=callback&method=pushbullet');
 $oauth2URL = "https://www.pushbullet.com/authorize?client_id={$this->clientId}&redirect_uri=$redirectURL&response_type=code&state=$backend"
 
 ?>

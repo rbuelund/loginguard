@@ -536,7 +536,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// Do I have to redirect to the backend?
 		if ($backend == 1)
 		{
-			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
+			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&view=Callback&task=callback&method=pushbullet&token=' . $token;
 			$app->redirect($redirectURL);
 
 			// Just to make IDEs happy. The application is closed above during the redirection.
@@ -553,7 +553,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		// Redirect to the editor page
 		$userPart = empty($user_id) ? '' : ('&user_id='. $user_id);
-		$redirectURL = 'index.php?option=com_loginguard&task=method.add&method=pushbullet' . $userPart;
+		$redirectURL = 'index.php?option=com_loginguard&view=Method&task=add&method=pushbullet' . $userPart;
 
 		$app->redirect($redirectURL);
 

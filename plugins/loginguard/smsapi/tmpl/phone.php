@@ -24,7 +24,7 @@ HTMLHelper::_('script', 'plg_loginguard_smsapi/telinput.min.js', true, true, fal
 HTMLHelper::_('script', 'plg_loginguard_smsapi/utils.min.js', true, true, false, false, true);
 
 $token     = Factory::getApplication()->getSession()->getFormToken();
-$actionURL = Uri::base() . 'index.php?option=com_loginguard&task=callback.callback&method=smsapi&' . $token . '=1';
+$actionURL = Uri::base() . 'index.php?option=com_loginguard&view=Callback&task=callback&method=smsapi&' . $token . '=1';
 $js        = /** @lang JavaScript */
 	<<< JS
 ;; // Defense against broken scripts

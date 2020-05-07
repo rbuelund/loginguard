@@ -147,7 +147,7 @@ class Method extends Controller
 		$backupCodesRecord = $model->getBackupCodesRecord($user);
 
 		// Redirect
-		$redirectUrl = 'index.php?option=com_loginguard&task=method.edit&user_id=' . $user_id . '&id=' . $backupCodesRecord->id;
+		$redirectUrl = 'index.php?option=com_loginguard&view=Method&task=edit&user_id=' . $user_id . '&id=' . $backupCodesRecord->id;
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -200,7 +200,7 @@ class Method extends Controller
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -232,7 +232,7 @@ class Method extends Controller
 		$this->_assertCanEdit($user);
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -271,7 +271,7 @@ class Method extends Controller
 		catch (RuntimeException $e)
 		{
 			// Go back to the edit page
-			$nonSefUrl = 'index.php?option=com_loginguard&task=method.';
+			$nonSefUrl = 'index.php?option=com_loginguard&view=Method&task=';
 
 			if ($id)
 			{
@@ -319,7 +319,7 @@ class Method extends Controller
 		catch (Exception $e)
 		{
 			// Go back to the edit page
-			$nonSefUrl = 'index.php?option=com_loginguard&task=method.';
+			$nonSefUrl = 'index.php?option=com_loginguard&view=Method&task=';
 
 			if ($id)
 			{
