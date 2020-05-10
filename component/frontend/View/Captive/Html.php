@@ -137,13 +137,16 @@ class Html extends BaseView
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
 
+		// Should I implement the Remember Me feature?
+		$rememberMe = $this->container->params->get('allow_rememberme', 1);
+
 		// If we have no record selected or explicitly asked to run the 'select' task use the correct layout
 		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
 			$this->setLayout('select');
 		}
 		// If there's no browser ID try to fingerprint the browser instead of showing the 2SV page
-		elseif (is_null($this->browserId))
+		elseif (is_null($this->browserId) && ($rememberMe == 1))
 		{
 			$this->setLayout('fingerprint');
 

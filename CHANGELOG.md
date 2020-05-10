@@ -8,6 +8,7 @@
 **Other Changes**
 
 * Internal changes to use proper-cased views everywhere instead of legacy task=viewname.taskname when building public URLs
+* Do not go through browser fingerprinting if the Remember Me feature is disabled at the component level.
 
 **Bug fixes**
 
