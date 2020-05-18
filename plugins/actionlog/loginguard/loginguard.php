@@ -230,7 +230,7 @@ class plgActionlogLoginguard extends CMSPlugin
 		$this->container->platform->logUserAction([
 			'user_id'  => $userId,
 			'otheruser' => $user->username,
-		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_DISABLE', 'com_loginguard');
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHODS_DISABLE', 'com_loginguard');
 	}
 
 	/**
