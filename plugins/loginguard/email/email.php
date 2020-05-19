@@ -131,7 +131,7 @@ class PlgLoginguardEmail extends CMSPlugin
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'     => 'text',
+			'input_type'     => 'number',
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
@@ -250,7 +250,7 @@ class PlgLoginguardEmail extends CMSPlugin
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'   => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'   => 'text',
+			'input_type'   => 'number',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
 			'placeholder'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
