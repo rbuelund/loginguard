@@ -366,10 +366,17 @@ class PlgLoginguardEmail extends CMSPlugin
 		$body = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
 		// Send email
-		$mailer = Factory::getMailer();
-		$mailer->setSubject($subject);
-		$mailer->setBody($body);
-		$mailer->addRecipient($user->email, $user->name);
-		$mailer->Send();
+		try
+		{
+			$mailer = Factory::getMailer();
+			$mailer->setSubject($subject);
+			$mailer->setBody($body);
+			$mailer->addRecipient($user->email, $user->name);
+			$mailer->Send();
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
 	}
 }

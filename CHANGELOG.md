@@ -14,6 +14,7 @@
 **Bug fixes**
 
 * Unable to change 2SV method on Chrome when caching is enabled either at the Joomla or web server level.
+* Joomla 4 throws an exception when mail is disabled and you try to send an email
 
 # 3.3.0
 
