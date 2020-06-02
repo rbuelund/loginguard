@@ -97,7 +97,7 @@ trait TfaCaptive
 		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
 		 */
 
-		$session = Factory::getSession();
+		$session          = Factory::getSession();
 		$pkOptionsEncoded = $session->get('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
 
 		$force = Container::getInstance('com_loginguard')->input->getInt('force', 0);
@@ -114,8 +114,8 @@ trait TfaCaptive
 				throw new RuntimeException('Expected exception (good): we do not have a pending key request');
 			}
 
-			$serializedOptions = \Safe\base64_decode($pkOptionsEncoded);
-			$pkOptions = unserialize($serializedOptions);
+			$serializedOptions = base64_decode($pkOptionsEncoded);
+			$pkOptions         = unserialize($serializedOptions);
 
 			if (!is_object($pkOptions) || empty($pkOptions) || !($pkOptions instanceof PublicKeyCredentialRequestOptions))
 			{
@@ -182,7 +182,7 @@ JS;
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => true
+			'allowEntryBatching' => true,
 		];
 	}
 

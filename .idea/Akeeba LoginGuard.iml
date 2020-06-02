@@ -7,12 +7,19 @@
       <sourceFolder url="file://$MODULE_DIR$/plugins/loginguard/webauthn/Webauthn" isTestSource="false" packagePrefix="Akeeba\LoginGuard\Webauthn" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/beberlei/assert" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/fgrosse/phpasn1" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/nyholm/psr7" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/paragonie/random_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/php-http/message-factory" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/psr/http-client" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/psr/http-factory" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/ramsey/uuid" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/spomky-labs/base64url" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/spomky-labs/cbor-php" />
-      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/thecodingmachine/safe" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/symfony/polyfill-ctype" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/web-auth/cose-lib" />
+      <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/web-auth/metadata-service" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/web-auth/webauthn-lib" />
       <excludeFolder url="file://$MODULE_DIR$/component/backend/vendor/zendframework/zend-diactoros" />
     </content>

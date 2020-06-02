@@ -11,7 +11,6 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use Akeeba\LoginGuard\Webauthn\CredentialRepository;
 use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
 use Joomla\CMS\Factory;
@@ -29,8 +28,8 @@ trait TfaSaveSetup
 	 * message of the exception will be displayed to the user. If the record does not correspond to your plugin return
 	 * an empty array.
 	 *
-	 * @param   Tfa     $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   Input   $input   The user input you are going to take into account.
+	 * @param   Tfa    $record  The #__loginguard_tfa record currently selected by the user.
+	 * @param   Input  $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
@@ -71,7 +70,7 @@ trait TfaSaveSetup
 		// In any other case try to authorize the registration
 		try
 		{
-			$attestedCredentialData = Credentials::validateAuthenticationData($code);
+			$publicKeyCredentialSource = Credentials::validateAuthenticationData($code);
 		}
 		catch (Exception $err)
 		{
@@ -85,9 +84,9 @@ trait TfaSaveSetup
 
 		// The code is valid. Unset the request data from the session and update the options
 		$options = [
-			'credentialId' => base64_encode($attestedCredentialData->getCredentialId()),
-			'attested'     => json_encode($attestedCredentialData),
-			'counter'      => 0,
+			'credentialId'     => base64_encode($publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId()),
+			'pubkeysource' => json_encode($publicKeyCredentialSource),
+			'counter'          => 0,
 		];
 
 		// Return the configuration to be serialized

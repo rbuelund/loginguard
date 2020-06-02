@@ -16,7 +16,7 @@ if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/inclu
 	throw new RuntimeException('This component requires FOF 3.0.');
 }
 
-class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
+class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 {
 	/**
 	 * The component's name
@@ -105,6 +105,36 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 		{
 			define('AKEEBA_THIS_IS_INSTALLATION_FROM_SCRATCH', 1);
 		}
+	}
+
+	/** @inheritDoc */
+	public function preflight($type, $parent)
+	{
+		$ret = parent::preflight($type, $parent);
+
+		if (!$ret)
+		{
+			return $ret;
+		}
+
+		/**
+		 * Remove the vendor folder on update.
+		 *
+		 * The folder will be reinstalled right away. The reason I am removing it is that updated dependencies assume
+		 * they are installed on a clean slate (that's how Composer does it). If I kee the old files I cause all sorts
+		 * of problems.
+		 */
+		if ($type == 'update')
+		{
+			$this->removeFilesAndFolders([
+				'files'   => [],
+				'folders' => [
+					'administrator/components/com_loginguard/vendor',
+				],
+			]);
+		}
+
+		return true;
 	}
 
 	/**

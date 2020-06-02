@@ -10,10 +10,14 @@ namespace Akeeba\LoginGuard\Webauthn;
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use RuntimeException;
+use Webauthn\AttestationStatement\AttestationStatement;
 use Webauthn\AttestedCredentialData;
-use Webauthn\CredentialRepository as CredentialRepositoryInterface;
+use Webauthn\PublicKeyCredentialDescriptor;
+use Webauthn\PublicKeyCredentialSource;
+use Webauthn\PublicKeyCredentialSourceRepository;
+use Webauthn\PublicKeyCredentialUserEntity;
+use Webauthn\TrustPath\EmptyTrustPath;
 
 // Prevent direct access
 defined('_JEXEC') or die;
@@ -33,7 +37,7 @@ defined('_JEXEC') or die;
  *
  * @since       3.1.0
  */
-class CredentialRepository implements CredentialRepositoryInterface
+class CredentialRepository implements PublicKeyCredentialSourceRepository
 {
 	/**
 	 * The user ID we will operate with
@@ -58,159 +62,33 @@ class CredentialRepository implements CredentialRepositoryInterface
 		$this->user_id = $user_id;
 	}
 
-
-	/**
-	 * Do we have stored credentials under the specified Credential ID?
-	 *
-	 * @param   string  $credentialId
-	 *
-	 * @return  bool
-	 */
-	public function has(string $credentialId): bool
+	public function findOneByCredentialId(string $publicKeyCredentialId): ?PublicKeyCredentialSource
 	{
-		$credentials = $this->getAll($this->user_id);
+		$publicKeyCredentialUserEntity = new PublicKeyCredentialUserEntity('', $this->user_id, '', '');
+		$credentials                   = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
 
-		foreach ($credentials as $attestedCredentialData)
+		foreach ($credentials as $record)
 		{
-			if ($attestedCredentialData->getCredentialId() == $credentialId)
+			if ($record->getAttestedCredentialData()->getCredentialId() != $publicKeyCredentialId)
 			{
-				return true;
+				continue;
 			}
+
+			return $record;
 		}
 
-		return false;
+		return null;
 	}
 
-	/**
-	 * Retrieve the attested credential data given a Credential ID
-	 *
-	 * @param   string  $credentialId
-	 *
-	 * @return  AttestedCredentialData
-	 */
-	public function get(string $credentialId): AttestedCredentialData
+	public function findAllForUserEntity(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array
 	{
-		$credentials = $this->getAll($this->user_id);
-
-		foreach ($credentials as $attestedCredentialData)
-		{
-			if ($attestedCredentialData->getCredentialId() == $credentialId)
-			{
-				return $attestedCredentialData;
-			}
-		}
-
-		throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL'));
-	}
-
-	/**
-	 * Return the user handle for the stored credential given its ID.
-	 *
-	 * The user handle must not be personally identifiable. Per https://w3c.github.io/webauthn/#user-handle it is
-	 * acceptable to have a salted hash with a salt private to our server, e.g. Joomla's secret. The only immutable
-	 * information in Joomla is the user ID so that's what we will be using.
-	 *
-	 * @param   string  $credentialId
-	 *
-	 * @return  string
-	 */
-	public function getUserHandleFor(string $credentialId): string
-	{
-		if (!$this->has($credentialId))
-		{
-			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL'));
-		}
-
-		return $this->getHandleFromUserId($this->user_id);
-	}
-
-	/**
-	 * Returns the last seen counter for this authenticator
-	 *
-	 * @param   string   $credentialId  The authenticator's credential ID
-	 *
-	 * @return  int
-	 */
-	public function getCounterFor(string $credentialId): int
-	{
-		$credentials = $this->getAll($this->user_id);
-		$tfaId       = 0;
-
-		foreach ($credentials as $id => $attestedCredentialData)
-		{
-			if ($attestedCredentialData->getCredentialId() == $credentialId)
-			{
-				$tfaId = $id;
-
-				break;
-			}
-		}
-
-		if (!$tfaId)
-		{
-			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL'));
-		}
-
-		$container = Container::getInstance('com_loginguard');
-		/** @var Tfa $tfaModel */
-		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-		$options  = $tfaModel->findOrFail($tfaId)->options;
-
-		if (!is_array($options) || empty($options) || !isset($options['counter']))
-		{
-			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL'));
-		}
-
-		return $options['counter'];
-	}
-
-	/**
-	 * Update the stored counter for this authenticator
-	 *
-	 * @param   string  $credentialId  The authenticator's credential ID
-	 * @param   int     $newCounter    The new value of the counter we should store in the database
-	 */
-	public function updateCounterFor(string $credentialId, int $newCounter): void
-	{
-		$credentials = $this->getAll($this->user_id);
-		$tfaId       = 0;
-
-		foreach ($credentials as $id => $attestedCredentialData)
-		{
-			if ($attestedCredentialData->getCredentialId() == $credentialId)
-			{
-				$tfaId = $id;
-
-				break;
-			}
-		}
-
-		if (!$tfaId)
-		{
-			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL'));
-		}
-
-		$container = Container::getInstance('com_loginguard');
-		/** @var Tfa $tfaModel */
-		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-		$record   = $tfaModel->findOrFail($tfaId);
-
-		$record->options['counter'] = $newCounter;
-		$record->save();
-	}
-
-	/**
-	 * Get all credentials for a given user ID
-	 *
-	 * @param   int  $user_id  The user ID
-	 *
-	 * @return  AttestedCredentialData[]   [TFA record id => AttestedCredentialData, ...]
-	 */
-	public function getAll(int $user_id = 0): array
-	{
-		if (empty($user_id))
+		if (empty($publicKeyCredentialUserEntity))
 		{
 			$user_id = $this->user_id;
+		}
+		else
+		{
+			$user_id = $publicKeyCredentialUserEntity->getId();
 		}
 
 		$return = [];
@@ -235,35 +113,122 @@ class CredentialRepository implements CredentialRepositoryInterface
 				continue;
 			}
 
-			if (!isset($options['attested']))
+			if (!isset($options['attested']) && !isset($options['pubkeysource']))
 			{
 				continue;
 			}
 
-			if (is_string($options['attested']))
+			if (isset($options['attested']) && is_string($options['attested']))
 			{
 				$options['attested'] = json_decode($options['attested'], true);
-			}
 
-			$return[$result->getId()] = AttestedCredentialData::createFromJson($options['attested']);
+				$return[$result->getId()] = $this->attestedCredentialToPublicKeyCredentialSource(
+					AttestedCredentialData::createFromArray($options['attested']), $user_id
+				);
+			}
+			elseif (isset($options['pubkeysource']) && is_string($options['pubkeysource']))
+			{
+				$options['pubkeysource']  = json_decode($options['pubkeysource'], true);
+				$return[$result->getId()] = PublicKeyCredentialSource::createFromArray($options['pubkeysource']);
+			}
 		}
 
 		return $return;
 	}
 
-	/**
-	 * Return a user handle given an integer Joomla user ID
-	 *
-	 * @param   int  $id  The user ID to convert
-	 *
-	 * @return  string  The user handle (HMAC-SHA-512 of the user ID)
-	 */
-	public function getHandleFromUserId(int $id): string
+	public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void
 	{
-		$secret = Factory::getConfig()->get('secret', '');
-		$data   = sprintf('%010u', $id);
+		// I can only create or update credentials for the user this class was created for
+		if ($publicKeyCredentialSource->getUserHandle() != $this->user_id)
+		{
+			throw new RuntimeException('Cannot create or update WebAuthn credentials for a different user.', 403);
+		}
 
-		return hash_hmac('sha512', $data, $secret, true);
+		// Do I have an existing record for this credential?
+		$recordId                      = null;
+		$publicKeyCredentialUserEntity = new PublicKeyCredentialUserEntity('', $this->user_id, '', '');
+		$credentials                   = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
+
+		foreach ($credentials as $id => $record)
+		{
+			if ($record->getAttestedCredentialData()->getCredentialId() != $publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId())
+			{
+				continue;
+			}
+
+			$recordId = $id;
+
+			break;
+		}
+
+		// Create or update a record
+		$container = Container::getInstance('com_loginguard');
+		/** @var Tfa $tfaModel */
+		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
+
+		if ($recordId)
+		{
+			$tfaModel->load($recordId);
+
+			$options = $tfaModel->options;
+
+			if (isset($options['attested']))
+			{
+				unset($options['attested']);
+			}
+
+			$options['pubkeysource'] = $publicKeyCredentialSource;
+			$tfaModel->save([
+				'options' => $options
+			]);
+		}
+		else
+		{
+			$tfaModel->create([
+				'user_id' => $this->user_id,
+				'title'   => 'WebAuthn auto-save',
+				'method'  => 'webauthn',
+				'default' => 0,
+				'options' => ['pubkeysource' => $publicKeyCredentialSource],
+			]);
+		}
 	}
 
+	/**
+	 * Converts a legacy AttestedCredentialData object stored in the database into a PublicKeyCredentialSource object.
+	 *
+	 * This makes several assumptions which can be problematic and the reason why the WebAuthn library version 2 moved
+	 * away from attested credentials to public key credential sources:
+	 *
+	 * - The credential is always of the public key type (that's safe as the only option supported)
+	 * - You can access it with any kind of authenticator transport: USB, NFC, Internal or Bluetooth LE (possibly
+	 * dangerous)
+	 * - There is no attestations (generally safe since browsers don't seem to support attestation yet)
+	 * - There is no trust path (generally safe since browsers don't seem to provide one)
+	 * - No counter was stored (dangerous since it can lead to replay attacks).
+	 *
+	 * @param   AttestedCredentialData  $record   Legacy attested credential data object
+	 * @param   int                     $user_id  User ID we are getting the credential source for
+	 *
+	 * @return  PublicKeyCredentialSource
+	 */
+	private function attestedCredentialToPublicKeyCredentialSource(AttestedCredentialData $record, int $user_id): PublicKeyCredentialSource
+	{
+		return new PublicKeyCredentialSource(
+			$record->getCredentialId(),
+			PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY,
+			[
+				PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_USB,
+				PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_NFC,
+				PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_INTERNAL,
+				PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_BLE,
+			],
+			AttestationStatement::TYPE_NONE,
+			new EmptyTrustPath(),
+			$record->getAaguid(),
+			$record->getCredentialPublicKey(),
+			$user_id,
+			0
+		);
+	}
 }

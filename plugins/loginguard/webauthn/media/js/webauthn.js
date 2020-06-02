@@ -21,6 +21,20 @@ akeeba.LoginGuard.webauthn.arrayToBase64String = (a) =>
     return btoa(String.fromCharCode(...a));
 };
 
+akeeba.LoginGuard.webauthn.base64url2base64 = function(input) {
+    let output = input
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+    const pad = output.length % 4;
+    if (pad) {
+        if (pad === 1) {
+            throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+        }
+        output += new Array(5 - pad).join('=');
+    }
+    return output;
+}
+
 /**
  * Ask the user to link an authenticator using the provided public key (created server-side).
  */
@@ -40,16 +54,16 @@ akeeba.LoginGuard.webauthn.setUp = () =>
     const publicKey = JSON.parse(atob(rawPKData));
 
     // Convert the public key infomration to a format usable by the browser's credentials managemer
-    publicKey.challenge = Uint8Array.from(window.atob(publicKey.challenge), c => c.charCodeAt(0));
-    publicKey.user.id   = Uint8Array.from(window.atob(publicKey.user.id), c => c.charCodeAt(0));
+    publicKey.challenge = Uint8Array.from(
+        window.atob(akeeba.LoginGuard.webauthn.base64url2base64(publicKey.challenge)), (c) => c.charCodeAt(0),
+    );
 
-    if (publicKey.excludeCredentials)
-    {
+    publicKey.user.id = Uint8Array.from(window.atob(publicKey.user.id), (c) => c.charCodeAt(0));
+
+    if (publicKey.excludeCredentials) {
         publicKey.excludeCredentials = publicKey.excludeCredentials.map((data) => {
-            return {
-                ...data,
-                id: Uint8Array.from(window.atob(data.id), c => c.charCodeAt(0))
-            };
+            data.id = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(data.id)), (c) => c.charCodeAt(0));
+            return data;
         });
     }
 
@@ -102,8 +116,6 @@ akeeba.LoginGuard.webauthn.validate = () =>
         return;
     }
 
-    console.log(akeeba.LoginGuard.webauthn.authData);
-
     const publicKey = akeeba.LoginGuard.webauthn.authData;
 
     if (!publicKey.challenge)
@@ -113,13 +125,16 @@ akeeba.LoginGuard.webauthn.validate = () =>
         return;
     }
 
-    publicKey.challenge        = Uint8Array.from(window.atob(publicKey.challenge), c => c.charCodeAt(0));
-    publicKey.allowCredentials = publicKey.allowCredentials.map((data) => {
-        return {
-            ...data,
-            id: Uint8Array.from(atob(data.id), c => c.charCodeAt(0))
-        };
-    });
+    publicKey.challenge = Uint8Array.from(
+        window.atob(akeeba.LoginGuard.webauthn.base64url2base64(publicKey.challenge)), (c) => c.charCodeAt(0),
+    );
+
+    if (publicKey.allowCredentials) {
+        publicKey.allowCredentials = publicKey.allowCredentials.map((data) => {
+            data.id = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(data.id)), (c) => c.charCodeAt(0));
+            return data;
+        });
+    }
 
     navigator.credentials.get({publicKey})
         .then(data => {
@@ -144,3 +159,4 @@ akeeba.LoginGuard.webauthn.validate = () =>
             akeeba.LoginGuard.webauthn.handle_error(error);
         });
 };
+

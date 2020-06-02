@@ -1,18 +1,16 @@
 "use strict";
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 /*
  * @package   AkeebaLoginGuard
@@ -32,6 +30,21 @@ akeeba.LoginGuard.webauthn = akeeba.LoginGuard.webauthn || {
 akeeba.LoginGuard.webauthn.arrayToBase64String = function (a) {
   return btoa(String.fromCharCode.apply(String, _toConsumableArray(a)));
 };
+
+akeeba.LoginGuard.webauthn.base64url2base64 = function (input) {
+  var output = input.replace(/-/g, '+').replace(/_/g, '/');
+  var pad = output.length % 4;
+
+  if (pad) {
+    if (pad === 1) {
+      throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+    }
+
+    output += new Array(5 - pad).join('=');
+  }
+
+  return output;
+};
 /**
  * Ask the user to link an authenticator using the provided public key (created server-side).
  */
@@ -48,7 +61,7 @@ akeeba.LoginGuard.webauthn.setUp = function () {
   var rawPKData = document.forms['loginguard-method-edit'].querySelectorAll('input[name="pkRequest"]')[0].value;
   var publicKey = JSON.parse(atob(rawPKData)); // Convert the public key infomration to a format usable by the browser's credentials managemer
 
-  publicKey.challenge = Uint8Array.from(window.atob(publicKey.challenge), function (c) {
+  publicKey.challenge = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(publicKey.challenge)), function (c) {
     return c.charCodeAt(0);
   });
   publicKey.user.id = Uint8Array.from(window.atob(publicKey.user.id), function (c) {
@@ -57,11 +70,10 @@ akeeba.LoginGuard.webauthn.setUp = function () {
 
   if (publicKey.excludeCredentials) {
     publicKey.excludeCredentials = publicKey.excludeCredentials.map(function (data) {
-      return _objectSpread({}, data, {
-        id: Uint8Array.from(window.atob(data.id), function (c) {
-          return c.charCodeAt(0);
-        })
+      data.id = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(data.id)), function (c) {
+        return c.charCodeAt(0);
       });
+      return data;
     });
   } // Ask the browser to prompt the user for their authenticator
 
@@ -106,7 +118,6 @@ akeeba.LoginGuard.webauthn.validate = function () {
     return;
   }
 
-  console.log(akeeba.LoginGuard.webauthn.authData);
   var publicKey = akeeba.LoginGuard.webauthn.authData;
 
   if (!publicKey.challenge) {
@@ -114,16 +125,19 @@ akeeba.LoginGuard.webauthn.validate = function () {
     return;
   }
 
-  publicKey.challenge = Uint8Array.from(window.atob(publicKey.challenge), function (c) {
+  publicKey.challenge = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(publicKey.challenge)), function (c) {
     return c.charCodeAt(0);
   });
-  publicKey.allowCredentials = publicKey.allowCredentials.map(function (data) {
-    return _objectSpread({}, data, {
-      id: Uint8Array.from(atob(data.id), function (c) {
+
+  if (publicKey.allowCredentials) {
+    publicKey.allowCredentials = publicKey.allowCredentials.map(function (data) {
+      data.id = Uint8Array.from(window.atob(akeeba.LoginGuard.webauthn.base64url2base64(data.id)), function (c) {
         return c.charCodeAt(0);
-      })
+      });
+      return data;
     });
-  });
+  }
+
   navigator.credentials.get({
     publicKey: publicKey
   }).then(function (data) {

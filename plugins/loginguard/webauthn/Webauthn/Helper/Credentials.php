@@ -12,18 +12,26 @@ use CBOR\Decoder;
 use CBOR\OtherObject\OtherObjectManager;
 use CBOR\Tag\TagObjectManager;
 use Cose\Algorithm\Manager;
+use Cose\Algorithm\Signature\ECDSA;
+use Cose\Algorithm\Signature\EdDSA;
+use Cose\Algorithm\Signature\RSA;
+use Cose\Algorithms;
 use Exception;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Crypt\Crypt;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 use RuntimeException;
+use Throwable;
+use Webauthn\AttestationStatement\AndroidKeyAttestationStatementSupport;
 use Webauthn\AttestationStatement\AttestationObjectLoader;
 use Webauthn\AttestationStatement\AttestationStatementSupportManager;
 use Webauthn\AttestationStatement\FidoU2FAttestationStatementSupport;
 use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
 use Webauthn\AttestationStatement\PackedAttestationStatementSupport;
+use Webauthn\AttestationStatement\TPMAttestationStatementSupport;
 use Webauthn\AttestedCredentialData;
 use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
@@ -38,6 +46,7 @@ use Webauthn\PublicKeyCredentialLoader;
 use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialRpEntity;
+use Webauthn\PublicKeyCredentialSource;
 use Webauthn\PublicKeyCredentialUserEntity;
 use Webauthn\TokenBinding\TokenBindingNotSupportedHandler;
 use Zend\Diactoros\ServerRequestFactory;
@@ -51,18 +60,29 @@ abstract class Credentials
 	 * Create a public key for credentials creation. The result is a JSON string which can be used in Javascript code
 	 * with navigator.credentials.create().
 	 *
-	 * @param   User  $user The Joomla user to create the public key for
+	 * @param   User  $user  The Joomla user to create the public key for
 	 *
 	 * @return  string
 	 */
 	public static function createPublicKey(User $user): string
 	{
+		/** @var CMSApplication $app */
+		try
+		{
+			$app      = Factory::getApplication();
+			$siteName = $app->get('sitename');
+		}
+		catch (Exception $e)
+		{
+			$siteName = 'Joomla! Site';
+		}
+
 		// Credentials repository
 		$repository = new CredentialRepository($user->id);
 
 		// Relaying Party -- Our site
 		$rpEntity = new PublicKeyCredentialRpEntity(
-			Factory::getConfig()->get('sitename'),
+			$siteName,
 			Uri::getInstance()->toString(['host']),
 			self::getSiteIcon()
 		);
@@ -87,7 +107,7 @@ abstract class Credentials
 
 		// Public Key Credential Parameters
 		$publicKeyCredentialParametersList = [
-			new PublicKeyCredentialParameters('public-key', PublicKeyCredentialParameters::ALGORITHM_ES256),
+			new PublicKeyCredentialParameters('public-key', Algorithms::COSE_ALGORITHM_ES256),
 		];
 
 		// Timeout: 60 seconds (given in milliseconds)
@@ -95,24 +115,23 @@ abstract class Credentials
 
 		// Devices to exclude (already set up authenticators)
 		$excludedPublicKeyDescriptors = [];
-		$records = $repository->getAll($user->id);
+		$records                      = $repository->findAllForUserEntity($userEntity);
 
 		foreach ($records as $record)
 		{
-			$data = @json_decode($record, true);
-
-			if (is_null($data) || !is_array($data) || !isset($data['credentialPublicKey']))
-			{
-				continue;
-			}
-
-			$excludedPublicKeyDescriptors[] = new PublicKeyCredentialDescriptor(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $data['credentialPublicKey']);
+			$excludedPublicKeyDescriptors[] = new PublicKeyCredentialDescriptor($record->getType(), $record->getCredentialPublicKey());
 		}
 
 		// Authenticator Selection Criteria (we used default values)
 		$authenticatorSelectionCriteria = new AuthenticatorSelectionCriteria();
 
-		// Extensions
+		// Extensions (not yet supported by the library)
+		$extensions = new AuthenticationExtensionsClientInputs;
+
+		// Attestation preference
+		$attestationPreference = PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE;
+
+		// Public key credential creation options
 		$publicKeyCredentialCreationOptions = new PublicKeyCredentialCreationOptions(
 			$rpEntity,
 			$userEntity,
@@ -121,8 +140,8 @@ abstract class Credentials
 			$timeout,
 			$excludedPublicKeyDescriptors,
 			$authenticatorSelectionCriteria,
-			PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
-			null
+			$attestationPreference,
+			$extensions
 		);
 
 		// Save data in the session
@@ -142,7 +161,7 @@ abstract class Credentials
 	 *
 	 * @return  AttestedCredentialData|null
 	 */
-	public static function validateAuthenticationData(string $data): ?AttestedCredentialData
+	public static function validateAuthenticationData(string $data): ?PublicKeyCredentialSource
 	{
 		// Retrieve the PublicKeyCredentialCreationOptions object created earlier and perform sanity checks
 		$encodedOptions = Factory::getSession()->get('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
@@ -176,6 +195,15 @@ abstract class Credentials
 			throw new RuntimeException(Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_CREATE_INVALID_USER'));
 		}
 
+		// Cose Algorithm Manager
+		$coseAlgorithmManager = new Manager;
+		$coseAlgorithmManager->add(new ECDSA\ES256);
+		$coseAlgorithmManager->add(new ECDSA\ES512);
+		$coseAlgorithmManager->add(new EdDSA\EdDSA);
+		$coseAlgorithmManager->add(new RSA\RS1);
+		$coseAlgorithmManager->add(new RSA\RS256);
+		$coseAlgorithmManager->add(new RSA\RS512);
+
 		// Create a CBOR Decoder object
 		$otherObjectManager = new OtherObjectManager();
 		$tagObjectManager   = new TagObjectManager();
@@ -189,6 +217,8 @@ abstract class Credentials
 		$attestationStatementSupportManager = new AttestationStatementSupportManager();
 		$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
 		$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
+		$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
+		$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
 		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
 
 		// Attestation Object Loader
@@ -229,18 +259,11 @@ abstract class Credentials
 		// Check the response against the request
 		$authenticatorAttestationResponseValidator->check($response, $publicKeyCredentialCreationOptions, $request);
 
-		// Everything is OK here. You can get the PublicKeyCredentialDescriptor.
-		$publicKeyCredentialDescriptor = $publicKeyCredential->getPublicKeyCredentialDescriptor();
-
-		// Normally this condition should be true. Just make sure you received the credential data
-		$attestedCredentialData = null;
-
-		if ($response->getAttestationObject()->getAuthData()->hasAttestedCredentialData())
-		{
-			$attestedCredentialData = $response->getAttestationObject()->getAuthData()->getAttestedCredentialData();
-		}
-
-		return $attestedCredentialData;
+		/**
+		 * Everything is OK here. You can get the Public Key Credential Source. This object should be persisted using
+		 * the Public Key Credential Source repository.
+		 */
+		return $authenticatorAttestationResponseValidator->check($response, $publicKeyCredentialCreationOptions, $request);
 	}
 
 	/**
@@ -260,32 +283,35 @@ abstract class Credentials
 		// Load the saved credentials into an array of PublicKeyCredentialDescriptor objects
 		try
 		{
-			$credentials = $repository->getAll($user_id);
+			$userEntity  = new PublicKeyCredentialUserEntity(
+				'', $user_id, ''
+			);
+			$credentials = $repository->findAllForUserEntity($userEntity);
 		}
 		catch (Exception $e)
 		{
 			return json_encode(false);
 		}
 
+		// No stored credentials?
+		if (empty($credentials))
+		{
+			return json_encode(false);
+		}
+
 		$registeredPublicKeyCredentialDescriptors = [];
 
-		foreach ($credentials as $credential)
+		/** @var PublicKeyCredentialSource $record */
+		foreach ($credentials as $record)
 		{
 			try
 			{
-				$descriptor = new PublicKeyCredentialDescriptor(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $credential->getCredentialId(), [
-					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_USB,
-					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_NFC,
-					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_BLE,
-					PublicKeyCredentialDescriptor::AUTHENTICATOR_TRANSPORT_INTERNAL,
-				]);
+				$registeredPublicKeyCredentialDescriptors[] = $record->getPublicKeyCredentialDescriptor();
 			}
-			catch (Exception $e)
+			catch (Throwable $e)
 			{
 				continue;
 			}
-
-			$registeredPublicKeyCredentialDescriptors[] = $descriptor;
 		}
 
 		try
@@ -297,6 +323,9 @@ abstract class Credentials
 			$challenge = Crypt::genRandomBytes(32);
 		}
 
+		// Extensions
+		$extensions = new AuthenticationExtensionsClientInputs;
+
 		// Public Key Credential Request Options
 		$publicKeyCredentialRequestOptions = new PublicKeyCredentialRequestOptions(
 			$challenge,
@@ -304,13 +333,13 @@ abstract class Credentials
 			Uri::getInstance()->toString(['host']),
 			$registeredPublicKeyCredentialDescriptors,
 			PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_PREFERRED,
-			new AuthenticationExtensionsClientInputs()
+			$extensions
 		);
 
 		// Save in session. This is used during the verification stage to prevent replay attacks.
 		$session = Factory::getSession();
 		$session->set('publicKeyCredentialRequestOptions', base64_encode(serialize($publicKeyCredentialRequestOptions)), 'plg_loginguard_webauthn');
-		$session->set('userHandle', $repository->getHandleFromUserId($user_id), 'plg_loginguard_webauthn');
+		$session->set('userHandle', $user_id, 'plg_loginguard_webauthn');
 		$session->set('userId', $user_id, 'plg_loginguard_webauthn');
 
 		// Return the JSON encoded data to the caller
@@ -320,11 +349,11 @@ abstract class Credentials
 	/**
 	 * Checks if the browser's response to our challenge is valid.
 	 *
-	 * @param   string   $response  Base64-encoded response
-	 *
-	 * @since   3.1.0
+	 * @param   string  $response  Base64-encoded response
 	 *
 	 * @throws  Exception  When something does not check out.
+	 * @since   3.1.0
+	 *
 	 */
 	public static function validateChallenge(string $response): void
 	{
@@ -358,7 +387,7 @@ abstract class Credentials
 		}
 
 		// Make sure the public key credential request options in the session are valid
-		$serializedOptions = \Safe\base64_decode($encodedPkOptions);
+		$serializedOptions                 = base64_decode($encodedPkOptions);
 		$publicKeyCredentialRequestOptions = unserialize($serializedOptions);
 
 		if (!is_object($publicKeyCredentialRequestOptions) || empty($publicKeyCredentialRequestOptions) || !($publicKeyCredentialRequestOptions instanceof PublicKeyCredentialRequestOptions))
@@ -367,10 +396,19 @@ abstract class Credentials
 		}
 
 		// Unserialize the browser response data
-		$data = \Safe\base64_decode($response);
+		$data = base64_decode($response);
 
 		// Create a credentials repository
 		$credentialRepository = new CredentialRepository($userId);
+
+		// Cose Algorithm Manager
+		$coseAlgorithmManager = new Manager;
+		$coseAlgorithmManager->add(new ECDSA\ES256);
+		$coseAlgorithmManager->add(new ECDSA\ES512);
+		$coseAlgorithmManager->add(new EdDSA\EdDSA);
+		$coseAlgorithmManager->add(new RSA\RS1);
+		$coseAlgorithmManager->add(new RSA\RS256);
+		$coseAlgorithmManager->add(new RSA\RS512);
 
 		// Create a CBOR Decoder object
 		$otherObjectManager = new OtherObjectManager();
@@ -382,7 +420,9 @@ abstract class Credentials
 		$attestationStatementSupportManager = new AttestationStatementSupportManager();
 		$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
 		$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
-		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $algorithmManager));
+		$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
+		$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
+		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
 
 		// Attestation Object Loader
 		$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
@@ -393,13 +433,16 @@ abstract class Credentials
 		// The token binding handler
 		$tokenBindingHandler = new TokenBindingNotSupportedHandler();
 
+		// Extension Output Checker Handler
+		$extensionOutputCheckerHandler = new ExtensionOutputCheckerHandler;
+
 		// Authenticator Assertion Response Validator
-		$extensionOutputCheckerHandler           = new ExtensionOutputCheckerHandler();
 		$authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
 			$credentialRepository,
 			$decoder,
 			$tokenBindingHandler,
-			$extensionOutputCheckerHandler
+			$extensionOutputCheckerHandler,
+			$coseAlgorithmManager
 		);
 
 		// We init the Symfony Request object
@@ -412,7 +455,7 @@ abstract class Credentials
 		// Check if the response is an Authenticator Assertion Response
 		if (!$response instanceof AuthenticatorAssertionResponse)
 		{
-			throw new \RuntimeException('Not an authenticator assertion response');
+			throw new RuntimeException('Not an authenticator assertion response');
 		}
 
 		/** @var AuthenticatorAssertionResponse $authenticatorAssertionResponse */
@@ -424,6 +467,24 @@ abstract class Credentials
 			$request,
 			$userHandle
 		);
+	}
+
+	/**
+	 * Get the user's avatar (through Gravatar)
+	 *
+	 * @param   User  $user  The Joomla user object
+	 * @param   int   $size  The dimensions of the image to fetch (default: 64 pixels)
+	 *
+	 * @return  string  The URL to the user's avatar
+	 *
+	 * @since   3.1.0
+	 */
+	public static function getAvatar(User $user, int $size = 64)
+	{
+		$scheme    = Uri::getInstance()->getScheme();
+		$subdomain = ($scheme == 'https') ? 'secure' : 'www';
+
+		return sprintf('%s://%s.gravatar.com/avatar/%s.jpg?s=%u&d=mm', $scheme, $subdomain, md5($user->email), $size);
 	}
 
 	/**
@@ -483,23 +544,5 @@ abstract class Credentials
 		}
 
 		return rtrim(Uri::base(), '/') . '/' . ltrim($relFile, '/');
-	}
-
-	/**
-	 * Get the user's avatar (through Gravatar)
-	 *
-	 * @param   User  $user  The Joomla user object
-	 * @param   int   $size  The dimensions of the image to fetch (default: 64 pixels)
-	 *
-	 * @return  string  The URL to the user's avatar
-	 *
-	 * @since   3.1.0
-	 */
-	public static function getAvatar(User $user, int $size = 64)
-	{
-		$scheme = Uri::getInstance()->getScheme();
-		$subdomain = ($scheme == 'https') ? 'secure' : 'www';
-
-		return sprintf('%s://%s.gravatar.com/avatar/%s.jpg?s=%u&d=mm', $scheme, $subdomain, md5($user->email), $size);
 	}
 }

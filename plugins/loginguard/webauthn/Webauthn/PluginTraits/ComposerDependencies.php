@@ -10,12 +10,18 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 
 
 // Prevent direct access
+
 defined('_JEXEC') or die;
 
 trait ComposerDependencies
 {
 	protected function loadComposerDependencies()
 	{
+		if (version_compare(JVERSION, '3.999.999', 'gt'))
+		{
+			return;
+		}
+
 		// Is the library already loaded?
 		if (class_exists('Webauthn\CredentialRepository'))
 		{

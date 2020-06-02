@@ -11,16 +11,23 @@
       <path value="$PROJECT_DIR$/component/backend/vendor/zendframework/zend-diactoros" />
       <path value="$PROJECT_DIR$/component/backend/vendor/composer" />
       <path value="$PROJECT_DIR$/component/backend/vendor/beberlei/assert" />
-      <path value="$PROJECT_DIR$/component/backend/vendor/thecodingmachine/safe" />
       <path value="$PROJECT_DIR$/component/backend/vendor/web-auth/cose-lib" />
       <path value="$PROJECT_DIR$/component/backend/vendor/web-auth/webauthn-lib" />
       <path value="$PROJECT_DIR$/component/backend/vendor/spomky-labs/base64url" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/fgrosse/phpasn1" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/paragonie/random_compat" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/php-http/message-factory" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/web-auth/metadata-service" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/nyholm/psr7" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/component/backend/vendor/symfony/polyfill-ctype" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />
   <component name="PhpUnit">
     <phpunit_settings>
-      <PhpUnitSettings load_method="CUSTOM_LOADER" />
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/component/backend/vendor/autoload.php" />
     </phpunit_settings>
   </component>
 </project>
