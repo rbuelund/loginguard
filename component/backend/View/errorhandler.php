@@ -5,12 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-
-defined('_JEXEC') or die;
 
 /** @var Throwable $e */
 /** @var string $title */
@@ -18,9 +18,11 @@ defined('_JEXEC') or die;
 
 $code         = $e->getCode();
 $code         = !empty($code) ? $code : 500;
-$app          = Factory::getApplication();
-$isFrontend   = $app instanceof SiteApplication;
-$hideTheError = $isFrontend && !(defined('JDEBUG') && (JDEBUG == 1)) && !Factory::getUser()->authorise('core.admin');
+$app          = class_exists('\Joomla\CMS\Factory') ? Factory::getApplication() : \JFactory::getApplication();
+$isFrontend   = class_exists('JApplicationSite') && ($app instanceof JApplicationSite);
+$isFrontend   = $isFrontend || (class_exists('\Joomla\CMS\Application\SiteApplication') && ($app instanceof SiteApplication));
+$user         = $isFrontend ? (method_exists($app, 'getIdentity') ? $app->getIdentity() : JFactory::getUser()) : null;
+$hideTheError = $isFrontend && !(defined('JDEBUG') && (JDEBUG == 1)) && !$user->authorise('core.admin');
 $isPro        = !isset($isPro) ? false : $isPro;
 
 // 403 and 404 are re-thrown
@@ -42,7 +44,15 @@ else
 
 if (!$isFrontend)
 {
-	ToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	if (class_exists('\Joomla\CMS\Toolbar\ToolbarHelper'))
+	{
+		ToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	}
+	else
+	{
+		JToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	}
+
 }
 
 ?>
@@ -56,16 +66,20 @@ if (!$isFrontend)
 	<?php return true; endif; ?>
 
 <h1><?php echo $title ?> - An unhandled Exception has been detected</h1>
-<h4>
-	<span class="label label-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
-</h4>
+<h3>
+	<?php if (version_compare(JVERSION, '3.999.999', 'le')): ?>
+		<span class="label label-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+	<?php else: ?>
+		<span class="badge badge-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+	<?php endif; ?>
+</h3>
 <p>
 	File <code><?php echo htmlentities(str_ireplace(JPATH_ROOT, '&lt;root&gt;', $e->getFile())) ?></code>
 	Line <span class="label label-info"><?php echo (int) $e->getLine() ?></span>
 </p>
 
 <?php if ($isPro): ?>
-	<div class="hero-unit">
+	<div class="<?php if (version_compare(JVERSION, '3.999.999', 'le')):?>hero-unit<?php else: ?>alert alert-primary<?php endif; ?>">
 		<p>
 			<strong>Would you like us to help you faster?</strong>
 		</p>
@@ -96,6 +110,10 @@ if (!$isFrontend)
 	</em>
 </p>
 <hr />
+
+<p class="alert alert-warning">
+	Joomla <?= JVERSION ?> – PHP <?= PHP_VERSION ?> on <?= PHP_OS ?>
+</p>
 
 <h3>Debug information</h3>
 <p>
@@ -135,23 +153,23 @@ if (!$isFrontend)
 	</tr>
 	<tr>
 		<td>Database driver name</td>
-		<td><?php echo Factory::getDbo()->getName() ?></td>
+		<td><?php echo JFactory::getDbo()->getName() ?></td>
 	</tr>
 	<tr>
 		<td>Database driver type</td>
-		<td><?php echo Factory::getDbo()->getServerType() ?></td>
+		<td><?php echo JFactory::getDbo()->getServerType() ?></td>
 	</tr>
 	<tr>
 		<td>Database server version</td>
-		<td><?php echo Factory::getDbo()->getVersion() ?></td>
+		<td><?php echo JFactory::getDbo()->getVersion() ?></td>
 	</tr>
 	<tr>
 		<td>Database collation</td>
-		<td><?php echo Factory::getDbo()->getCollation() ?></td>
+		<td><?php echo JFactory::getDbo()->getCollation() ?></td>
 	</tr>
 	<tr>
 		<td>Database connection collation</td>
-		<td><?php echo Factory::getDbo()->getConnectionCollation() ?></td>
+		<td><?php echo JFactory::getDbo()->getConnectionCollation() ?></td>
 	</tr>
 	<tr>
 		<td>PHP Memory limit</td>
@@ -190,12 +208,32 @@ if (!$isFrontend)
 	?></pre>
 
 <?php
-if (!include_once(JPATH_ADMINISTRATOR . '/components/com_admin/models/sysinfo.php'))
+if (version_compare(JVERSION, '3.999.999', 'le'))
 {
-	return;
+	if (!include_once(JPATH_ADMINISTRATOR . '/components/com_admin/models/sysinfo.php'))
+	{
+		return;
+	}
+
+	$model       = new AdminModelSysInfo();
 }
-$model       = new AdminModelSysInfo();
+else
+{
+	try
+	{
+		/** @var MVCFactoryInterface $factory */
+		$factory = $app->bootComponent('com_admin')->getMVCFactory();
+		/** @var \Joomla\Component\Admin\Administrator\Model\SysinfoModel $model */
+		$model = $factory->createModel('Sysinfo', 'Administrator');
+	}
+	catch (Exception $e)
+	{
+		return;
+	}
+}
+
 $directories = $model->getDirectory();
+
 try
 {
 	$extensions = $model->getExtensions();
@@ -204,6 +242,7 @@ catch (Exception $e)
 {
 	$extension = [];
 }
+
 $phpSettings = $model->getPhpSettings();
 $hasPHPInfo  = $model->phpinfoEnabled();
 ?>
