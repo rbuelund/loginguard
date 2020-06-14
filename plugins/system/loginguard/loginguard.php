@@ -144,9 +144,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		 * in the real world which, as we know, is not the case. No problem. I've made a career working around the
 		 * Joomla! core, haven't I?
 		 */
-		if (
-			($this->willNeedRedirect() || ($option == 'com_loginguard'))
-			&& version_compare(JVERSION, '3.8.999', 'gt'))
+		if ($this->willNeedRedirect() || ($option == 'com_loginguard'))
 		{
 			$this->snuffJoomlaPrivacyConsent();
 		}

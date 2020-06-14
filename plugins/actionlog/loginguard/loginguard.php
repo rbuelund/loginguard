@@ -13,12 +13,6 @@ use Joomla\CMS\Plugin\CMSPlugin;
 
 defined('_JEXEC') or die();
 
-// PHP version check
-if (!version_compare(PHP_VERSION, '5.6.0', '>='))
-{
-	return;
-}
-
 /**
  * LoginGuard integration with Joomla's User Actions Log
  *

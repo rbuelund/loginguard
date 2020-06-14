@@ -36,7 +36,7 @@ class Pkg_LoginguardInstallerScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumJoomlaVersion = '3.8.0';
+	protected $minimumJoomlaVersion = '3.9.0';
 
 	/**
 	 * The maximum Joomla! version this extension can be installed on
