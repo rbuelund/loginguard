@@ -13,6 +13,7 @@
         <infourl title="Akeeba LoginGuard Release Notes">https://github.com/akeeba/loginguard/releases/3.3.1</infourl>
 
         <targetplatform name="joomla" version="3.9"/>
+        <targetplatform name="joomla" version="4.0"/>
 
         <php_minimum>7.1.0</php_minimum>
 
