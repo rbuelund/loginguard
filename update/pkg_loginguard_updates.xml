@@ -20,6 +20,7 @@
         <ars-phpcompat version="7.1"/>
         <ars-phpcompat version="7.2"/>
         <ars-phpcompat version="7.3"/>
+        <ars-phpcompat version="7.4"/>
 
         <name>Akeeba LoginGuard package</name>
         <description>Akeeba LoginGuard - A real Two Step Verification system for Joomla!</description>
