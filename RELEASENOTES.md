@@ -1,14 +1,18 @@
 ## Release highlights
 
-**Browser fingerprinting to reduce 2SV prompts**. On popular request, we added an optional feature to disable 2SV prompts for a period of time as long as the user is logging in from a device and browser previously marked as secure. 
+**Upgraded to WebAuthn library version 2**. This is required to work with Joomla 4. It also means that embedded authentication methods (e.g. Chrome using a MacBook Pro's TouchID sensor or a Windows Hello face camera) will now work properly. Plus, it adds support for Bluetooth-based authenticators. 
 
-**Fixed dark mode**. It was always enabled, regardless what your preference was. Also, the backend dark mode didn't work correctly.
+**Joomla 4 compatibility**. Well, at least at an experimental level since J4 is currently in beta.
 
-**Backend access broke for some users**. If your user did not have the core.manage privilege for LoginGuard you were unable to log in.  
+**Automatic database schema fix**. If your LoginGuard tables break just visit the component in the backend and it will fix its tables.
+
+**Skip browser fingerprinting if Remember Me is disabled at the component level**. In this case there is no need for the browser fingerprinting and the code shouldn't run.
+
+**HTML5 number field for OTPs**. That will make your mobile users' lives easier, typing in those 6-digit codes with an on-screen numeric keypad instead of full alphanumeric keyboard.
 
 ## Joomla and PHP Compatibility
 
-Akeeba LoginGuard is compatible with Joomla! 3.8 and 3.9.
+Akeeba LoginGuard is compatible with Joomla! 3.9 and 4.0. Joomla 4 compatibility is considered experimental since Joomla 4 is still in beta.
 
 Akeeba LoginGuard requires at least PHP 7.1. It's also compatible with PHP 7.2, 7.3 and 7.4.
 
@@ -20,11 +24,19 @@ We strongly recommend using the latest published Joomla! version and PHP 7.3 or 
 
 **New**
 
-* Browser fingerprinting to reduce 2SV prompts
+* LoginGuard will fix and update its database if necessary when you visit its backend page as a Super User
+* Joomla 4 compatible
+
+**Other Changes**
+
+* Minimum requirement: Joomla 3.9
+* Internal changes to use proper-cased views everywhere instead of legacy task=viewname.taskname when building public URLs
+* Do not go through browser fingerprinting if the Remember Me feature is disabled at the component level.
+* HTML5 number field for 6 digit codes (Email, PushBullet, SMS, Time-based One Time Password)
+* Now using WebAuthn library version 2, required for operating inside Joomla 4
 
 **Bug fixes**
 
-* Dark Mode “Auto” setting ended up being the same as “Always”
-* U2F and WebAuthn do not show a verification button if your browser / hardware cancels the verification [gh-80]
-* Missing file css/dark.min.css from the media folder
-* Cannot access backend if you have TFA enabled and you're not a Super User (or have the core.manage privilege for LoginGuard)
+* Unable to change 2SV method on Chrome when caching is enabled either at the Joomla or web server level.
+* Joomla 4 throws an exception when mail is disabled and you try to send an email
+* Unhandled exception page was incompatible with Joomla 4
