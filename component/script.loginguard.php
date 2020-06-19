@@ -59,8 +59,18 @@ class Pkg_LoginguardInstallerScript
 		// LoginGuard plugins
 		array('plugin', 'totp',       1, 'loginguard'),
 		array('plugin', 'yubikey',    1, 'loginguard'),
-		array('plugin', 'u2d',        1, 'loginguard'),
+		array('plugin', 'email',      1, 'loginguard'),
 	);
+
+	/**
+	 * Like above, but enable these extensions on installation OR update. Use this sparingly. It overrides the
+	 * preferences of the user. Ideally, this should only be used for installer plugins.
+	 *
+	 * @var array
+	 */
+	protected $extensionsToAlwaysEnable = [
+		// ['plugin', 'foobar', 1, 'installer'],
+	];
 
 	/**
 	 * =================================================================================================================
@@ -136,11 +146,17 @@ class Pkg_LoginguardInstallerScript
 	 * or updating your component. This is the last chance you've got to perform any additional installations, clean-up,
 	 * database updates and similar housekeeping functions.
 	 *
-	 * @param   string                       $type   install, update or discover_update
-	 * @param   \JInstallerAdapterComponent  $parent Parent object
+	 * @param   string                       $type    install, update or discover_update
+	 * @param   \JInstallerAdapterComponent  $parent  Parent object
 	 */
 	public function postflight($type, $parent)
 	{
+		// Always enable these extensions
+		if (isset($this->extensionsToAlwaysEnable) && !empty($this->extensionsToAlwaysEnable))
+		{
+			$this->enableExtensions($this->extensionsToAlwaysEnable);
+		}
+
 		/**
 		 * Try to install FEF. We only need to do this in postflight. A failure, while detrimental to the display of the
 		 * extension, is non-fatal to the installation and can be rectified by manual installation of the FEF package.
@@ -151,13 +167,25 @@ class Pkg_LoginguardInstallerScript
 		$this->installOrUpdateFEF($parent);
 
 		/**
+		 * Clean up the obsolete package update sites.
+		 *
+		 * If you specify a new update site location in the XML manifest Joomla will install it in the #__update_sites
+		 * table but it will NOT remove the previous update site. This method removes the old update sites which are
+		 * left behind by Joomla.
+		 */
+		if ($type !== 'install')
+		{
+			$this->removeObsoleteUpdateSites();
+		}
+
+		/**
 		 * Clean the cache after installing the package.
 		 *
 		 * See bug report https://github.com/joomla/joomla-cms/issues/16147
 		 */
-		$conf = \JFactory::getConfig();
-		$clearGroups = array('_system', 'com_modules', 'mod_menu', 'com_plugins', 'com_modules');
-		$cacheClients = array(0, 1);
+		$conf         = \JFactory::getConfig();
+		$clearGroups  = ['_system', 'com_modules', 'mod_menu', 'com_plugins', 'com_modules'];
+		$cacheClients = [0, 1];
 
 		foreach ($clearGroups as $group)
 		{
@@ -165,10 +193,10 @@ class Pkg_LoginguardInstallerScript
 			{
 				try
 				{
-					$options = array(
+					$options = [
 						'defaultgroup' => $group,
-						'cachebase' => ($client_id) ? JPATH_ADMINISTRATOR . '/cache' : $conf->get('cache_path', JPATH_SITE . '/cache')
-					);
+						'cachebase'    => ($client_id) ? JPATH_ADMINISTRATOR . '/cache' : $conf->get('cache_path', JPATH_SITE . '/cache'),
+					];
 
 					/** @var JCache $cache */
 					$cache = \JCache::getInstance('callback', $options);
@@ -193,7 +221,7 @@ class Pkg_LoginguardInstallerScript
 	}
 
 	/**
-	 * Tuns on installation (but not on upgrade). This happens in install and discover_install installation routes.
+	 * Runs on installation (but not on upgrade). This happens in install and discover_install installation routes.
 	 *
 	 * @param   \JInstallerAdapterPackage  $parent  Parent object
 	 *
@@ -262,13 +290,13 @@ class Pkg_LoginguardInstallerScript
 	private function installOrUpdateFOF($parent)
 	{
 		// Get the path to the FOF package
-		$sourcePath = $parent->getParent()->getPath('source');
+		$sourcePath    = $parent->getParent()->getPath('source');
 		$sourcePackage = $sourcePath . '/lib_fof30.zip';
 
 		// Extract and install the package
-		$package = JInstallerHelper::unpack($sourcePackage);
-		$tmpInstaller  = new JInstaller;
-		$error = null;
+		$package      = JInstallerHelper::unpack($sourcePackage);
+		$tmpInstaller = new JInstaller;
+		$error        = null;
 
 		try
 		{
@@ -277,7 +305,7 @@ class Pkg_LoginguardInstallerScript
 		catch (\Exception $e)
 		{
 			$installResult = false;
-			$error = $e->getMessage();
+			$error         = $e->getMessage();
 		}
 
 		// Try to include FOF. If that fails then the FOF package isn't installed because its installation failed, not
@@ -355,13 +383,13 @@ class Pkg_LoginguardInstallerScript
 	private function installOrUpdateFEF($parent)
 	{
 		// Get the path to the FOF package
-		$sourcePath = $parent->getParent()->getPath('source');
+		$sourcePath    = $parent->getParent()->getPath('source');
 		$sourcePackage = $sourcePath . '/file_fef.zip';
 
 		// Extract and install the package
-		$package = JInstallerHelper::unpack($sourcePackage);
-		$tmpInstaller  = new JInstaller;
-		$error = null;
+		$package      = JInstallerHelper::unpack($sourcePackage);
+		$tmpInstaller = new JInstaller;
+		$error        = null;
 
 		try
 		{
@@ -370,7 +398,7 @@ class Pkg_LoginguardInstallerScript
 		catch (\Exception $e)
 		{
 			$installResult = false;
-			$error = $e->getMessage();
+			$error         = $e->getMessage();
 		}
 	}
 
@@ -426,9 +454,14 @@ class Pkg_LoginguardInstallerScript
 	/**
 	 * Enable modules and plugins after installing them
 	 */
-	private function enableExtensions()
+	private function enableExtensions($extensions = [])
 	{
-		foreach ($this->extensionsToEnable as $ext)
+		if (empty($extensions))
+		{
+			$extensions = $this->extensionsToEnable;
+		}
+
+		foreach ($extensions as $ext)
 		{
 			$this->enableExtension($ext[0], $ext[1], $ext[2], $ext[3]);
 		}
@@ -516,12 +549,12 @@ class Pkg_LoginguardInstallerScript
 
 			if (empty($dependencies))
 			{
-				$dependencies = array();
+				$dependencies = [];
 			}
 		}
 		catch (Exception $e)
 		{
-			$dependencies = array();
+			$dependencies = [];
 		}
 
 		return $dependencies;
@@ -550,10 +583,10 @@ class Pkg_LoginguardInstallerScript
 			// Do nothing if the old key wasn't found
 		}
 
-		$object = (object)array(
-			'key' => $package,
-			'value' => json_encode($dependencies)
-		);
+		$object = (object) [
+			'key'   => $package,
+			'value' => json_encode($dependencies),
+		];
 
 		try
 		{
@@ -616,4 +649,140 @@ class Pkg_LoginguardInstallerScript
 
 		return in_array($dependency, $dependencies);
 	}
+
+	/**
+	 * Removes the obsolete update sites for the component, since now we're dealing with a package.
+	 *
+	 * Controlled by componentName, packageName and obsoleteUpdateSiteLocations
+	 *
+	 * Depends on getExtensionId, getUpdateSitesFor
+	 *
+	 * @return  void
+	 */
+	private function removeObsoleteUpdateSites()
+	{
+		// Initialize
+		$deleteIDs = [];
+
+		// Get package ID
+		$packageID = $this->findPackageExtensionID($this->packageName);
+
+		if (!$packageID)
+		{
+			return;
+		}
+
+		// All update sites for the packgae
+		$deleteIDs = $this->getUpdateSitesFor($packageID);
+
+		if (empty($deleteIDs))
+		{
+			$deleteIDs = [];
+		}
+
+		if (count($deleteIDs) <= 1)
+		{
+			return;
+		}
+
+		$deleteIDs = array_unique($deleteIDs);
+
+		// Remove the latest update site, the one we just installed
+		array_pop($deleteIDs);
+
+		$db = \Joomla\CMS\Factory::getDbo();
+
+		if (empty($deleteIDs) || !count($deleteIDs))
+		{
+			return;
+		}
+
+		// Delete the remaining update sites
+		$deleteIDs = array_map([$db, 'q'], $deleteIDs);
+
+		$query = $db->getQuery(true)
+			->delete($db->qn('#__update_sites'))
+			->where($db->qn('update_site_id') . ' IN(' . implode(',', $deleteIDs) . ')');
+
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// Do nothing.
+		}
+
+		$query = $db->getQuery(true)
+			->delete($db->qn('#__update_sites_extensions'))
+			->where($db->qn('update_site_id') . ' IN(' . implode(',', $deleteIDs) . ')');
+
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			// Do nothing.
+		}
+	}
+
+	/**
+	 * Gets the ID of an extension
+	 *
+	 * @param   string  $element  Package extension element, e.g. pkg_foo
+	 *
+	 * @return  int  Extension ID or 0 on failure
+	 */
+	private function findPackageExtensionID($element)
+	{
+		$db    = \Joomla\CMS\Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->qn('extension_id'))
+			->from($db->qn('#__extensions'))
+			->where($db->qn('element') . ' = ' . $db->q($element))
+			->where($db->qn('type') . ' = ' . $db->q('package'));
+
+		try
+		{
+			$id = $db->setQuery($query, 0, 1)->loadResult();
+		}
+		catch (Exception $e)
+		{
+			return 0;
+		}
+
+		return empty($id) ? 0 : (int) $id;
+	}
+
+	/**
+	 * Returns the update site IDs for the specified Joomla Extension ID.
+	 *
+	 * @param   int  $eid  Extension ID for which to retrieve update sites
+	 *
+	 * @return  array  The IDs of the update sites
+	 */
+	private function getUpdateSitesFor($eid = null)
+	{
+		$db    = \Joomla\CMS\Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->qn('s.update_site_id'))
+			->from($db->qn('#__update_sites', 's'))
+			->innerJoin($db->qn('#__update_sites_extensions', 'e') . 'ON(' . $db->qn('e.update_site_id') .
+				' = ' . $db->qn('s.update_site_id') . ')'
+			)
+			->where($db->qn('e.extension_id') . ' = ' . $db->q($eid));
+
+		try
+		{
+			$ret = $db->setQuery($query)->loadColumn();
+		}
+		catch (Exception $e)
+		{
+			return [];
+		}
+
+		return empty($ret) ? [] : $ret;
+	}
+
 }
