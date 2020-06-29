@@ -27,14 +27,14 @@ CONTACT AND SUPPORT
 ================================================================================
 
 Support is only provided to subscribers and only through our support ticket
-system at https://www.akeebabackup.com/support.html  No other means of support
+system at https://www.akeeba.com/support.html  No other means of support
 are provided or accepted. Explicitly, no support will be provided through email,
 phone, instant messaging, audio/video call, remote desktop sharing, social media
 or any other on-line or off-line method except the support ticket system on our
 site.
 
 If you want to file a bug report or contact us for any issue other than support
-please use the Contact Us page at https://www.akeebabackup.com/contact-us.html
+please use the Contact Us page at https://www.akeeba.com/contact-us.html
 
 ================================================================================
 DOCUMENTATION AND DOWNLOADS

@@ -209,8 +209,8 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 		<fieldset>
 			<p>
 				By installing this component you are implicitly accepting
-				<a href="https://www.akeebabackup.com/license.html">its license (GNU GPLv3)</a> and our
-				<a href="https://www.akeebabackup.com/privacy-policy.html">Terms of Service</a>,
+				<a href="https://www.akeeba.com/license.html">its license (GNU GPLv3)</a> and our
+				<a href="https://www.akeeba.com/privacy-policy.html">Terms of Service</a>,
 				including our Support Policy.
 			</p>
 		</fieldset>
@@ -227,7 +227,7 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 		?>
 		<h2>Akeeba LoginGuard was uninstalled</h2>
 		<p>We are sorry that you decided to uninstall Akeeba LoginGuard. Please let us know why by using the <a
-			href="https://www.akeebabackup.com/contact-us.html" target="_blank">Contact Us form on our site</a>. We
+			href="https://www.akeeba.com/contact-us.html" target="_blank">Contact Us form on our site</a>. We
 			appreciate your feedback; it helps us develop better software!</p>
 		<?php
 	}
