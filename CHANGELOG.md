@@ -1,3 +1,9 @@
+# 3.3.2
+
+**Bug fixes**
+
+* Wrong path to cacert.pem broke the Pushbullet method 
+
 # 3.3.1
 
 **New**
