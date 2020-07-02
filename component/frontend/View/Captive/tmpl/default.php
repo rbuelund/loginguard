@@ -139,7 +139,8 @@ JS;
 
         <div>
             <input type="hidden" name="option" value="com_loginguard">
-            <input type="hidden" name="task" value="captive.validate">
+            <input type="hidden" name="view" value="Captive">
+            <input type="hidden" name="task" value="validate">
             <input type="hidden" name="record_id" value="<?= $this->record->id ?>">
             <input type="hidden" name="<?= $this->getContainer()->platform->getToken() ?>" value="1">
         </div>

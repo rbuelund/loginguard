@@ -136,7 +136,8 @@ $token = $this->getContainer()->platform->getToken();
 
     <div>
         <input type="hidden" name="option" value="com_loginguard">
-        <input type="hidden" name="task" value="method.save">
+        <input type="hidden" name="view" value="Method">
+        <input type="hidden" name="task" value="save">
         <input type="hidden" name="id" value="<?php echo (int) $this->record->id ?>">
         <input type="hidden" name="method" value="<?php echo $this->record->method ?>">
         <input type="hidden" name="user_id" value="<?php echo $this->user->id ?>">

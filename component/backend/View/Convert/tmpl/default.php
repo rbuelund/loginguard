@@ -28,7 +28,8 @@ defined('_JEXEC') or die;
 
 <form action="index.php" name="adminForm" id="adminForm" method="get">
     <input type="hidden" name="option" value="com_loginguard"/>
-    <input type="hidden" name="task" value="convert.convert"/>
+    <input type="hidden" name="view" value="Convert">
+    <input type="hidden" name="task" value="convert"/>
     <input type="hidden" name="<?php echo $this->getContainer()->platform->getToken() ?>" value="1"/>
     <input type="submit" class="btn btn-default" value="<?php echo $this->escape(JText::_('COM_LOGINGUARD_CONVERT_BUTTON'))?>">
 </form>
