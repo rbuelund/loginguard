@@ -108,6 +108,13 @@ class Dispatcher extends BaseDispatcher
 		$view = $this->input->getCmd('view', '');
 		$task = $this->input->getCmd('task', '');
 
+		// Task has legacy view.task notation? That's not our stuff, let's nuke it
+		if (strpos($task, '.') !== false)
+		{
+			$task = null;
+			$this->input->set('task', '');
+		}
+
 		if (!empty($view))
 		{
 			if (!empty($task) && (strpos($task, '.') === false))
