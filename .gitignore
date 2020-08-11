@@ -28,11 +28,6 @@
 /build/release.json
 /release.json
 
-### Language symlinks
-/component/language/*/en-GB
-/modules/*/*/language/en-GB
-/plugins/*/*/language/en-GB
-
 ### Node.js modules (used to install Babel)
 /node_modules
 
