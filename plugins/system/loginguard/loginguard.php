@@ -726,7 +726,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// If all else fails, use our default list (Joomla's Remember Me cookie and Akeeba SocialLogin)
 		if (empty($silentResponses))
 		{
-			$silentResponses = array('cookie', 'sociallogin');
+			$silentResponses = array('cookie', 'sociallogin', 'passwordless');
 		}
 
 		// Is it a silent login after all?
