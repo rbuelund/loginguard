@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 3.3.3
+================================================================================
+~ Internals change: Zend Framework is now Laminas, updated dependencies accordingly
+
 Akeeba LoginGuard 3.3.2
 ================================================================================
 # [HIGH] Wrong path to cacert.pem broke the Pushbullet method
