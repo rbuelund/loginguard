@@ -15,10 +15,14 @@ if (!is_null($this->browserId) || !$this->container->session->get('browserIdCode
 	die('Someone is being naughty.');
 }
 
-// We now load the FingerprintJS2 v.2.1.0 library from a local file with a stupid name because Firefox blocks anything with "fingerprint" in the name.
+// We now load the FingerprintJS2 v.2.1.0 and the MurmurHash3 library  from a local file with a stupid name because
+// Firefox blocks anything with "fingerprint" in the name and CloudFlare's CDN is unreliable.
 $this->addJavascriptFile('media://com_loginguard/js/magicthingie.min.js', null, 'text/javascript', true, false);
+
+// These are the CloudFlare CDN-hosted files included in magicthingie.min.js
 //$this->addJavascriptFile('https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js', null, 'text/javascript', false, true);
-$this->addJavascriptFile('https://cdnjs.cloudflare.com/ajax/libs/murmurhash3js/3.0.1/murmurHash3js.js', null, 'text/javascript', false, true);
+//$this->addJavascriptFile('https://cdnjs.cloudflare.com/ajax/libs/murmurhash3js/3.0.1/murmurHash3js.js', null, 'text/javascript', false, true);
+
 // We call this script "security" instead of "fingerprint" to prevent Firefox refusing to load it.
 $this->addJavascriptFile('media://com_loginguard/js/security.js', null, 'text/javascript', true, false);
 $js = <<< JS
