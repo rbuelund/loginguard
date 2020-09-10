@@ -3,6 +3,7 @@ Akeeba LoginGuard 3.3.3
 ================================================================================
 ~ Added passwordless to the Silent login authentication response types
 ~ Internals change: Zend Framework is now Laminas, updated dependencies accordingly
+~ Improved unhandled PHP exception error page
 # [MEDIUM] Multiple email / SMS with the second factor code are sent on some sites when these methods are default for a user.
 # [LOW] When CloudFlare CDN went down on August 30, 2020 LoginGuard's TSV Remember Me code got hosed. Self-hosting the whole lot now.
 
