@@ -1,5 +1,19 @@
 <h3>What's new?</h3>
 <p>
+	<strong>Added passwordless to the Silent login authentication response types</strong>.
+	When you are using Joomla 4's WebAuthn or SocialLogin to log into your site you will not be asked for Two Step
+	Verification. This makes sense because you're either using a cryptograhpically secure login method or you have
+	already undergone a second authentication factor check on the third party site.
+</p>
+<p>
+	<strong>Updated WebAuthn</strong>. After upgrading Joomla 4 to a newer version of the Web Authentication
+	framework I have done the same for LoginGuard. Not only does this make it compatible with Joomla 4, it also allows
+	you to use device authenticators such as FaceID (iOS, iPadOS), TouchID (macOS, iOS, iPadOS), fingerprint (Android)
+	and Windows Hello (Windows 10). FaceID/TouchID require Safari 14 running on iOS 14, iPadOS 14 or macOS Big Sur.
+	Like before, you can still use TouchID on MacBook Pro and Air computers with a fingerprint sensor using Chrome on
+    earlier versions of macOS.
+</p>
+<p>
 	<strong>Bug fixes and minor improvements</strong>. Please take a look at the CHANGELOG below.
 </p>
 
