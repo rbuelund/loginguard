@@ -59,13 +59,15 @@ trait TfaCaptive
 			'pathOnly'      => false,
 			'detectBrowser' => true,
 		], [
-			'defer' => false,
+			'defer' => true,
 			'async' => false,
 		]);
 
 		// Load JS translations
 		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
 		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL');
+
+		Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'validate', false);
 
 		/**
 		 * The following code looks stupid. An explanation is in order.
@@ -129,27 +131,7 @@ trait TfaCaptive
 			$pkRequest = Credentials::createChallenge($record->user_id);
 		}
 
-		$js = <<< JS
-;; // Defense against broken scripts
-
-function akeebaLoginGuardWebauthnOnClick()
-{
-	    window.jQuery('#loginguard-webauthn-button').hide();
-		akeeba.LoginGuard.webauthn.validate();
-
-		return false;
-}
-		
-window.jQuery(document).ready(function($) {
-	akeeba.LoginGuard.webauthn.authData = $pkRequest;
-	
-	$('#loginguard-captive-button-submit').click(function() {
-	    akeebaLoginGuardWebauthnOnClick();
-	});
-});
-
-JS;
-		Factory::getDocument()->addScriptDeclaration($js);
+		Factory::getDocument()->addScriptOptions('com_loginguard.authData', base64_encode($pkRequest), false);
 
 		$layoutPath = PluginHelper::getLayoutPath('loginguard', 'webauthn', 'validate');
 		ob_start();

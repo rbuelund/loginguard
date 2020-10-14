@@ -131,6 +131,10 @@ class CredentialRepository implements PublicKeyCredentialSourceRepository
 				$options['pubkeysource']  = json_decode($options['pubkeysource'], true);
 				$return[$result->getId()] = PublicKeyCredentialSource::createFromArray($options['pubkeysource']);
 			}
+			elseif (isset($options['pubkeysource']) && is_array($options['pubkeysource']))
+			{
+				$return[$result->getId()] = PublicKeyCredentialSource::createFromArray($options['pubkeysource']);
+			}
 		}
 
 		return $return;

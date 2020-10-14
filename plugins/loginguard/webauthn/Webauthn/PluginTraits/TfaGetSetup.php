@@ -68,7 +68,7 @@ trait TfaGetSetup
 				'pathOnly'      => false,
 				'detectBrowser' => true,
 			], [
-				'defer' => false,
+				'defer' => true,
 				'async' => false,
 			]);
 
@@ -80,6 +80,8 @@ trait TfaGetSetup
 
 			// Load JS translations
 			Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
+
+			Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'setup', false);
 
 			// Save the U2F request to the session
 			$user                    = Factory::getUser();
