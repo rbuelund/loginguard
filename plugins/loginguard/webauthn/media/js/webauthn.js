@@ -159,4 +159,3 @@ akeeba.LoginGuard.webauthn.validate = () =>
             akeeba.LoginGuard.webauthn.handle_error(error);
         });
 };
-

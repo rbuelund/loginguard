@@ -146,10 +146,6 @@ window.jQuery(document).ready(function($) {
 	$('#loginguard-captive-button-submit').click(function() {
 	    akeebaLoginGuardWebauthnOnClick();
 	});
-	
-	setTimeout(function() {
-	    akeebaLoginGuardWebauthnOnClick();
-	}, 250);
 });
 
 JS;

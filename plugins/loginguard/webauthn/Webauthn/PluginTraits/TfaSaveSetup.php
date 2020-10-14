@@ -84,9 +84,9 @@ trait TfaSaveSetup
 
 		// The code is valid. Unset the request data from the session and update the options
 		$options = [
-			'credentialId'     => base64_encode($publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId()),
+			'credentialId' => base64_encode($publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId()),
 			'pubkeysource' => json_encode($publicKeyCredentialSource),
-			'counter'          => 0,
+			'counter'      => 0,
 		];
 
 		// Return the configuration to be serialized
