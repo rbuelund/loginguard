@@ -90,6 +90,8 @@ class Html extends BaseView
 	 */
 	function onBeforeCaptive()
 	{
+		$this->container->platform->runPlugins('onLoginGuardBeforeDisplayMethods', [$this->container->platform->getUser()]);
+
 		/** @var Captive $model */
 		$model = $this->getModel();
 

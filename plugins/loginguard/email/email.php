@@ -6,6 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -18,7 +19,8 @@ defined('_JEXEC') or die;
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
- * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30 seconds.
+ * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30
+ * seconds.
  */
 class PlgLoginguardEmail extends CMSPlugin
 {
@@ -33,11 +35,11 @@ class PlgLoginguardEmail extends CMSPlugin
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -54,7 +56,7 @@ class PlgLoginguardEmail extends CMSPlugin
 	{
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
-		return array(
+		return [
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
@@ -68,8 +70,8 @@ class PlgLoginguardEmail extends CMSPlugin
 			// Are we allowed to have multiple instances of it per user?
 			'allowMultiple' => false,
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'      => $helpURL,
+		];
 	}
 
 	/**
@@ -83,12 +85,12 @@ class PlgLoginguardEmail extends CMSPlugin
 	 */
 	public function onLoginGuardTfaGetSetup($record)
 	{
-		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
@@ -115,7 +117,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
-		return array(
+		return [
 			// Default title if you are setting up this TFA method for the first time
 			'default_title'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
@@ -123,11 +125,11 @@ class PlgLoginguardEmail extends CMSPlugin
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(),
+			'tabular_data'   => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(
+			'hidden_data'    => [
 				'key' => $key,
-			),
+			],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -147,8 +149,8 @@ class PlgLoginguardEmail extends CMSPlugin
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'       => $helpURL,
+		];
 	}
 
 	/**
@@ -169,7 +171,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		$session = Factory::getSession();
@@ -202,7 +204,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new Totp();
+		$totp    = new Totp();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
@@ -214,9 +216,9 @@ class PlgLoginguardEmail extends CMSPlugin
 		$session->set('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
-		return array(
-			'key'   => $key,
-		);
+		return [
+			'key' => $key,
+		];
 	}
 
 	/**
@@ -232,7 +234,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
@@ -244,7 +246,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$user = Factory::getUser($record->user_id);
 		$this->sendCode($key, $user);
 
-		return array(
+		return [
 			// Custom HTML to display above the TFA form
 			'pre_message'  => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
@@ -261,16 +263,16 @@ class PlgLoginguardEmail extends CMSPlugin
 			'post_message' => '',
 			// URL for help content
 			'help_url'     => $helpURL,
-		);
+		];
 	}
 
 	/**
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   User      $user    The user record
-	 * @param   string    $code    The submitted code
+	 * @param   Tfa     $record  The TFA method's record you're validatng against
+	 * @param   User    $user    The user record
+	 * @param   string  $code    The submitted code
 	 *
 	 * @return  bool
 	 */
@@ -290,7 +292,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key = isset($options['key']) ? $options['key'] : '';
+		$key     = isset($options['key']) ? $options['key'] : '';
 
 		// If there is no key in the options throw an error
 		if (empty($key))
@@ -300,37 +302,85 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Check the TFA code for validity
 		$totp = new Totp();
+
 		return $totp->checkCode($key, $code);
 	}
 
 	/**
-	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 * Executes before showing the 2SV methods for the user. Used for the Force Enable feature.
 	 *
-	 * @param   stdClass  $record
+	 * @param   User|null  $user
 	 *
-	 * @return  array
+	 * @return  void
 	 */
-	private function _decodeRecordOptions($record)
+	public function onLoginGuardBeforeDisplayMethods(?User $user)
 	{
-		$options = array(
-			'key'   => '',
-		);
-
-		if (!empty($record->options))
+		// Is the forced enable feature activated?
+		if ($this->params->get('force_enable', 0) != 1)
 		{
-			$recordOptions = $record->options;
-
-			$options = array_merge($options, $recordOptions);
+			return;
 		}
 
-		return $options;
+		// Get second factor methods for this user
+		$container = Container::getInstance('com_loginguard');
+		/** @var Tfa $model */
+		$model          = $container->factory->model('Tfa')->tmpInstance();
+		$userTfaRecords = $model->user_id($user->id)->get(true);
+
+		// If there are no methods go back
+		if ($userTfaRecords->count() < 1)
+		{
+			return;
+		}
+
+		// If the only method is backup codes go back
+		if ($userTfaRecords->count() == 1)
+		{
+			/** @var Tfa $record */
+			$record = $userTfaRecords->first();
+
+			if ($record->method == 'backupcodes')
+			{
+				return;
+			}
+		}
+
+		// If I already have the email method go back
+		$emailRecords = $userTfaRecords->filter(function (Tfa $record) {
+			return $record->method == 'email';
+		});
+
+		if ($emailRecords->count())
+		{
+			return;
+		}
+
+		// Add the email method
+		try
+		{
+			/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
+			$methodModel = $container->factory->model('Method')->tmpInstance();
+			$methodModel->setState('id', 0);
+			$record          = $methodModel->getRecord($user);
+			$record->method  = 'email';
+			$record->title   = JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS');
+			$record->options = [
+				'key' => (new Totp())->generateSecret(),
+			];
+			$record->default = 0;
+			$record->save();
+		}
+		catch (Exception $e)
+		{
+			// Fail gracefully
+		}
 	}
 
 	/**
 	 * Creates a new TOTP code based on secret key $key and sends it to the user via email.
 	 *
-	 * @param   string  $key    The TOTP secret key
-	 * @param   User    $user   The Joomla! user to use
+	 * @param   string  $key   The TOTP secret key
+	 * @param   User    $user  The Joomla! user to use
 	 *
 	 * @return  void
 	 *
@@ -350,20 +400,20 @@ class PlgLoginguardEmail extends CMSPlugin
 		// Create the list of variable replacements
 		$code = $totp->getCode($key);
 
-		$replacements = array(
+		$replacements = [
 			'[CODE]'     => $code,
 			'[SITENAME]' => Factory::getConfig()->get('sitename'),
 			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
-		);
+		];
 
 		// Get the title and body of the e-mail message
 		$subject = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_SUBJECT');
 		$subject = str_ireplace(array_keys($replacements), array_values($replacements), $subject);
-		$body = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_BODY');
-		$body = str_ireplace(array_keys($replacements), array_values($replacements), $body);
+		$body    = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_BODY');
+		$body    = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
 		// Send email
 		try
@@ -378,5 +428,28 @@ class PlgLoginguardEmail extends CMSPlugin
 		{
 			return;
 		}
+	}
+
+	/**
+	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 *
+	 * @param   stdClass  $record
+	 *
+	 * @return  array
+	 */
+	private function _decodeRecordOptions($record)
+	{
+		$options = [
+			'key' => '',
+		];
+
+		if (!empty($record->options))
+		{
+			$recordOptions = $record->options;
+
+			$options = array_merge($options, $recordOptions);
+		}
+
+		return $options;
 	}
 }

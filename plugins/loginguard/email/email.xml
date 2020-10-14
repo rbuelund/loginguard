@@ -38,6 +38,18 @@
         <fields name="params">
             <fieldset name="basic">
                 <field
+                        name="force_enable"
+                        type="radio"
+                        label="PLG_LOGINGUARD_EMAIL_CONFIG_FORCE_ENABLE_LABEL"
+                        description="PLG_LOGINGUARD_EMAIL_CONFIG_FORCE_ENABLE_DESC"
+                        default="0"
+                        class="btn-group"
+                >
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+
+                <field
                         name="helpurl"
                         type="text"
                         label="PLG_LOGINGUARD_EMAIL_CONFIG_HELPURL_LABEL"

@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 3.3.4
+================================================================================
++ Option to forcibly enable the Email plugin for everyone (gh-91)
+
 Akeeba LoginGuard 3.3.3
 ================================================================================
 ~ Added passwordless to the Silent login authentication response types
