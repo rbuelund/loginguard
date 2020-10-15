@@ -65,3 +65,28 @@ akeeba.LoginGuard.fingerprint.callback = function (components) {
 
 // Initialize immediately
 akeeba.LoginGuard.fingerprint.init();
+
+var akeebaLoginGuardCaptiveCheckingCounter = 0;
+var akeebaLoginGuardCaptiveCheckingTimer = setInterval(function () {
+    // Wait until we have a browser ID or we've been here for more than 4 seconds
+    var notYet =
+            (typeof akeeba.LoginGuard.fingerprint.browserId === 'undefined') ||
+            (akeeba.LoginGuard.fingerprint.browserId === null);
+
+    if (++akeebaLoginGuardCaptiveCheckingCounter >= 16)
+    {
+        document.forms.akeebaLoginguardForm.submit();
+    }
+
+    if (notYet)
+    {
+        return;
+    }
+
+    // Unset this timer
+    clearInterval(akeebaLoginGuardCaptiveCheckingTimer);
+
+    // Set the browser ID in the form and submit the form.
+    document.getElementById('akeebaLoginguardFormBrowserId').value = akeeba.LoginGuard.fingerprint.browserId;
+    document.forms.akeebaLoginguardForm.submit();
+}, 250);
