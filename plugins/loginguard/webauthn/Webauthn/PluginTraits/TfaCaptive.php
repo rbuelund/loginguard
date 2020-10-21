@@ -19,7 +19,7 @@ use RuntimeException;
 use Webauthn\PublicKeyCredentialRequestOptions;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaCaptive
 {

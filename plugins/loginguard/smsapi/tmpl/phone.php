@@ -7,10 +7,11 @@
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 // Load media
 HTMLHelper::_('stylesheet', 'plg_loginguard_smsapi/telinput.min.css', array(
@@ -47,7 +48,7 @@ Factory::getApplication()->getDocument()->addScriptDeclaration($js);
 <div class="akeeba-form--horizontal" id="loginGuardSMSAPIForm">
     <div class="akeeba-form-group">
         <label for="loginGuardSMSAPIPhone">
-			<?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_PHONE') ?>
+			<?= Text::_('PLG_LOGINGUARD_SMSAPI_LBL_PHONE') ?>
         </label>
         <input type="text" name="phone-entry-field" id="loginGuardSMSAPIPhone" value="" class="input-large" />
     </div>
@@ -55,7 +56,7 @@ Factory::getApplication()->getDocument()->addScriptDeclaration($js);
         <div class="akeeba-form-group--actions">
             <button type="button" class="akeeba-btn--primary" onclick="loginGuardSMSAPISendCode()">
                 <span class="icon icon-phone glyphicon glyphicon-phone"></span>
-				<?php echo JText::_('PLG_LOGINGUARD_SMSAPI_LBL_SENDCODEBUTTON'); ?>
+				<?= Text::_('PLG_LOGINGUARD_SMSAPI_LBL_SENDCODEBUTTON'); ?>
             </button>
         </div>
     </div>

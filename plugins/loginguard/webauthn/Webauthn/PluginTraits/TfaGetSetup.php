@@ -16,7 +16,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaGetSetup
 {

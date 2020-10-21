@@ -14,7 +14,7 @@ use Akeeba\LoginGuard\Site\Model\Captive;
 use FOF30\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text as JText;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Html extends BaseView
 {
@@ -122,7 +122,7 @@ class Html extends BaseView
 			$this->record = reset($this->records);
 
 			// If we have multiple records try to make this record the default
-			if (count($this->records) > 1)
+			if ((is_array($this->records) || $this->records instanceof \Countable ? count($this->records) : 0) > 1)
 			{
 				foreach ($this->records as $record)
 				{
@@ -170,7 +170,7 @@ class Html extends BaseView
 			case 'default':
 			default:
 				$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
-				$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
+				$this->allowEntryBatching = $this->renderOptions['allowEntryBatching'] ?? 0;
 
 				$this->container->platform->runPlugins('onComLoginguardCaptiveShowCaptive', [
 					$this->escape($this->record->title),

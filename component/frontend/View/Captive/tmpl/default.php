@@ -10,7 +10,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
 /** @var \Akeeba\LoginGuard\Site\Model\Captive $model */
@@ -103,29 +103,29 @@ JS;
                 <button type="submit" class="akeeba-btn--large--primary" id="loginguard-captive-button-submit"
                         style="<?= $this->renderOptions['hide_submit'] ? 'display: none' : '' ?>">
                     <span class="akion-chevron-right"></span>
-		            <?= JText::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
+		            <?= Text::_('COM_LOGINGUARD_LBL_VALIDATE'); ?>
                 </button>
 
 	            <?php if ($this->isAdmin): ?>
                 <a href="<?= Route::_('index.php?option=com_login&task=logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-power"></span>
-                    <?= JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
+                    <?= Text::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php else: ?>
                 <a href="<?= Route::_('index.php?option=com_users&task=user.logout&' . $this->getContainer()->platform->getToken(true) . '=1') ?>"
                    class="akeeba-btn--red" id="loginguard-captive-button-logout">
                     <span class="akion-ios-locked"></span>
-                    <?= JText::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
+                    <?= Text::_('COM_LOGINGUARD_LBL_LOGOUT'); ?>
                 </a>
 	            <?php endif; ?>
             </div>
         </div>
 
-	    <?php if (count($this->records) > 1): ?>
+	    <?php if ((is_array($this->records) || $this->records instanceof \Countable ? count($this->records) : 0) > 1): ?>
             <div id="loginguard-captive-form-choose-another" class="akeeba-form-group--pull-right">
                 <a href="<?= Route::_('index.php?option=com_loginguard&view=Captive&task=select') ?>">
-				    <?= JText::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
+				    <?= Text::_('COM_LOGINGUARD_LBL_USEDIFFERENTMETHOD'); ?>
                 </a>
             </div>
 	    <?php endif; ?>

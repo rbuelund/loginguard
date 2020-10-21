@@ -22,7 +22,7 @@ use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * LoginGuard User Plugin
@@ -51,11 +51,11 @@ class plgUserLoginguard extends CMSPlugin
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct(& $subject, $config)
+	public function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
 
@@ -120,7 +120,7 @@ class plgUserLoginguard extends CMSPlugin
 		// Check we are manipulating a valid form.
 		$name = $form->getName();
 
-		if (!in_array($name, array('com_admin.profile', 'com_users.user', 'com_users.profile', 'com_users.registration')))
+		if (!in_array($name, ['com_admin.profile', 'com_users.user', 'com_users.profile', 'com_users.registration']))
 		{
 			return true;
 		}
@@ -148,7 +148,7 @@ class plgUserLoginguard extends CMSPlugin
 			}
 		}
 
-		if (!$this->container->platform->isBackend() && !in_array($layout, array('edit', 'default')))
+		if (!$this->container->platform->isBackend() && !in_array($layout, ['edit', 'default']))
 		{
 			return true;
 		}
@@ -158,7 +158,7 @@ class plgUserLoginguard extends CMSPlugin
 
 		if (is_array($data))
 		{
-			$id = isset($data['id']) ? $data['id'] : null;
+			$id = $data['id'] ?? null;
 		}
 		elseif (is_object($data) && is_null($data) && ($data instanceof Registry))
 		{
@@ -166,7 +166,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 		elseif (is_object($data) && !is_null($data))
 		{
-			$id = isset($data->id) ? $data->id : null;
+			$id = $data->id ?? null;
 		}
 
 		$user = Factory::getUser($id);
@@ -190,7 +190,7 @@ class plgUserLoginguard extends CMSPlugin
 		if ($layout == 'default')
 		{
 			/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
-			$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
+			$tfaModel   = $this->container->factory->model('Tfa')->tmpInstance();
 			$tfaMethods = $tfaModel->user_id($id)->get(true);
 
 			/**
@@ -198,9 +198,9 @@ class plgUserLoginguard extends CMSPlugin
 			 * cannot use a list field to display it in a human readable format, Joomla! just dumps the raw value if you
 			 * use such a field. So all I can do is pass raw text. Um, whatever.
 			 */
-			$data->loginguard = array(
-				'hastfa' => ($tfaMethods->count() > 0) ? Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED')
-			);
+			$data->loginguard = [
+				'hastfa' => ($tfaMethods->count() > 0) ? Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_ENABLED') : Text::_('PLG_USER_LOGINGUARD_FIELD_HASTFA_DISABLED'),
+			];
 
 			$form->loadFile('list', false);
 
@@ -348,9 +348,9 @@ class plgUserLoginguard extends CMSPlugin
 
 		// Delete user profile records
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__user_profiles'))
-		            ->where($db->qn('user_id').' = '.$db->q($userId))
-		            ->where($db->qn('profile_key').' LIKE '.$db->q('loginguard.%', false));
+			->delete($db->qn('#__user_profiles'))
+			->where($db->qn('user_id') . ' = ' . $db->q($userId))
+			->where($db->qn('profile_key') . ' LIKE ' . $db->q('loginguard.%', false));
 
 		try
 		{
@@ -365,8 +365,8 @@ class plgUserLoginguard extends CMSPlugin
 		try
 		{
 			$query = $db->getQuery(true)
-			            ->delete($db->qn('#__loginguard_tfa'))
-			            ->where($db->qn('user_id').' = '.$db->q($userId));
+				->delete($db->qn('#__loginguard_tfa'))
+				->where($db->qn('user_id') . ' = ' . $db->q($userId));
 
 			$db->setQuery($query)->execute();
 		}
@@ -391,7 +391,7 @@ class plgUserLoginguard extends CMSPlugin
 		// Get the user's 2SV records
 		/** @var \Akeeba\LoginGuard\Site\Model\Tfa $tfaModel */
 		$tfaModel = $this->container->factory->model('Tfa')->tmpInstance();
-		$records = $tfaModel->user_id($user->id)->get(true);
+		$records  = $tfaModel->user_id($user->id)->get(true);
 
 		// No 2SV methods? Then we obviously don't need to display a captive login page.
 		if ($records->count() < 1)
@@ -409,7 +409,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 
 		// Get a list of just the method names
-		$methodNames = array();
+		$methodNames = [];
 
 		foreach ($tfaMethods as $tfaMethod)
 		{
@@ -417,7 +417,7 @@ class plgUserLoginguard extends CMSPlugin
 		}
 
 		// Filter the records based on currently active 2SV methods
-		foreach($records as $record)
+		foreach ($records as $record)
 		{
 			if (in_array($record->method, $methodNames))
 			{
@@ -439,7 +439,7 @@ class plgUserLoginguard extends CMSPlugin
 	 */
 	private function hasDoNotShowAgainFlag(User $user)
 	{
-		$db = Factory::getDbo();
+		$db    = Factory::getDbo();
 		$query = $db->getQuery(true)
 			->select($db->qn('profile_value'))
 			->from($db->qn('#__user_profiles'))

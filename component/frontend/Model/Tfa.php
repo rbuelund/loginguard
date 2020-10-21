@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 use Akeeba\LoginGuard\Admin\Model\Tfa as AdminModel;
 

@@ -9,7 +9,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $layoutPath = PluginHelper::getLayoutPath('loginguard', 'webauthn', 'error');
 include $layoutPath;
@@ -22,7 +22,7 @@ include $layoutPath;
         <div class="akeeba-form-group--actions">
             <a class="akeeba-btn--primary--large" id="plg_loginguard_webauthn_validate_button">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
-                <?php echo Text::_('PLG_LOGINGUARD_WEBAUTHN_LBL_VALIDATEKEY'); ?>
+                <?= Text::_('PLG_LOGINGUARD_WEBAUTHN_LBL_VALIDATEKEY'); ?>
             </a>
         </div>
     </div>

@@ -18,7 +18,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\Input\Input;
 use RuntimeException;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaSaveSetup
 {

@@ -21,7 +21,7 @@ use Joomla\CMS\User\User as JUser;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the method edit page
@@ -356,7 +356,6 @@ class Method extends Controller
 	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa  The loaded record
 	 * @since   2.0.0
-	 *
 	 */
 	private function _assertValidRecordId($id, JUser $user = null)
 	{
@@ -386,9 +385,8 @@ class Method extends Controller
 	 * @param   JUser|User  $user  User record. Null to use current user.
 	 *
 	 * @return  void
-	 * @since   2.0.0
-	 *
 	 * @throws  RuntimeException  When the user is a guest (not logged in)
+	 * @since   2.0.0
 	 */
 	private function _assertCanEdit($user = null)
 	{

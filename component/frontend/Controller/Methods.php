@@ -19,7 +19,7 @@ use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the methods management page

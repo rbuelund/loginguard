@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Site\Helper;
 use FOF30\Container\Container;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Two Factor Authentication helper class for Akeeba LoginGuard

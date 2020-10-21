@@ -14,7 +14,7 @@ use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * AJAX controller. Handles requests originating from an asynchronous request issued by the user's browser.

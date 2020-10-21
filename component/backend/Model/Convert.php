@@ -13,7 +13,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Model for the Convert view
@@ -68,7 +68,7 @@ class Convert extends Model
 		// Loop all users with TFA
 		foreach ($users as $user)
 		{
-			list($otpMethod, $otpKey) = explode(':', $user->otpKey, 2);
+			[$otpMethod, $otpKey] = explode(':', $user->otpKey, 2);
 
 			$otpKey     = $this->decryptTFAString($secret, $otpKey);
 			$otep       = $this->decryptTFAString($secret, $user->otep);

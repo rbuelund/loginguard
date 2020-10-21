@@ -14,7 +14,7 @@ use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for remote callbacks, primarily used for OAuth2 authentication with third party providers.

@@ -11,7 +11,7 @@ use Akeeba\LoginGuard\Admin\Model\Welcome;
 use FOF30\View\DataView\Html as BaseView;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Html extends BaseView
 {

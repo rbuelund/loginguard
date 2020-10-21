@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 use Joomla\CMS\Language\Text;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaGetMethod
 {

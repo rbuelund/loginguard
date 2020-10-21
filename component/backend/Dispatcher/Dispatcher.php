@@ -16,7 +16,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Dispatcher extends BaseDispatcher
 {

@@ -9,12 +9,14 @@ use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
@@ -60,9 +62,9 @@ class PlgLoginguardEmail extends CMSPlugin
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
+			'display'       => Text::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SHORTINFO'),
+			'shortinfo'     => Text::_('PLG_LOGINGUARD_EMAIL_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'         => 'media/plg_loginguard_email/images/email.svg',
 			// Are we allowed to disable it?
@@ -95,7 +97,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there's a key in the session use that instead.
 		$session = Factory::getSession();
@@ -119,7 +121,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
 			'pre_message'    => '',
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
@@ -137,9 +139,9 @@ class PlgLoginguardEmail extends CMSPlugin
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'    => Text::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
+			'label'          => Text::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -160,13 +162,13 @@ class PlgLoginguardEmail extends CMSPlugin
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input     $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -178,7 +180,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
@@ -189,7 +191,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		// If there is still no key in the options throw an error
 		if (empty($key))
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		/**
@@ -209,7 +211,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		if (!$isValid)
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_EMAIL_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_EMAIL_ERR_INVALID_CODE'), 500);
 		}
 
 		// The code is valid. Unset the key from the session.
@@ -239,7 +241,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Email');
 
 		// Send an email message with a new code and ask the user to enter it.
@@ -254,9 +256,9 @@ class PlgLoginguardEmail extends CMSPlugin
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
 			'input_type'   => 'number',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'  => Text::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
+			'label'        => Text::_('PLG_LOGINGUARD_EMAIL_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
@@ -292,7 +294,7 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there is no key in the options throw an error
 		if (empty($key))
@@ -363,7 +365,7 @@ class PlgLoginguardEmail extends CMSPlugin
 			$methodModel->setState('id', 0);
 			$record          = $methodModel->getRecord($user);
 			$record->method  = 'email';
-			$record->title   = JText::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS');
+			$record->title   = Text::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS');
 			$record->options = [
 				'key' => (new Totp())->generateSecret(),
 			];
@@ -410,9 +412,9 @@ class PlgLoginguardEmail extends CMSPlugin
 		];
 
 		// Get the title and body of the e-mail message
-		$subject = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_SUBJECT');
+		$subject = Text::_('PLG_LOGINGUARD_EMAIL_MESSAGE_SUBJECT');
 		$subject = str_ireplace(array_keys($replacements), array_values($replacements), $subject);
-		$body    = JText::_('PLG_LOGINGUARD_EMAIL_MESSAGE_BODY');
+		$body    = Text::_('PLG_LOGINGUARD_EMAIL_MESSAGE_BODY');
 		$body    = str_ireplace(array_keys($replacements), array_values($replacements), $body);
 
 		// Send email

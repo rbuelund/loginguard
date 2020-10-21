@@ -21,7 +21,7 @@ use Joomla\Event\Event;
 use stdClass;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Captive extends Model
 {
@@ -307,7 +307,7 @@ class Captive extends Model
 			return JText::_('COM_LOGINGUARD_LBL_BACKUPCODES_METHOD_NAME');
 		}
 
-		return isset($map[$name]) ? $map[$name] : $name;
+		return $map[$name] ?? $name;
 	}
 
 	/**
@@ -341,7 +341,7 @@ class Captive extends Model
 			return 'media/com_loginguard/images/emergency.svg';
 		}
 
-		return isset($map[$name]) ? $map[$name] : $name;
+		return $map[$name] ?? $name;
 	}
 
 	/**

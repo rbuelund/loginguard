@@ -12,7 +12,7 @@ use Akeeba\LoginGuard\Admin\Dispatcher\Dispatcher as AdminDispatcher;
 use FOF30\Input\Input;
 use Joomla\CMS\Factory;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Dispatcher extends AdminDispatcher
 {

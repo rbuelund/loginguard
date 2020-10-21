@@ -13,7 +13,7 @@ use FOF30\Model\Model;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Model for the Welcome page

@@ -14,7 +14,7 @@ use FOF30\View\DataView\Html as BaseView;
 use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
 use Joomla\CMS\User\User as JUser;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Html extends BaseView
 {

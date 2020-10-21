@@ -9,16 +9,16 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 ?>
 <div id="loginguard-webauthn-missing">
 	<div class="alert alert-error">
 		<h4>
-			<?php echo Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD'); ?>
+			<?= Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD'); ?>
 		</h4>
 		<p>
-			<?php echo Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_BODY'); ?>
+			<?= Text::_('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_BODY'); ?>
 		</p>
 	</div>
 </div>

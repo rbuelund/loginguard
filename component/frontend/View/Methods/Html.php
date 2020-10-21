@@ -15,7 +15,7 @@ use FOF30\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Html extends BaseView
 {
@@ -113,7 +113,7 @@ class Html extends BaseView
 		{
 			foreach ($this->methods as $methodName => $method)
 			{
-				$methodActiveRecords = count($method['active']);
+				$methodActiveRecords = is_array($method['active']) || $method['active'] instanceof \Countable ? count($method['active']) : 0;
 
 				if (!$methodActiveRecords)
 				{

@@ -16,7 +16,7 @@ use Joomla\CMS\User\UserHelper;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Implements a Remember Me feature for Akeeba LoginGuard

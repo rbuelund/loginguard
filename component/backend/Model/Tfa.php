@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Admin\Model;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use FOF30\Container\Container;

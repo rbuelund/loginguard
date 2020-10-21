@@ -16,7 +16,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard System Plugin
@@ -60,11 +60,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -129,8 +129,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * PHP Reflection to detect the offending Joomla! Privacy Consent system plugin and snuff it out before it can issue
 	 * its redirections. I invented captive login, I know how to work around it.
 	 *
-	 * @since   3.0.3
 	 * @throws  Exception
+	 * @since   3.0.3
 	 */
 	public function onAfterInitialise()
 	{
@@ -207,7 +207,9 @@ class PlgSystemLoginguard extends CMSPlugin
 
 			if (empty($return_url) || !Uri::isInternal($return_url))
 			{
-				$session->set('return_url', Uri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
+				$session->set('return_url', Uri::getInstance()->toString([
+					'scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment',
+				]), 'com_loginguard');
 			}
 
 			// Redirect
@@ -376,11 +378,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	/**
 	 * Does the user belong in a group indicating TSV should be disabled for them?
 	 *
-	 * @param   JUser|User $user
+	 * @param   User  $user
 	 *
 	 * @return  bool
 	 */
-	private function disabledTSV($user)
+	private function disabledTSV(User $user)
 	{
 		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
 		$userGroups             = $user->getAuthorisedGroups();
@@ -392,11 +394,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	/**
 	 * Does the user belong in a group indicating TSV is required for them?
 	 *
-	 * @param   JUser|User $user
+	 * @param   User  $user
 	 *
 	 * @return  bool
 	 */
-	private function mandatoryTSV($user)
+	private function mandatoryTSV(User $user)
 	{
 		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
 		$userGroups             = $user->getAuthorisedGroups();
@@ -442,9 +444,9 @@ class PlgSystemLoginguard extends CMSPlugin
 	 *
 	 * @return  bool
 	 *
+	 * @throws  Exception
 	 * @since   3.0.4
 	 *
-	 * @throws  Exception
 	 */
 	private function willNeedRedirect()
 	{
@@ -560,8 +562,8 @@ class PlgSystemLoginguard extends CMSPlugin
 
 		// We only kick in if the option and task are not the ones of the captive page
 		$option = strtolower($app->input->getCmd('option'));
-		$task = strtolower($app->input->getCmd('task'));
-		$view = strtolower($app->input->getCmd('view'));
+		$task   = strtolower($app->input->getCmd('task'));
+		$view   = strtolower($app->input->getCmd('view'));
 
 		if ($option == 'com_loginguard')
 		{
@@ -582,7 +584,7 @@ class PlgSystemLoginguard extends CMSPlugin
 			}
 
 			// These views are only allowed if you do not have 2SV enabled *or* if you have already logged in.
-			if (!$needsTFA && in_array($view, array('ajax', 'method', 'methods')))
+			if (!$needsTFA && in_array($view, ['ajax', 'method', 'methods']))
 			{
 				return false;
 			}
@@ -627,8 +629,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * most importantly, how it can possibly break. don't go about merrily copying this code if you do not understand
 	 * how Joomla event dispatching works. You'll break shit and I'm not to blame. Thank you!
 	 *
-	 * @since  3.0.4
 	 * @throws ReflectionException
+	 * @since  3.0.4
 	 */
 	private function snuffJoomlaPrivacyConsent()
 	{
@@ -647,9 +649,9 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// Get the events dispatcher and find which observer is the offending plugin
-		$dispatcher     = JEventDispatcher::getInstance();
-		$refDispatcher  = new ReflectionObject($dispatcher);
-		$refObservers   = $refDispatcher->getProperty('_observers');
+		$dispatcher    = JEventDispatcher::getInstance();
+		$refDispatcher = new ReflectionObject($dispatcher);
+		$refObservers  = $refDispatcher->getProperty('_observers');
 		$refObservers->setAccessible(true);
 		$observers = $refObservers->getValue($dispatcher);
 
@@ -681,7 +683,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		$refMethods->setAccessible(true);
 		$methods = $refMethods->getValue($dispatcher);
 
-		$methods['onafterroute'] = array_filter($methods['onafterroute'], function($id) use ($jConsentObserverId) {
+		$methods['onafterroute'] = array_filter($methods['onafterroute'], function ($id) use ($jConsentObserverId) {
 			return $id != $jConsentObserverId;
 		});
 		$refMethods->setValue($dispatcher, $methods);
@@ -726,7 +728,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// If all else fails, use our default list (Joomla's Remember Me cookie and Akeeba SocialLogin)
 		if (empty($silentResponses))
 		{
-			$silentResponses = array('cookie', 'sociallogin', 'passwordless');
+			$silentResponses = ['cookie', 'sociallogin', 'passwordless'];
 		}
 
 		// Is it a silent login after all?

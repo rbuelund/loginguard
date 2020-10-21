@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Admin\Helper;
 use Joomla\CMS\Helper\UserGroupsHelper;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class Select
 {

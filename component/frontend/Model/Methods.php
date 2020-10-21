@@ -18,7 +18,7 @@ use Joomla\CMS\User\User;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Two Step Verification methods list page's model

@@ -11,7 +11,7 @@ use FOF30\View\View;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * LoginGuard integration with Joomla's User Actions Log

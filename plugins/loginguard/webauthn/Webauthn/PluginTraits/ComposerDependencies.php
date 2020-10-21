@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 
 // Prevent direct access
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait ComposerDependencies
 {

@@ -14,7 +14,7 @@ use Joomla\CMS\Toolbar\Toolbar as JToolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Custom toolbar handling.

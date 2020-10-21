@@ -106,7 +106,7 @@ abstract class AbstractHttp implements Proxy
 			}
 
 			$notDeleteOrHead = !in_array($method, array(AbstractAction::METHOD_DELETE, AbstractAction::METHOD_HEAD));
-			if ($notDeleteOrHead and empty($response['output']))
+			if ($notDeleteOrHead && empty($response['output']))
 			{
 				throw new ProxyException('Error fetching remote content empty');
 			}
@@ -130,7 +130,7 @@ abstract class AbstractHttp implements Proxy
 
 	protected function checkCode($code)
 	{
-		if ($code AND $code < 200 OR $code > 299)
+		if ($code && $code < 200 || $code > 299)
 		{
 			throw new ProxyException('Error fetching remote');
 		}

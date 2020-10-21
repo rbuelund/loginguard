@@ -9,12 +9,14 @@ use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Time-based One Time Password"
@@ -35,11 +37,11 @@ class PlgLoginguardTotp extends CMSPlugin
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -55,13 +57,13 @@ class PlgLoginguardTotp extends CMSPlugin
 	{
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
-		return array(
+		return [
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_TOTP_LBL_DISPLAYEDAS'),
+			'display'       => Text::_('PLG_LOGINGUARD_TOTP_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_TOTP_LBL_SHORTINFO'),
+			'shortinfo'     => Text::_('PLG_LOGINGUARD_TOTP_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'         => 'media/plg_loginguard_totp/images/totp.svg',
 			// Are we allowed to disable it?
@@ -69,8 +71,8 @@ class PlgLoginguardTotp extends CMSPlugin
 			// Are we allowed to have multiple instances of it per user?
 			'allowMultiple' => false,
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'      => $helpURL,
+		];
 	}
 
 	/**
@@ -86,12 +88,12 @@ class PlgLoginguardTotp extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
-		return array(
+		return [
 			// Custom HTML to display above the TFA form
 			'pre_message'  => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
@@ -101,14 +103,14 @@ class PlgLoginguardTotp extends CMSPlugin
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
 			'placeholder'  => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_TOTP_LBL_LABEL'),
+			'label'        => Text::_('PLG_LOGINGUARD_TOTP_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
 			'post_message' => '',
 			// URL for help content
 			'help_url'     => $helpURL,
-		);
+		];
 	}
 
 	/**
@@ -125,14 +127,14 @@ class PlgLoginguardTotp extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		$totp = new Totp();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there's a key in the session use that instead.
 		$session    = Factory::getSession();
@@ -152,28 +154,28 @@ class PlgLoginguardTotp extends CMSPlugin
 
 		// Generate a QR code for the key
 		$user     = Factory::getUser($record->user_id);
-		$hostname = Uri::getInstance()->toString(array('host'));
+		$hostname = Uri::getInstance()->toString(['host']);
 		$qr       = sprintf("otpauth://totp/%s@%s?secret=%s", $user->username, $hostname, $key);
 		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Authenticator-App');
 
 		$this->loadJavascript($qr);
 
-		return array(
+		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_TOTP_LBL_DISPLAYEDAS'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_TOTP_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
-			'pre_message'    => JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_INSTRUCTIONS'),
+			'pre_message'    => Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_INSTRUCTIONS'),
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
-			'table_heading'  => JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_HEADING'),
+			'table_heading'  => Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_HEADING'),
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(
-				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_KEY') => $key,
-				JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<span id=\"loginGuardQRImage\" />",
-			),
+			'tabular_data'   => [
+				Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_KEY') => $key,
+				Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_TABLE_QR')  => "<span id=\"loginGuardQRImage\" />",
+			],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(
+			'hidden_data'    => [
 				'key' => $key,
-			),
+			],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -181,9 +183,9 @@ class PlgLoginguardTotp extends CMSPlugin
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'    => Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_LABEL'),
+			'label'          => Text::_('PLG_LOGINGUARD_TOTP_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -193,8 +195,8 @@ class PlgLoginguardTotp extends CMSPlugin
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'       => $helpURL,
+		];
 	}
 
 	/**
@@ -204,25 +206,25 @@ class PlgLoginguardTotp extends CMSPlugin
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input     $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options    = $this->_decodeRecordOptions($record);
-		$optionsKey = isset($options['key']) ? $options['key'] : '';
+		$optionsKey = $options['key'] ?? '';
 		$key        = $optionsKey;
 
 		// If there is no key in the options fetch one from the session
@@ -234,7 +236,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		// If there is still no key in the options throw an error
 		if (empty($key))
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		/**
@@ -249,30 +251,30 @@ class PlgLoginguardTotp extends CMSPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new Totp();
+		$totp    = new Totp();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_TOTP_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_TOTP_ERR_INVALID_CODE'), 500);
 		}
 
 		// The code is valid. Unset the key from the session.
 		$session->set('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
-		return array(
-			'key' => $key
-		);
+		return [
+			'key' => $key,
+		];
 	}
 
 	/**
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   User      $user    The user record
-	 * @param   string    $code    The submitted code
+	 * @param   Tfa     $record  The TFA method's record you're validatng against
+	 * @param   User    $user    The user record
+	 * @param   string  $code    The submitted code
 	 *
 	 * @return  bool
 	 */
@@ -292,7 +294,7 @@ class PlgLoginguardTotp extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there is no key in the options throw an error
 		if (empty($key))
@@ -302,6 +304,7 @@ class PlgLoginguardTotp extends CMSPlugin
 
 		// Check the TFA code for validity
 		$totp = new Totp();
+
 		return $totp->checkCode($key, $code);
 	}
 
@@ -314,9 +317,9 @@ class PlgLoginguardTotp extends CMSPlugin
 	 */
 	private function _decodeRecordOptions($record)
 	{
-		$options = array(
-			'key' => ''
-		);
+		$options = [
+			'key' => '',
+		];
 
 		if (!empty($record->options))
 		{

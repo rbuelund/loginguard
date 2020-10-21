@@ -6,10 +6,11 @@
  */
 
 use Joomla\CMS\Form\FormField;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class JFormFieldLoginguard extends FormField
 {
@@ -26,7 +27,7 @@ class JFormFieldLoginguard extends FormField
 
 		if (is_null($user_id))
 		{
-			return JText::_('PLG_USER_LOGINGUARD_ERR_NOUSER');
+			return Text::_('PLG_USER_LOGINGUARD_ERR_NOUSER');
 		}
 
 		try
@@ -35,14 +36,14 @@ class JFormFieldLoginguard extends FormField
 			@ob_start();
 
 			// Render the other component's view
-			FOF30\Container\Container::getInstance('com_loginguard', array(
+			FOF30\Container\Container::getInstance('com_loginguard', [
 				'tempInstance' => true,
-				'input' => [
+				'input'        => [
 					'view'      => 'Methods',
 					'returnurl' => base64_encode(Uri::getInstance()->toString()),
-					'user_id'   => $user_id
-				]
-			))->dispatcher->dispatch();
+					'user_id'   => $user_id,
+				],
+			])->dispatcher->dispatch();
 
 			// Get the output...
 			$content = ob_get_contents();
@@ -55,12 +56,12 @@ class JFormFieldLoginguard extends FormField
 			// Whoops! The component blew up. Close the output buffer...
 			ob_end_clean();
 			// ...and indicate that we have no content.
-			$content = JText::_('PLG_USER_LOGINGUARD_ERR_NOCOMPONENT');
+			$content = Text::_('PLG_USER_LOGINGUARD_ERR_NOCOMPONENT');
 		}
 
 		if (!class_exists('Akeeba\\LoginGuard\\Site\\View\\Methods\\Html'))
 		{
-			$content = JText::_('PLG_USER_LOGINGUARD_ERR_NOCOMPONENT');
+			$content = Text::_('PLG_USER_LOGINGUARD_ERR_NOCOMPONENT');
 		}
 
 		// Display the content

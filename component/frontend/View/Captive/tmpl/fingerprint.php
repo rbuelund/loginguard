@@ -6,7 +6,7 @@
  */
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /** @var \Akeeba\LoginGuard\Site\View\Captive\Html $this */
 
@@ -28,7 +28,8 @@ if (!is_null($this->browserId) || !$this->container->session->get('browserIdCode
 $this->addJavascriptFile('media://com_loginguard/js/magicthingie.min.js', null, 'text/javascript', true, false);
 $this->addJavascriptFile('media://com_loginguard/js/security.js', null, 'text/javascript', true, false);
 
-use Joomla\CMS\Language\Text; ?>
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route; ?>
 <div class="akeeba-panel--info">
 	<header class="akeeba-block-header">
 		<h2>
@@ -43,7 +44,7 @@ use Joomla\CMS\Language\Text; ?>
 		document.getElementById('loginguard-captive-fingeprint-info').style.display = 'block';
 	</script>
 
-	<form id="akeebaLoginguardForm" method="post" action="<?= JRoute::_('index.php?option=com_loginguard&view=Captive') ?>">
+	<form id="akeebaLoginguardForm" method="post" action="<?= Route::_('index.php?option=com_loginguard&view=Captive') ?>">
 		<input type="hidden" name="<?= $this->container->platform->getToken(true) ?>" value="1">
 		<input type="hidden" id="akeebaLoginguardFormBrowserId" name="browserId" value="">
 

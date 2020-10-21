@@ -15,7 +15,7 @@ use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaValidate
 {

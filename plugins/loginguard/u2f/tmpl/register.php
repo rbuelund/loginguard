@@ -5,10 +5,11 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
 include $layoutPath;
@@ -22,7 +23,7 @@ include $layoutPath;
             <a class="akeeba-btn--primary--large"
                onclick="akeeba.LoginGuard.u2f.setUp();">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
-				<?php echo JText::_('PLG_LOGINGUARD_U2F_LBL_REGISTERKEY'); ?>
+				<?= Text::_('PLG_LOGINGUARD_U2F_LBL_REGISTERKEY'); ?>
             </a>
         </div>
     </div>

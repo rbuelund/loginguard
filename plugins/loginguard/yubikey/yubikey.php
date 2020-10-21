@@ -7,18 +7,21 @@
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Yubikey"
  *
- * Use a YubiKey secure hardware token. Supports both the default, centralized key servers and your own custom key server.
+ * Use a YubiKey secure hardware token. Supports both the default, centralized key servers and your own custom key
+ * server.
  */
 class PlgLoginguardYubikey extends CMSPlugin
 {
@@ -33,11 +36,11 @@ class PlgLoginguardYubikey extends CMSPlugin
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -53,13 +56,13 @@ class PlgLoginguardYubikey extends CMSPlugin
 	{
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
 
-		return array(
+		return [
 			// Internal code of this TFA method
 			'name'               => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'            => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
+			'display'            => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'          => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
+			'shortinfo'          => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'              => 'media/plg_loginguard_yubikey/images/yubikey.svg',
 			// Are we allowed to disable it?
@@ -70,7 +73,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 			'allowEntryBatching' => 1,
-		);
+		];
 	}
 
 	/**
@@ -86,12 +89,12 @@ class PlgLoginguardYubikey extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
 
-		return array(
+		return [
 			// Custom HTML to display above the TFA form
 			'pre_message'        => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
@@ -101,7 +104,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
 			'placeholder'        => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'              => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
+			'label'              => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'               => '',
 			// Custom HTML to display below the TFA form
@@ -110,7 +113,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 			'allowEntryBatching' => 1,
-		);
+		];
 	}
 
 	/**
@@ -127,25 +130,25 @@ class PlgLoginguardYubikey extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$keyID   = isset($options['id']) ? $options['id'] : '';
+		$keyID   = $options['id'] ?? '';
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/YubiKey');
 
-		return array(
+		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
-			'pre_message'    => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_INSTRUCTIONS'),
+			'pre_message'    => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_INSTRUCTIONS'),
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(),
+			'tabular_data'   => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(),
+			'hidden_data'    => [],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -153,9 +156,9 @@ class PlgLoginguardYubikey extends CMSPlugin
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => $keyID,
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'    => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_LABEL'),
+			'label'          => Text::_('PLG_LOGINGUARD_YUBIKEY_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -165,8 +168,8 @@ class PlgLoginguardYubikey extends CMSPlugin
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'       => $helpURL,
+		];
 	}
 
 	/**
@@ -176,23 +179,23 @@ class PlgLoginguardYubikey extends CMSPlugin
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input     $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$keyID     = isset($options['id']) ? $options['id'] : '';
+		$keyID   = $options['id'] ?? '';
 
 		/**
 		 * If the submitted code is 12 characters and identical to our existing key there is no change, perform no
@@ -208,7 +211,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 		// If an empty code or something other than 44 characters was submitted I'm not having any of this!
 		if (empty($code) || (strlen($code) != 44))
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_YUBIKEY_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_YUBIKEY_ERR_INVALID_CODE'), 500);
 		}
 
 		// Validate the code
@@ -216,25 +219,25 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		if (!$isValid)
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_YUBIKEY_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_YUBIKEY_ERR_INVALID_CODE'), 500);
 		}
 
 		// The code is valid. Keep the Yubikey ID (first twelve characters)
 		$keyID = substr($code, 0, 12);
 
 		// Return the configuration to be serialized
-		return array(
-			'id' => $keyID
-		);
+		return [
+			'id' => $keyID,
+		];
 	}
 
 	/**
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   User      $user    The user record
-	 * @param   string    $code    The submitted code
+	 * @param   Tfa     $record  The TFA method's record you're validatng against
+	 * @param   User    $user    The user record
+	 * @param   string  $code    The submitted code
 	 *
 	 * @return  bool
 	 */
@@ -257,11 +260,11 @@ class PlgLoginguardYubikey extends CMSPlugin
 			$container = \FOF30\Container\Container::getInstance('com_loginguard');
 			/** @var Tfa $tfaModel */
 			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
+			$records  = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 		}
 		catch (Exception $e)
 		{
-			$records = array();
+			$records = [];
 		}
 
 		// Loop all records, stop if at least one matches
@@ -288,9 +291,9 @@ class PlgLoginguardYubikey extends CMSPlugin
 	 */
 	private function _decodeRecordOptions($record)
 	{
-		$options = array(
-			'id' => ''
-		);
+		$options = [
+			'id' => '',
+		];
 
 		if (!empty($record->options))
 		{
@@ -325,13 +328,13 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		if (empty($server_queue))
 		{
-			$server_queue = array(
+			$server_queue = [
 				'https://api.yubico.com/wsapi/2.0/verify',
 				'https://api2.yubico.com/wsapi/2.0/verify',
 				'https://api3.yubico.com/wsapi/2.0/verify',
 				'https://api4.yubico.com/wsapi/2.0/verify',
 				'https://api5.yubico.com/wsapi/2.0/verify',
-			);
+			];
 		}
 
 		shuffle($server_queue);
@@ -340,7 +343,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		$http     = HttpFactory::getHttp();
 		$token    = Session::getFormToken();
-		$nonce    = md5($token . uniqid(mt_rand()));
+		$nonce    = md5($token . uniqid(random_int(0, mt_getrandmax())));
 		$response = null;
 
 		while (!$gotResponse && !empty($server_queue))
@@ -405,7 +408,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		// Parse response
 		$lines = explode("\n", $response->body);
-		$data  = array();
+		$data  = [];
 
 		foreach ($lines as $line)
 		{
@@ -421,7 +424,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 		}
 
 		// Validate the signature
-		$h       = isset($data['h']) ? $data['h'] : null;
+		$h       = $data['h'] ?? null;
 		$fakeUri = Uri::getInstance('http://www.example.com');
 		$fakeUri->setQuery($data);
 		$this->signRequest($fakeUri, $secretKey);
@@ -499,7 +502,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 		}
 
 		// Get the parameters
-		/** @var   array  $vars  I have to explicitly state the type because the Joomla docblock is wrong :( */
+		/** @var   array $vars I have to explicitly state the type because the Joomla docblock is wrong :( */
 		$vars = $uri->getQuery(true);
 
 		// 'h' is the hash and it doesn't participate in the calculation of itself.
@@ -536,7 +539,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 		 * base64decode the API key obtained from Yubico).
 		 */
 		$decodedKey = base64_decode($secret);
-		$hash = hash_hmac('sha1', $stringToSign, $decodedKey, true);
+		$hash       = hash_hmac('sha1', $stringToSign, $decodedKey, true);
 
 		/**
 		 * Base 64 encode the resulting value according to RFC 4648, for example, t2ZMtKeValdA+H0jVpj3LIichn4=
@@ -559,7 +562,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 	{
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$keyID   = isset($options['id']) ? $options['id'] : '';
+		$keyID   = $options['id'] ?? '';
 
 		// If there is no key in the options throw an error
 		if (empty($keyID))

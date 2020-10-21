@@ -13,7 +13,7 @@ use Joomla\CMS\Crypt\Crypt as JCrypt;
 use Joomla\CMS\User\User;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * A model to handle the emergency backup code
@@ -190,7 +190,7 @@ class BackupCodes extends Model
 
 		$bits  = (int) floor(log($range, 2) + 1);
 		$bytes = (int) max(ceil($bits / 8), 1);
-		$mask  = (int) (pow(2, $bits) - 1);
+		$mask  = (int) (2 ** $bits - 1);
 
 		/**
 		 * The mask is a better way of dropping unused bits.  Basically what it does

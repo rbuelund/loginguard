@@ -4,6 +4,7 @@ Akeeba LoginGuard 3.3.4
 + Option to forcibly enable the Email plugin for everyone (gh-91)
 ~ WebAuthn: JavaScript now loads deferred
 ~ Remember Me: Remove inline JavaScript
+~ Code refactoring for minimum compatibility with PHP 7.1, Joomla 3.9
 # [MEDIUM] WebAuthn: some Platform and FIDO2 authenticators are ignored unless the user clicks a button first. Changed the UI to require a button press.
 
 Akeeba LoginGuard 3.3.3

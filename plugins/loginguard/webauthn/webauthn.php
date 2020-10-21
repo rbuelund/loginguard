@@ -15,7 +15,7 @@ use FOF30\Autoloader\Autoloader;
 use Joomla\CMS\Plugin\CMSPlugin;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 // Add ourselves to the autoloader
 if (!class_exists('FOF30\Autoloader\Autoloader'))

@@ -11,7 +11,7 @@ use FOF30\Container\Container;
 use FOF30\Model\DataModel;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 
 /**
@@ -106,7 +106,7 @@ class Users extends DataModel
 		$this->triggerEvent('onBeforeBuildQuery', [&$query, $overrideLimits]);
 
 		// Apply custom WHERE clauses
-		if (count($this->whereClauses))
+		if (is_array($this->whereClauses) || $this->whereClauses instanceof \Countable ? count($this->whereClauses) : 0)
 		{
 			foreach ($this->whereClauses as $clause)
 			{

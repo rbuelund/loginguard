@@ -10,13 +10,15 @@ use FOF30\Container\Container;
 use Joomla\CMS\Environment\Browser;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Time-based One Time Password"
@@ -51,11 +53,11 @@ class PlgLoginguardU2f extends CMSPlugin
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -93,8 +95,8 @@ class PlgLoginguardU2f extends CMSPlugin
 		}
 
 		// Try to create a server library object
-		$jURI = Uri::getInstance();
-		$appId = $jURI->toString(array('scheme', 'host', 'port'));
+		$jURI  = Uri::getInstance();
+		$appId = $jURI->toString(['scheme', 'host', 'port']);
 
 		try
 		{
@@ -120,18 +122,18 @@ class PlgLoginguardU2f extends CMSPlugin
 	{
 		if (!$this->enabled)
 		{
-			return array();
+			return [];
 		}
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
 
-		return array(
+		return [
 			// Internal code of this TFA method
 			'name'               => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'            => JText::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
+			'display'            => Text::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'          => JText::_('PLG_LOGINGUARD_U2F_LBL_SHORTINFO'),
+			'shortinfo'          => Text::_('PLG_LOGINGUARD_U2F_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'              => 'media/plg_loginguard_u2f/images/u2f.svg',
 			// Are we allowed to disable it?
@@ -142,7 +144,7 @@ class PlgLoginguardU2f extends CMSPlugin
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
 			'allowEntryBatching' => 1,
-		);
+		];
 	}
 
 	/**
@@ -159,24 +161,24 @@ class PlgLoginguardU2f extends CMSPlugin
 		// Make sure we are enabled
 		if (!$this->enabled)
 		{
-			return array();
+			return [];
 		}
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
 		$options                    = $this->_decodeRecordOptions($record);
-		$currentRecordRegistrations = isset($options['registrations']) ? $options['registrations'] : array();
+		$currentRecordRegistrations = $options['registrations'] ?? [];
 
 		$registrations = $this->getRegistrationsFor($record->user_id);
 
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
 		$submitOnClick = '';
-		$preMessage    = JText::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
+		$preMessage    = Text::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
 		$u2fRegData    = json_encode($this->u2f->getRegisterData($registrations));
 		$type          = 'input';
 		$html          = '';
@@ -229,11 +231,11 @@ JS;
 			$type = 'custom';
 
 			// Load JS translations
-			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
-			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
-			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED');
-			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE');
-			JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
+			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
+			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
+			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED');
+			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE');
+			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
 			// Save the U2F request to the session
 			$session = Factory::getSession();
@@ -243,22 +245,22 @@ JS;
 			$submitOnClick = "akeeba.LoginGuard.u2f.setUp(); return false;";
 
 			// Message to display
-			$preMessage = JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS');
+			$preMessage = Text::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS');
 		}
 
-		return array(
+		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
 			'pre_message'    => $preMessage,
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(),
+			'tabular_data'   => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(
+			'hidden_data'    => [
 				'u2fregdata' => $u2fRegData,
-			),
+			],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => $type,
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -279,7 +281,7 @@ JS;
 			'post_message'   => '',
 			// URL for help content
 			'help_url'       => $helpURL,
-		);
+		];
 	}
 
 	/**
@@ -289,24 +291,24 @@ JS;
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input     $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are enabled
 		if (!$this->enabled)
 		{
-			return array();
+			return [];
 		}
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
@@ -314,7 +316,7 @@ JS;
 
 		if (!isset($options['registrations']))
 		{
-			$options['registrations'] = array();
+			$options['registrations'] = [];
 		}
 
 		// load the registration request from the session
@@ -330,7 +332,7 @@ JS;
 		// If there was no registration request BUT there is a registration response throw an error
 		if (empty($registrationRequest) && !(empty($code) || empty($registerResponse)))
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		// If there is no registration request (and there isn't a registration response) we are just saving the title.
@@ -407,11 +409,11 @@ JS;
 		]);
 
 		// Load JS translations
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED');
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN');
-		JText::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
+		Text::script('PLG_LOGINGUARD_U2F_ERR_JS_OTHER');
+		Text::script('PLG_LOGINGUARD_U2F_ERR_JS_CANNOTPROCESS');
+		Text::script('PLG_LOGINGUARD_U2F_ERR_JS_CLIENTCONFIGNOTSUPPORTED');
+		Text::script('PLG_LOGINGUARD_U2F_ERR_JS_INELIGIBLE_SIGN');
+		Text::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
 		// Load the options from the record (if any), or from the entire method if the allowEntryBatching flag is set.
 		$registrations = $this->getRegistrations($record);
@@ -487,7 +489,7 @@ JS;
 
 		return [
 			// Custom HTML to display above the TFA form
-			'pre_message'        => JText::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
+			'pre_message'        => Text::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS'),
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'         => 'custom',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -513,9 +515,9 @@ JS;
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validating against
-	 * @param   User      $user    The user record
-	 * @param   string    $code    The submitted code
+	 * @param   Tfa     $record  The TFA method's record you're validating against
+	 * @param   User    $user    The user record
+	 * @param   string  $code    The submitted code
 	 *
 	 * @return  bool
 	 */
@@ -551,7 +553,7 @@ JS;
 			return false;
 		}
 
-		$session = Factory::getSession();
+		$session               = Factory::getSession();
 		$authenticationRequest = $session->get('u2f.authentication', null, 'com_loginguard');
 		$session->set('u2f.authentication', null, 'com_loginguard');
 
@@ -591,16 +593,16 @@ JS;
 		 * reject it. This protection only works if we "remember" the last counter encountered, i.e. if we save the
 		 * updated registration after validation.
 		 */
-		$update = (object)array(
-			'id' => $id,
-			'options' => json_encode(array('registrations' => array($registration))),
-		);
+		$update = (object) [
+			'id'      => $id,
+			'options' => json_encode(['registrations' => [$registration]]),
+		];
 
 		$container = Container::getInstance('com_loginguard');
 		$container->platform->runPlugins('onLoginGuardBeforeSaveRecord', [&$update]);
 
 		$db = Factory::getDbo();
-		$db->updateObject('#__loginguard_tfa', $update, array('id'));
+		$db->updateObject('#__loginguard_tfa', $update, ['id']);
 
 		return true;
 	}
@@ -614,9 +616,9 @@ JS;
 	 */
 	private function _decodeRecordOptions($record)
 	{
-		$options = array(
-			'registrations' => array(),
-		);
+		$options = [
+			'registrations' => [],
+		];
 
 		$recordOptions = null;
 
@@ -641,7 +643,7 @@ JS;
 
 			foreach ($recordOptions['registrations'] as $k => $opt)
 			{
-				$temp[$k] = (object)$opt;
+				$temp[$k] = (object) $opt;
 			}
 
 			$recordOptions = ['registrations' => $temp];
@@ -675,8 +677,8 @@ JS;
 
 		// We can't directly use version compare as it doesn't follow PHP version semantics
 		$version = $parts[1];
-		$parts = explode('.', $version, 4);
-		$version = $parts[0] . '.' . $parts[1] . '.' . (int)$parts[2];
+		$parts   = explode('.', $version, 4);
+		$version = $parts[0] . '.' . $parts[1] . '.' . (int) $parts[2];
 
 		return version_compare($version, '1.0.0', 'ge');
 	}
@@ -727,12 +729,12 @@ JS;
 			$user_id = Factory::getUser()->id;
 		}
 
-		$return = array();
+		$return = [];
 
 		$container = Container::getInstance('com_loginguard');
 		/** @var Tfa $tfaModel */
 		$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-		$results = $tfaModel->user_id($user_id)->method('u2f')->get(true);
+		$results  = $tfaModel->user_id($user_id)->method('u2f')->get(true);
 
 		if ($results->count() < 1)
 		{
@@ -765,20 +767,20 @@ JS;
 	 */
 	private function getRegistrations($record)
 	{
-		$options       = $this->_decodeRecordOptions($record);
+		$options = $this->_decodeRecordOptions($record);
 
-		$registrations = array();
+		$registrations = [];
 
 		try
 		{
 			$container = Container::getInstance('com_loginguard');
 			/** @var Tfa $tfaModel */
 			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
-			$records = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
+			$records  = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
 		}
 		catch (Exception $e)
 		{
-			$records = array();
+			$records = [];
 		}
 
 		// Loop all records, stop if at least one matches
@@ -788,7 +790,7 @@ JS;
 		foreach ($records as $aRecord)
 		{
 			$recordOptions       = $this->_decodeRecordOptions($aRecord);
-			$recordRegistrations = isset($recordOptions['registrations']) ? $recordOptions['registrations'] : array();
+			$recordRegistrations = $recordOptions['registrations'] ?? [];
 			$registrations       = array_merge($registrations, $recordRegistrations);
 		}
 

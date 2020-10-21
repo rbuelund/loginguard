@@ -6,7 +6,7 @@
  */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 define('AKEEBA_COMMON_WRONGPHP', 1);
 $minPHPVersion         = '7.1.0';
@@ -24,7 +24,7 @@ if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/View/wrongphp.php'))
 // HHVM made sense in 2013, now PHP 7 is a way better solution than an hybrid PHP interpreter
 if (defined('HHVM_VERSION'))
 {
-	(include_once JPATH_COMPONENT_ADMINISTRATOR . '/View/hhvm.php') or die('We have detected that you are running HHVM instead of PHP. This software WILL NOT WORK properly on HHVM. Please switch to PHP 7 instead.');
+	(include_once JPATH_COMPONENT_ADMINISTRATOR . '/View/hhvm.php') || die('We have detected that you are running HHVM instead of PHP. This software WILL NOT WORK properly on HHVM. Please switch to PHP 7 instead.');
 
 	return;
 }

@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /** @var  FOF30\View\DataView\Html  $this */
 
@@ -61,7 +61,7 @@ defined('_JEXEC') or die();
 {{-- Table body shown when no records are present. --}}
 <tr>
     <td colspan="99">
-        <?php echo JText::_($this->getContainer()->componentName . '_COMMON_NORECORDS') ?>
+        @lang($this->getContainer()->componentName . '_COMMON_NORECORDS')
     </td>
 </tr>
 @stop

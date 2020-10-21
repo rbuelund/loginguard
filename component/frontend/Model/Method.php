@@ -15,7 +15,7 @@ use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Two Step Verification method management model

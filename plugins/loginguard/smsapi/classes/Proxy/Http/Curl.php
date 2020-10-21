@@ -78,7 +78,7 @@ class Curl extends AbstractHttp
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
 		}
 
-		list($headers, $body) = explode(
+		[$headers, $body] = explode(
 			"\r\n\r\n",
 			preg_replace('#HTTP/1\.1 100 Continue\s+#', '', curl_exec($curl)),
 			2

@@ -21,7 +21,7 @@ class CountableResponse extends AbstractResponse
 	{
 		parent::__construct($data);
 
-		$this->count = isset($this->obj->count) ? $this->obj->count : 0;
+		$this->count = $this->obj->count ?? 0;
 	}
 
 	/**
@@ -33,4 +33,3 @@ class CountableResponse extends AbstractResponse
 	}
 
 }
-

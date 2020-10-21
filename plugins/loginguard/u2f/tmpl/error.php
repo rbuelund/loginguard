@@ -6,9 +6,10 @@
  */
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $js = <<< JS
 ;; // Defense against broken scripts
@@ -31,10 +32,10 @@ Factory::getDocument()->addScriptDeclaration($js);
 <div id="loginguard-u2f-missing">
 	<div class="alert alert-error">
 		<h4>
-			<?php echo JText::_('PLG_LOGINGUARD_U2F_ERR_NOTAVAILABLE_HEAD'); ?>
+			<?= Text::_('PLG_LOGINGUARD_U2F_ERR_NOTAVAILABLE_HEAD'); ?>
 		</h4>
 		<p>
-			<?php echo JText::_('PLG_LOGINGUARD_U2F_ERR_NOTAVAILABLE_BODY'); ?>
+			<?= Text::_('PLG_LOGINGUARD_U2F_ERR_NOTAVAILABLE_BODY'); ?>
 		</p>
 	</div>
 </div>
