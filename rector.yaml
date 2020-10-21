@@ -32,6 +32,8 @@ parameters:
   # This means that all CLI scripts and error pages MUST be excluded.
   #
   exclude_paths:
+    # Composer dependencies
+    - 'component/backend/vendor'
     # Component version file
     - 'component/backend/version.php'
     # Usage Stats (symlinked)

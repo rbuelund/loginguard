@@ -61,7 +61,8 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		// Load the SMSAPI library
 		if (!class_exists('SMSApi\\Client', true))
 		{
-			require_once __DIR__ . '/classes/Autoload.php';
+			# SMS Api
+			JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/../plugins/loginguard/smsapi/classes'), false, false, 'psr4');
 		}
 
 		// Load the API parameters

@@ -86,39 +86,49 @@ if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/inclu
 // Load Akeeba LoginGuard's autoloader through FOF 3
 $container = FOF30\Container\Container::getInstance('com_loginguard');
 
+
 // Other classes
-/** @var Composer\Autoload\ClassLoader $autoloader */
-$autoloader = include(__DIR__ . '/../vendor/autoload.php');
+$autoloader = include(__DIR__ . '/../component/backend/vendor/autoload.php');
 $autoloader->addClassMap([
 	# Form fields
 	'JFormFieldModulePositions'              => __DIR__ . '/../component/backend/Field/Joomla/modulepositions.php',
+	'JFormFieldLoginguard'                   => __DIR__ . '/../plugins/user/loginguard/fields/loginguard.php',
 	# Post-installation scripts, package and component
 	'Pkg_LoginguardInstallerScript'          => __DIR__ . '/../component/script.akeeba.php',
 	'Com_LoginguardInstallerScript'          => __DIR__ . '/../component/script.com_loginguard.php',
 	# Plugins
 	'plgActionlogLoginguard'                 => __DIR__ . '/../plugins/actionlog/loginguard/loginguard.php',
 	'plgActionlogLoginguardInstallerScript'  => __DIR__ . '/../plugins/actionlog/loginguard/script.php',
-	'plgLoginguardEmail'                     => __DIR__ . '/../plugins/loginguard/email/email.php',
-	'plgLoginguardEmailInstallerScript'      => __DIR__ . '/../plugins/loginguard/email/script.php',
-	'plgLoginguardFixed'                     => __DIR__ . '/../plugins/loginguard/fixed/fixed.php',
-	'plgLoginguardFixedInstallerScript'      => __DIR__ . '/../plugins/loginguard/fixed/script.php',
-	'plgLoginguardPushbullet'                => __DIR__ . '/../plugins/loginguard/pushbullet/pushbullet.php',
-	'plgLoginguardPushbulletInstallerScript' => __DIR__ . '/../plugins/loginguard/pushbullet/script.php',
-	'plgLoginguardSmsapi'                    => __DIR__ . '/../plugins/loginguard/smsapi/smsapi.php',
-	'plgLoginguardSmsapiInstallerScript'     => __DIR__ . '/../plugins/loginguard/smsapi/script.php',
-	'plgLoginguardTotp'                      => __DIR__ . '/../plugins/loginguard/totp/totp.php',
-	'plgLoginguardTotpInstallerScript'       => __DIR__ . '/../plugins/loginguard/totp/script.php',
-	'plgLoginguardU2f'                       => __DIR__ . '/../plugins/loginguard/u2f/u2f.php',
-	'plgLoginguardU2fInstallerScript'        => __DIR__ . '/../plugins/loginguard/u2f/script.php',
-	'plgLoginguardWebauthn'                  => __DIR__ . '/../plugins/loginguard/webauthn/webauthn.php',
-	'plgLoginguardWebauthnInstallerScript'   => __DIR__ . '/../plugins/loginguard/webauthn/script.php',
-	'plgLoginguardYubikey'                   => __DIR__ . '/../plugins/loginguard/yubikey/yubikey.php',
-	'plgLoginguardYubikeyInstallerScript'    => __DIR__ . '/../plugins/loginguard/yubikey/script.php',
-	'plgSystemLoginguard'                    => __DIR__ . '/../plugins/system/loginguard/loginguard.php',
-	'plgSystemLoginguardInstallerScript'     => __DIR__ . '/../plugins/system/loginguard/script.php',
+	'PlgLoginguardEmail'                     => __DIR__ . '/../plugins/loginguard/email/email.php',
+	'PlgLoginguardEmailInstallerScript'      => __DIR__ . '/../plugins/loginguard/email/script.php',
+	'PlgLoginguardFixed'                     => __DIR__ . '/../plugins/loginguard/fixed/fixed.php',
+	'PlgLoginguardFixedInstallerScript'      => __DIR__ . '/../plugins/loginguard/fixed/script.php',
+	'PlgLoginguardPushbullet'                => __DIR__ . '/../plugins/loginguard/pushbullet/pushbullet.php',
+	'PlgLoginguardPushbulletInstallerScript' => __DIR__ . '/../plugins/loginguard/pushbullet/script.php',
+	'PlgLoginguardSmsapi'                    => __DIR__ . '/../plugins/loginguard/smsapi/smsapi.php',
+	'PlgLoginguardSmsapiInstallerScript'     => __DIR__ . '/../plugins/loginguard/smsapi/script.php',
+	'PlgLoginguardTotp'                      => __DIR__ . '/../plugins/loginguard/totp/totp.php',
+	'PlgLoginguardTotpInstallerScript'       => __DIR__ . '/../plugins/loginguard/totp/script.php',
+	'PlgLoginguardU2f'                       => __DIR__ . '/../plugins/loginguard/u2f/u2f.php',
+	'PlgLoginguardU2fInstallerScript'        => __DIR__ . '/../plugins/loginguard/u2f/script.php',
+	'PlgLoginguardWebauthn'                  => __DIR__ . '/../plugins/loginguard/webauthn/webauthn.php',
+	'PlgLoginguardWebauthnInstallerScript'   => __DIR__ . '/../plugins/loginguard/webauthn/script.php',
+	'PlgLoginguardYubikey'                   => __DIR__ . '/../plugins/loginguard/yubikey/yubikey.php',
+	'PlgLoginguardYubikeyInstallerScript'    => __DIR__ . '/../plugins/loginguard/yubikey/script.php',
+	'PlgSystemLoginguard'                    => __DIR__ . '/../plugins/system/loginguard/loginguard.php',
+	'PlgSystemLoginguardInstallerScript'     => __DIR__ . '/../plugins/system/loginguard/script.php',
 	'plgUserLoginguard'                      => __DIR__ . '/../plugins/user/loginguard/loginguard.php',
-	'plgUserLoginguardInstallerScript'       => __DIR__ . '/../plugins/user/loginguard/script.php',
-
+	'PlgUserLoginguardInstallerScript'       => __DIR__ . '/../plugins/user/loginguard/script.php',
+	# PushBullet API
+	'LoginGuardPushbulletApi'                => __DIR__ . '/../plugins/loginguard/pushbullet/classes/pushbullet.php',
+	# U2F API
+	'u2flib_server\\U2F'                     => __DIR__ . '/../plugins/loginguard/u2f/classes/u2f.php',
 	# Akeeba Usage Stats
 	'AkeebaUsagestats'                       => __DIR__ . '/../../usagestats/lib/usagestats.php',
 ]);
+
+# SMS Api
+JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/../plugins/loginguard/smsapi/classes'), false, false, 'psr4');
+
+# WebAuthn
+Autoloader::getInstance()->addMap('Akeeba\\LoginGuard\\Webauthn\\', [realpath(__DIR__ . '/../plugins/loginguard/webauthn/Webauthn')]);
