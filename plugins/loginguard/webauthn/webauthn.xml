@@ -7,7 +7,7 @@
 
 <extension version="3.9.0" type="plugin" group="loginguard" method="upgrade">
     <name>PLG_LOGINGUARD_WEBAUTHN</name>
-    <version>3.3.3</version>
+    <version>3.3.4</version>
     <creationDate>2020-10-26</creationDate>
 
     <author>Akeeba Ltd</author>
