@@ -119,6 +119,11 @@ class Methods extends Model
 	 */
 	public function formatRelative($dateTimeText)
 	{
+		if (empty($dateTimeText))
+		{
+			return '&ndash;';
+		}
+
 		// The timestamp is given in UTC. Make sure Joomla! parses it as such.
 		$utcTimeZone = new DateTimeZone('UTC');
 		$jDate       = $this->container->platform->getDate($dateTimeText, $utcTimeZone);

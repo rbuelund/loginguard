@@ -26,7 +26,7 @@ use RuntimeException;
  * @property string $method
  * @property int    $default
  * @property string $created_on
- * @property string $last_user
+ * @property string $last_used
  * @property array  $options
  *
  * @method   $this  user_id($v)

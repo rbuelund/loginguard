@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 3.3.5
+================================================================================
+~ Replace zero datetime with nullable datetime (gh-94)
+
 Akeeba LoginGuard 3.3.4
 ================================================================================
 + Option to forcibly enable the Email plugin for everyone (gh-91)

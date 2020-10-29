@@ -176,7 +176,7 @@ class Convert extends Model
 			'title'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 			'method'    => 'backupcodes',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => $json,
 		];
 
@@ -222,7 +222,7 @@ class Convert extends Model
 			'title'     => 'YubiKey ' . $config['yubikey'],
 			'method'    => 'yubikey',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => ['id' => $config['yubikey']],
 		];
 
@@ -262,7 +262,7 @@ class Convert extends Model
 			'title'     => 'Authenticator',
 			'method'    => 'totp',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => ['key' => $config['code']],
 		];
 

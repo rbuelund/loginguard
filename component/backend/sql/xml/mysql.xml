@@ -46,6 +46,25 @@ DROP COLUMN `ua`
             ]]></query>
 		</action>
 
+		<!-- Replace zero datetime with nullable datetime -->
+		<action table="#__loginguard_tfa" canfail="1">
+			<condition type="nullable" value="created_on" operator="not"/>
+			<query><![CDATA[
+ALTER TABLE `#__loginguard_tfa` MODIFY `created_on` DATETIME NULL DEFAULT NULL;
+      ]]></query>
+			<query><![CDATA[
+UPDATE `#__loginguard_tfa` SET `created_on` = NULL WHERE `created_on` = '0000-00-00 00:00:00';
+      ]]></query>
+		</action>
 
+		<action table="#__loginguard_tfa" canfail="1">
+			<condition type="nullable" value="last_used" operator="not"/>
+			<query><![CDATA[
+ALTER TABLE `#__loginguard_tfa` MODIFY `last_used` DATETIME NULL DEFAULT NULL;
+      ]]></query>
+			<query><![CDATA[
+UPDATE `#__loginguard_tfa` SET `last_used` = NULL WHERE `last_used` = '0000-00-00 00:00:00';
+      ]]></query>
+		</action>
 	</sql>
 </schema>
