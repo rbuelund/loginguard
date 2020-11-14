@@ -17,7 +17,7 @@ defined('_JEXEC') || die;
 
 HTMLHelper::_('bootstrap.tooltip');
 
-$cancelURL = Route::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $this->user->id);
+$cancelURL = Route::_('index.php?option=com_loginguard&view=Methods&user_id=' . $this->user->id);
 
 if (!empty($this->returnURL))
 {

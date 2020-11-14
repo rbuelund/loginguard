@@ -202,7 +202,7 @@ class Method extends Controller
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -234,7 +234,7 @@ class Method extends Controller
 		$this->_assertCanEdit($user);
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))

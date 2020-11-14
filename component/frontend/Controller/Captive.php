@@ -72,7 +72,7 @@ class Captive extends Controller
 		// If we're already logged in go to the site's home page
 		if ($this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard') == 1)
 		{
-			$url = JRoute::_('index.php?option=com_loginguard&view=Methods&task=display', false);
+			$url = JRoute::_('index.php?option=com_loginguard&view=Methods', false);
 			$this->setRedirect($url);
 
 			return;

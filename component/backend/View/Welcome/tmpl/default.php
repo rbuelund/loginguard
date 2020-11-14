@@ -136,7 +136,7 @@ echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
         <?= Text::_('COM_LOGINGUARD_LBL_MANAGE_BODY'); ?>
     </p>
     <p>
-        <a href="<?=Route::_('index.php?option=com_loginguard&view=Methods&task=display') ?>" class="akeeba-btn--primary--large">
+        <a href="<?=Route::_('index.php?option=com_loginguard&view=Methods') ?>" class="akeeba-btn--primary--large">
             <span class="akion-android-lock"></span>
             <?= Text::_('COM_LOGINGUARD_BTN_MANAGE_SELF'); ?>
         </a>
