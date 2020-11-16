@@ -50,6 +50,20 @@
                 </field>
 
                 <field
+                        name="timestep"
+                        type="list"
+                        label="PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_LABEL"
+                        description="PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_DESC"
+                        default="120"
+                >
+                    <option value="30">PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_30</option>
+                    <option value="60">PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_60</option>
+                    <option value="120">PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_120</option>
+                    <option value="180">PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_180</option>
+                    <option value="300">PLG_LOGINGUARD_EMAIL_CONFIG_TIMESTEP_300</option>
+                </field>
+
+                <field
                         name="helpurl"
                         type="text"
                         label="PLG_LOGINGUARD_EMAIL_CONFIG_HELPURL_LABEL"

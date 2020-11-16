@@ -1,6 +1,7 @@
 <?php die(); ?>
 Akeeba LoginGuard 3.3.5
 ================================================================================
++ Allow changing the code generation time period for Code by Email
 ~ Replace zero datetime with nullable datetime (gh-94)
 # [LOW] You can see, but not use, the Methods page as a guest (gh-95)
 

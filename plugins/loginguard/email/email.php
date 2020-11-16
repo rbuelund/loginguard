@@ -21,11 +21,21 @@ defined('_JEXEC') || die;
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
- * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30
+ * Requires entering a 6-digit code sent to the user through email. These codes change automatically every 30
  * seconds.
  */
 class PlgLoginguardEmail extends CMSPlugin
 {
+	/**
+	 * Generated OTP length. Constant: 6 numeric digits.
+	 */
+	private const CODE_LENGTH = 6;
+
+	/**
+	 * Length of the secret key used for generating the OTPs. Constant: 10 characters.
+	 */
+	private const SECRET_KEY_LENGTH = 10;
+
 	/**
 	 * The TFA method name handled by this plugin
 	 *
@@ -104,7 +114,8 @@ class PlgLoginguardEmail extends CMSPlugin
 		$key     = $session->get('emailcode.key', $key, 'com_loginguard');
 
 		// Initialize objects
-		$totp = new Totp();
+		$timeStep = min(max((int) $this->params->get('timestep', 120), 30), 900);
+		$totp     = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
 
 		// If there's still no key in the options, generate one and save it in the session
 		if (empty($key))
@@ -206,8 +217,9 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp    = new Totp();
-		$isValid = $totp->checkCode($key, $code);
+		$timeStep = min(max((int) $this->params->get('timestep', 120), 30), 900);
+		$totp     = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
+		$isValid  = $totp->checkCode($key, $code);
 
 		if (!$isValid)
 		{
@@ -303,7 +315,8 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// Check the TFA code for validity
-		$totp = new Totp();
+		$timeStep = min(max((int) $this->params->get('timestep', 120), 30), 900);
+		$totp     = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
 
 		return $totp->checkCode($key, $code);
 	}
@@ -362,12 +375,14 @@ class PlgLoginguardEmail extends CMSPlugin
 		{
 			/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
 			$methodModel = $container->factory->model('Method')->tmpInstance();
+			$timeStep    = min(max((int) $this->params->get('timestep', 120), 30), 900);
+			$totp        = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
 			$methodModel->setState('id', 0);
 			$record          = $methodModel->getRecord($user);
 			$record->method  = 'email';
 			$record->title   = Text::_('PLG_LOGINGUARD_EMAIL_LBL_DISPLAYEDAS');
 			$record->options = [
-				'key' => (new Totp())->generateSecret(),
+				'key' => ($totp)->generateSecret(),
 			];
 			$record->default = 0;
 			$record->save();
@@ -397,7 +412,8 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// Get the API objects
-		$totp = new Totp();
+		$timeStep = min(max((int) $this->params->get('timestep', 120), 30), 900);
+		$totp     = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
 
 		// Create the list of variable replacements
 		$code = $totp->getCode($key);
