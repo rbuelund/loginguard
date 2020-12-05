@@ -154,9 +154,8 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		$token   = $options['token'] ?? '';
 
 		// If there's a key or toekn in the session use that instead.
-		$session = Factory::getSession();
-		$key     = $session->get('pushbullet.key', $key, 'com_loginguard');
-		$token   = $session->get('pushbullet.token', $token, 'com_loginguard');
+		$key     = $this->container->platform->getSessionVar('pushbullet.key', $key, 'com_loginguard');
+		$token   = $this->container->platform->getSessionVar('pushbullet.token', $token, 'com_loginguard');
 
 		// Initialize objects
 		$totp = new Totp();
@@ -165,10 +164,10 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('pushbullet.key', $key, 'com_loginguard');
+			$this->container->platform->setSessionVar('pushbullet.key', $key, 'com_loginguard');
 		}
 
-		$session->set('pushbullet.user_id', $record->user_id, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.user_id', $record->user_id, 'com_loginguard');
 
 		// If there is no token we need to show the OAuth2 button
 		if (empty($token))
@@ -273,8 +272,6 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			return [];
 		}
 
-		$session = Factory::getSession();
-
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = $options['key'] ?? '';
@@ -283,13 +280,13 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('pushbullet.key', null, 'com_loginguard');
+			$key = $this->container->platform->getSessionVar('pushbullet.key', null, 'com_loginguard');
 		}
 
 		// If there is no key in the options fetch one from the session
 		if (empty($token))
 		{
-			$token = $session->get('pushbullet.token', null, 'com_loginguard');
+			$token = $this->container->platform->getSessionVar('pushbullet.token', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
@@ -325,7 +322,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// The code is valid. Unset the key from the session.
-		$session->set('totp.key', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
 		return [
@@ -548,12 +545,11 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// Set the token to the session
-		$session = Factory::getSession();
-		$session->set('pushbullet.token', $token, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.token', $token, 'com_loginguard');
 
 		// Get the User ID for the editor page
-		$user_id = $session->get('pushbullet.user_id', null, 'com_loginguard');
-		$session->set('pushbullet.user_id', null, 'com_loginguard');
+		$user_id = $this->container->platform->getSessionVar('pushbullet.user_id', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.user_id', null, 'com_loginguard');
 
 		// Redirect to the editor page
 		$userPart    = empty($user_id) ? '' : ('&user_id=' . $user_id);

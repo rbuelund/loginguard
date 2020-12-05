@@ -44,6 +44,13 @@ class PlgLoginguardEmail extends CMSPlugin
 	private $tfaMethodName = 'email';
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -54,6 +61,9 @@ class PlgLoginguardEmail extends CMSPlugin
 	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		// Load the language files
 		$this->loadLanguage();
@@ -110,8 +120,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		$key     = $options['key'] ?? '';
 
 		// If there's a key in the session use that instead.
-		$session = Factory::getSession();
-		$key     = $session->get('emailcode.key', $key, 'com_loginguard');
+		$this->container->platform->getSessionVar('emailcode.key', $key, 'com_loginguard');
 
 		// Initialize objects
 		$timeStep = min(max((int) $this->params->get('timestep', 120), 30), 900);
@@ -121,10 +130,10 @@ class PlgLoginguardEmail extends CMSPlugin
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('emailcode.key', $key, 'com_loginguard');
+			$this->container->platform->setSessionVar('emailcode.key', $key, 'com_loginguard');
 		}
 
-		$session->set('emailcode.user_id', $record->user_id, 'com_loginguard');
+		$this->container->platform->setSessionVar('emailcode.user_id', $record->user_id, 'com_loginguard');
 
 		// Send an email message with a new code and ask the user to enter it.
 		$user = Factory::getUser($record->user_id);
@@ -187,8 +196,6 @@ class PlgLoginguardEmail extends CMSPlugin
 			return [];
 		}
 
-		$session = Factory::getSession();
-
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = $options['key'] ?? '';
@@ -196,7 +203,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('emailcode.key', null, 'com_loginguard');
+			$key = $this->container->platform->getSessionVar('emailcode.key', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
@@ -227,7 +234,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// The code is valid. Unset the key from the session.
-		$session->set('totp.key', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
 		return [
@@ -337,9 +344,8 @@ class PlgLoginguardEmail extends CMSPlugin
 		}
 
 		// Get second factor methods for this user
-		$container = Container::getInstance('com_loginguard');
 		/** @var Tfa $model */
-		$model          = $container->factory->model('Tfa')->tmpInstance();
+		$model          = $this->container->factory->model('Tfa')->tmpInstance();
 		$userTfaRecords = $model->user_id($user->id)->get(true);
 
 		// If there are no methods go back
@@ -374,7 +380,7 @@ class PlgLoginguardEmail extends CMSPlugin
 		try
 		{
 			/** @var \Akeeba\LoginGuard\Site\Model\Method $methodModel */
-			$methodModel = $container->factory->model('Method')->tmpInstance();
+			$methodModel = $this->container->factory->model('Method')->tmpInstance();
 			$timeStep    = min(max((int) $this->params->get('timestep', 120), 30), 900);
 			$totp        = new Totp($timeStep, self::CODE_LENGTH, self::SECRET_KEY_LENGTH);
 			$methodModel->setState('id', 0);

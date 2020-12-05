@@ -99,10 +99,10 @@ trait TfaCaptive
 		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
 		 */
 
-		$session          = Factory::getSession();
-		$pkOptionsEncoded = $session->get('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$container = Container::getInstance('com_loginguard');
+		$pkOptionsEncoded = $container->platform->getSessionVar('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
 
-		$force = Container::getInstance('com_loginguard')->input->getInt('force', 0);
+		$force = $container->input->getInt('force', 0);
 
 		try
 		{

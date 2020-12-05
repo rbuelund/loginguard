@@ -50,6 +50,13 @@ class PlgLoginguardU2f extends CMSPlugin
 	protected $u2f = null;
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -108,6 +115,9 @@ class PlgLoginguardU2f extends CMSPlugin
 
 			return;
 		}
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		// Finally, detect old Google Chrome versions and activate U2F support manually.
 		$this->loadOldChromeJavascript();
@@ -238,8 +248,7 @@ JS;
 			Text::script('PLG_LOGINGUARD_U2F_ERR_JS_TIMEOUT');
 
 			// Save the U2F request to the session
-			$session = Factory::getSession();
-			$session->set('u2f.request', $u2fRegData, 'com_loginguard');
+			$this->container->platform->setSessionVar('u2f.request', $u2fRegData, 'com_loginguard');
 
 			// Special button handling
 			$submitOnClick = "akeeba.LoginGuard.u2f.setUp(); return false;";
@@ -320,9 +329,8 @@ JS;
 		}
 
 		// load the registration request from the session
-		$session    = Factory::getSession();
-		$u2fRegData = $session->get('u2f.request', null, 'com_loginguard');
-		$session->set('u2f.request', null, 'com_loginguard');
+		$u2fRegData = $this->container->platform->getSessionVar('u2f.request', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('u2f.request', null, 'com_loginguard');
 		$registrationRequest = json_decode($u2fRegData);
 
 		// Load the registration response from the input
@@ -447,12 +455,11 @@ JS;
 		 *
 		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
 		 */
-		$session         = Factory::getSession();
 		$u2fAuthData     = $this->u2f->getAuthenticateData($registrations);
-		$u2fAuthData     = $session->get('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
+		$u2fAuthData     = $this->container->platform->getSessionVar('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 		$u2fAuthData     = unserialize(base64_decode($u2fAuthData));
 		$u2fAuthDataJSON = json_encode($u2fAuthData);
-		$session->set('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
+		$this->container->platform->setSessionVar('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
 		$js = <<< JS
 ;; // Defense against broken scripts
@@ -553,9 +560,8 @@ JS;
 			return false;
 		}
 
-		$session               = Factory::getSession();
-		$authenticationRequest = $session->get('u2f.authentication', null, 'com_loginguard');
-		$session->set('u2f.authentication', null, 'com_loginguard');
+		$authenticationRequest = $this->container->platform->getSessionVar('u2f.authentication', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('u2f.authentication', null, 'com_loginguard');
 
 		if (empty($authenticationRequest))
 		{

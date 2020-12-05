@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 3.3.6
+================================================================================
+# [HIGH] Joomla 4 beta 6 changed how sessions work, breaking Akeeba LoginGuard
+
 Akeeba LoginGuard 3.3.5
 ================================================================================
 + Allow changing the code generation time period for Code by Email

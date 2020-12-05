@@ -13,7 +13,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
-use Joomla\CMS\Factory;
+use FOF30\Container\Container;
 use Joomla\CMS\Language\Text;
 use Joomla\Input\Input;
 use RuntimeException;
@@ -52,8 +52,8 @@ trait TfaSaveSetup
 		$this->loadComposerDependencies();
 
 		$code                = $input->get('code', null, 'base64');
-		$session             = Factory::getSession();
-		$registrationRequest = $session->get('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
+		$container           = Container::getInstance('com_loginguard');
+		$registrationRequest = $container->platform->getSessionVar('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
 
 		// If there was no registration request BUT there is a registration response throw an error
 		if (empty($registrationRequest) && !empty($code))

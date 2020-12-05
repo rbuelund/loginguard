@@ -6,6 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -34,6 +35,13 @@ class PlgLoginguardTotp extends CMSPlugin
 	private $tfaMethodName = 'totp';
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -44,6 +52,9 @@ class PlgLoginguardTotp extends CMSPlugin
 	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		$this->loadLanguage();
 	}
@@ -137,8 +148,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		$key     = $options['key'] ?? '';
 
 		// If there's a key in the session use that instead.
-		$session    = Factory::getSession();
-		$sessionKey = $session->get('totp.key', null, 'com_loginguard');
+		$sessionKey = $this->container->platform->getSessionVar('totp.key', null, 'com_loginguard');
 
 		if (!empty($sessionKey))
 		{
@@ -149,7 +159,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('totp.key', $key, 'com_loginguard');
+			$this->container->platform->setSessionVar('totp.key', $key, 'com_loginguard');
 		}
 
 		// Generate a QR code for the key
@@ -220,8 +230,6 @@ class PlgLoginguardTotp extends CMSPlugin
 			return [];
 		}
 
-		$session = Factory::getSession();
-
 		// Load the options from the record (if any)
 		$options    = $this->_decodeRecordOptions($record);
 		$optionsKey = $options['key'] ?? '';
@@ -230,7 +238,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('totp.key', null, 'com_loginguard');
+			$key = $this->container->platform->getSessionVar('totp.key', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
@@ -260,7 +268,7 @@ class PlgLoginguardTotp extends CMSPlugin
 		}
 
 		// The code is valid. Unset the key from the session.
-		$session->set('totp.key', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
 		return [

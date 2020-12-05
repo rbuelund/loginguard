@@ -17,6 +17,7 @@ use Cose\Algorithm\Signature\EdDSA;
 use Cose\Algorithm\Signature\RSA;
 use Cose\Algorithms;
 use Exception;
+use FOF30\Container\Container;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Crypt\Crypt;
 use Joomla\CMS\Factory;
@@ -198,8 +199,10 @@ abstract class Credentials
 		);
 
 		// Save data in the session
-		Factory::getSession()->set('publicKeyCredentialCreationOptions', base64_encode(serialize($publicKeyCredentialCreationOptions)), 'plg_loginguard_webauthn');
-		Factory::getSession()->set('registration_user_id', $user->id, 'plg_loginguard_webauthn');
+		$container = Container::getInstance('com_loginguard');
+
+		$container->platform->setSessionVar('publicKeyCredentialCreationOptions', base64_encode(serialize($publicKeyCredentialCreationOptions)), 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('registration_user_id', $user->id, 'plg_loginguard_webauthn');
 
 		return json_encode($publicKeyCredentialCreationOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
@@ -216,8 +219,11 @@ abstract class Credentials
 	 */
 	public static function validateAuthenticationData(string $data): ?PublicKeyCredentialSource
 	{
+		// Get a reference to the component's container
+		$container = Container::getInstance('com_loginguard');
+
 		// Retrieve the PublicKeyCredentialCreationOptions object created earlier and perform sanity checks
-		$encodedOptions = Factory::getSession()->get('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
+		$encodedOptions = $container->platform->getSessionVar('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
 
 		if (empty($encodedOptions))
 		{
@@ -239,7 +245,7 @@ abstract class Credentials
 		}
 
 		// Retrieve the stored user ID and make sure it's the same one in the request.
-		$storedUserId = Factory::getSession()->get('registration_user_id', 0, 'plg_loginguard_webauthn');
+		$storedUserId = $container->platform->getSessionVar('registration_user_id', 0, 'plg_loginguard_webauthn');
 		$myUser       = Factory::getUser();
 		$myUserId     = $myUser->id;
 
@@ -390,10 +396,10 @@ abstract class Credentials
 		);
 
 		// Save in session. This is used during the verification stage to prevent replay attacks.
-		$session = Factory::getSession();
-		$session->set('publicKeyCredentialRequestOptions', base64_encode(serialize($publicKeyCredentialRequestOptions)), 'plg_loginguard_webauthn');
-		$session->set('userHandle', $user_id, 'plg_loginguard_webauthn');
-		$session->set('userId', $user_id, 'plg_loginguard_webauthn');
+		$container = Container::getInstance('com_loginguard');
+		$container->platform->setSessionVar('publicKeyCredentialRequestOptions', base64_encode(serialize($publicKeyCredentialRequestOptions)), 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('userHandle', $user_id, 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('userId', $user_id, 'plg_loginguard_webauthn');
 
 		// Return the JSON encoded data to the caller
 		return json_encode($publicKeyCredentialRequestOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -410,15 +416,16 @@ abstract class Credentials
 	 */
 	public static function validateChallenge(string $response): void
 	{
-		$session = Factory::getSession();
+		// Get a reference to the component's container
+		$container = Container::getInstance('com_loginguard');
 
-		$encodedPkOptions = $session->get('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
-		$userHandle       = $session->get('userHandle', null, 'plg_loginguard_webauthn');
-		$userId           = $session->get('userId', null, 'plg_loginguard_webauthn');
+		$encodedPkOptions = $container->platform->getSessionVar('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$userHandle       = $container->platform->getSessionVar('userHandle', null, 'plg_loginguard_webauthn');
+		$userId           = $container->platform->getSessionVar('userId', null, 'plg_loginguard_webauthn');
 
-		$session->set('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
-		$session->set('userHandle', null, 'plg_loginguard_webauthn');
-		$session->set('userId', null, 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('userHandle', null, 'plg_loginguard_webauthn');
+		$container->platform->setSessionVar('userId', null, 'plg_loginguard_webauthn');
 
 		if (empty($userId))
 		{

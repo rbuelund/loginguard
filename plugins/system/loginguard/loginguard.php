@@ -165,17 +165,6 @@ class PlgSystemLoginguard extends CMSPlugin
 			return;
 		}
 
-		// Get the session objects
-		try
-		{
-			$session = Factory::getSession();
-		}
-		catch (Exception $e)
-		{
-			// Can't get access to the session? Must be under CLI which is not supported.
-			return;
-		}
-
 		// Make sure we are logged in
 		try
 		{
@@ -203,11 +192,11 @@ class PlgSystemLoginguard extends CMSPlugin
 		if ($needsTFA && !$disabledTSV)
 		{
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
-			$return_url = $session->get('return_url', '', 'com_loginguard');
+			$return_url = $this->container->platform->getSessionVar('return_url', '', 'com_loginguard');
 
 			if (empty($return_url) || !Uri::isInternal($return_url))
 			{
-				$session->set('return_url', Uri::getInstance()->toString([
+				$this->container->platform->setSessionVar('return_url', Uri::getInstance()->toString([
 					'scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment',
 				]), 'com_loginguard');
 			}
@@ -220,19 +209,19 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// If we're here someone just logged in but does not have TFA set up. Just flag him as logged in and continue.
-		$session->set('tfa_checked', 1, 'com_loginguard');
+		$this->container->platform->setSessionVar('tfa_checked', 1, 'com_loginguard');
 
 		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
-		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
+		$redirectionUrl = $this->container->platform->getSessionVar('postloginredirect', null, 'com_loginguard');
 
 		// If the user is in a group that requires TFA we will redirect them to the setup page
 		if (!$needsTFA && $mandatoryTSV)
 		{
 			// First unset the flag to make sure the redirection will apply until they conform to the mandatory TFA
-			$session->set('tfa_checked', 0, 'com_loginguard');
+			$this->container->platform->setSessionVar('tfa_checked', 0, 'com_loginguard');
 
 			// Now set a flag which forces rechecking TSV for this user
-			$session->set('recheck_mandatory_tsv', 1, 'com_loginguard');
+			$this->container->platform->setSessionVar('recheck_mandatory_tsv', 1, 'com_loginguard');
 
 			// Then redirect them to the setup page
 			$this->redirectToTSVSetup();
@@ -240,7 +229,7 @@ class PlgSystemLoginguard extends CMSPlugin
 
 		if (!$needsTFA && $redirectionUrl && !$disabledTSV)
 		{
-			$session->set('postloginredirect', null, 'com_loginguard');
+			$this->container->platform->setSessionVar('postloginredirect', null, 'com_loginguard');
 
 			Factory::getApplication()->redirect($redirectionUrl);
 		}
@@ -256,9 +245,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	public function onUserAfterLogin($options)
 	{
 		// Always reset the browser ID to avoid session poisoning attacks
-		$session = Factory::getSession();
-		$session->set('browserId', null, 'com_loginguard');
-		$session->set('browserIdCodeLoaded', false, 'com_loginguard');
+		$this->container->platform->setSessionVar('browserId', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('browserIdCodeLoaded', false, 'com_loginguard');
 
 		// Should I show 2SV even on silent logins? Default: 1 (yes, show)
 		$switch = $this->params->get('2svonsilent', 1);
@@ -284,7 +272,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// Set the flag indicating that 2SV is already checked.
-		$session->set('tfa_checked', 1, 'com_loginguard');
+		$this->container->platform->setSessionVar('tfa_checked', 1, 'com_loginguard');
 	}
 
 	/**
@@ -456,17 +444,6 @@ class PlgSystemLoginguard extends CMSPlugin
 			return false;
 		}
 
-		// Get the session objects
-		try
-		{
-			$session = Factory::getSession();
-		}
-		catch (Exception $e)
-		{
-			// Can't get access to the session? Must be under CLI which is not supported.
-			return false;
-		}
-
 		/**
 		 * We only kick in if the session flag is not set AND the user is not flagged for monitoring of their TSV status
 		 *
@@ -474,8 +451,8 @@ class PlgSystemLoginguard extends CMSPlugin
 		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
 		 * circumventing the requirement for TSV.
 		 */
-		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
-		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
+		$tfaChecked = $this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard');
+		$tfaRecheck = $this->container->platform->getSessionVar('recheck_mandatory_tsv', 0, 'com_loginguard');
 
 		if ($tfaChecked && !$tfaRecheck)
 		{

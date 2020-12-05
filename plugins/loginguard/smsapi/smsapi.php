@@ -6,6 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Input\Input;
@@ -50,6 +51,13 @@ class PlgLoginguardSmsapi extends CMSPlugin
 	private $tfaMethodName = 'smsapi';
 
 	/**
+	 * The component's container object
+	 *
+	 * @var   Container
+	 */
+	private $container = null;
+
+	/**
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -67,6 +75,9 @@ class PlgLoginguardSmsapi extends CMSPlugin
 			# SMS Api
 			JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/../plugins/loginguard/smsapi/classes'), false, false, 'psr4');
 		}
+
+		// Get a reference to the component's container
+		$this->container = Container::getInstance('com_loginguard');
 
 		// Load the API parameters
 		/** @var \Joomla\Registry\Registry $params */
@@ -137,9 +148,8 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$phone   = $options['phone'] ?? '';
 
 		// If there's a key or phone number in the session use that instead.
-		$session = Factory::getSession();
-		$key     = $session->get('smsapi.key', $key, 'com_loginguard');
-		$phone   = $session->get('smsapi.phone', $phone, 'com_loginguard');
+		$key     = $this->container->platform->getSessionVar('smsapi.key', $key, 'com_loginguard');
+		$phone   = $this->container->platform->getSessionVar('smsapi.phone', $phone, 'com_loginguard');
 
 		// Initialize objects
 		$totp = new Totp(180, 6, 10);
@@ -148,10 +158,10 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('smsapi.key', $key, 'com_loginguard');
+			$this->container->platform->setSessionVar('smsapi.key', $key, 'com_loginguard');
 		}
 
-		$session->set('smsapi.user_id', $record->user_id, 'com_loginguard');
+		$this->container->platform->setSessionVar('smsapi.user_id', $record->user_id, 'com_loginguard');
 
 		// If there is no phone we need to show the phone entry page
 		if (empty($phone))
@@ -256,8 +266,6 @@ class PlgLoginguardSmsapi extends CMSPlugin
 			return [];
 		}
 
-		$session = Factory::getSession();
-
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
 		$key     = $options['key'] ?? '';
@@ -266,13 +274,13 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('smsapi.key', null, 'com_loginguard');
+			$key = $this->container->platform->getSessionVar('smsapi.key', null, 'com_loginguard');
 		}
 
 		// If there is no key in the options fetch one from the session
 		if (empty($phone))
 		{
-			$phone = $session->get('smsapi.phone', null, 'com_loginguard');
+			$phone = $this->container->platform->getSessionVar('smsapi.phone', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
@@ -308,7 +316,7 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		}
 
 		// The code is valid. Unset the key from the session.
-		$session->set('totp.key', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
 		return [
@@ -509,12 +517,11 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$phone = preg_replace("/[^0-9]/", "", $phone);
 
 		// Set the phone to the session
-		$session = Factory::getSession();
-		$session->set('smsapi.phone', $phone, 'com_loginguard');
+		$this->container->platform->setSessionVar('smsapi.phone', $phone, 'com_loginguard');
 
 		// Get the User ID for the editor page
-		$user_id = $session->get('smsapi.user_id', null, 'com_loginguard');
-		$session->set('smsapi.user_id', null, 'com_loginguard');
+		$user_id = $this->container->platform->getSessionVar('smsapi.user_id', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('smsapi.user_id', null, 'com_loginguard');
 
 		// Redirect to the editor page
 		$userPart    = empty($user_id) ? '' : ('&user_id=' . $user_id);

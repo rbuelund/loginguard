@@ -39,7 +39,7 @@ defined('_JEXEC') || die;
             </div>
             <div class="loginguard-methods-reset-container-removeall-container">
 	            <?php if ($this->tfaActive): ?>
-                    <a href="<?= Route::_('index.php?option=com_loginguard&view=Methods&task=disable&' . Factory::getSession()->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id) ?>"
+                    <a href="<?= Route::_('index.php?option=com_loginguard&view=Methods&task=disable&' . $this->container->platform->getToken() . '=1' . ($this->returnURL ? '&returnurl=' . $this->escape(urlencode($this->returnURL)) : '') . '&user_id=' . $this->user->id) ?>"
                        class="akeeba-btn--red">
 			            <?= Text::_('COM_LOGINGUARD_LBL_LIST_REMOVEALL'); ?>
                     </a>
