@@ -96,7 +96,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// PHP version check
-		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
+		$this->enabled = version_compare(PHP_VERSION, '7.2.0', 'ge');
 
 		// Parse settings
 		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);

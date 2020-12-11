@@ -14,7 +14,7 @@
     "vendor-dir": "component/backend/vendor"
   },
   "require": {
-    "php": "^7.1",
+    "php": "^7.2",
     "ext-json": "*",
     "web-auth/webauthn-lib": "^2.0.0",
     "laminas/laminas-diactoros": "^2.3"

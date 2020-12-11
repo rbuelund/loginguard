@@ -90,7 +90,7 @@ class plgUserLoginguard extends CMSPlugin
 		$this->container = Container::getInstance('com_loginguard');
 
 		// PHP version check
-		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
+		$this->enabled = version_compare(PHP_VERSION, '7.2.0', 'ge');
 
 		$this->loadLanguage();
 	}

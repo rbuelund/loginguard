@@ -1,6 +1,7 @@
 <?php die(); ?>
 Akeeba LoginGuard 3.3.6
 ================================================================================
+- Dropped PHP 7.1 support
 ~ Add PHP 8.0 in the list of known PHP versions, recommend PHP 7.4 or later
 # [HIGH] Joomla 4 beta 6 changed how sessions work, breaking Akeeba LoginGuard
 

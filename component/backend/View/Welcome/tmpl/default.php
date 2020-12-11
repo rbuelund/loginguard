@@ -19,7 +19,7 @@ defined('_JEXEC') || die;
 // Obsolete PHP version check
 echo $this->loadAnyTemplate('admin:com_loginguard/Welcome/phpversion_warning', [
 	'softwareName'  => 'Akeeba LoginGuard',
-	'minPHPVersion' => '7.1.0',
+	'minPHPVersion' => '7.2.0',
 ]);
 ?>
 
