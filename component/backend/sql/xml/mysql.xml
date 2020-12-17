@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS `#__loginguard_tfa` (
   `options` MEDIUMTEXT null,
   `created_on` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
   `last_used` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-  INDEX idx_user_id (`user_id`)
+  INDEX idx_user_id (`user_id`),
+  PRIMARY KEY `id`,
 ) ENGINE=InnoDB DEFAULT COLLATE=utf8_general_ci;
             ]]></query>
 		</action>
@@ -66,5 +67,19 @@ ALTER TABLE `#__loginguard_tfa` MODIFY `last_used` DATETIME NULL DEFAULT NULL;
 UPDATE `#__loginguard_tfa` SET `last_used` = NULL WHERE `last_used` = '0000-00-00 00:00:00';
       ]]></query>
 		</action>
+
+		<!-- Convert sole UNIQUE constraints to PRIMARY KEYs -->
+		<action table="#__loginguard_tfa" canfail="1">
+			<condition type="equals" value="0"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`table_constraints`
+WHERE TABLE_SCHEMA=(SELECT DATABASE())
+AND table_name='#__loginguard_tfa'
+AND CONSTRAINT_TYPE='PRIMARY KEY'
+			]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__loginguard_tfa` ADD PRIMARY KEY (`id`);
+            ]]></query>
+		</action>
+
 	</sql>
 </schema>
