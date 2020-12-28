@@ -2,6 +2,7 @@
 Akeeba LoginGuard 3.3.7
 ================================================================================
 ~ All tables now have a PRIMARY KEY
+# [LOW] The ip and ua columns were not always removed from the #__loginguard_tfa table
 
 Akeeba LoginGuard 3.3.6
 ================================================================================
