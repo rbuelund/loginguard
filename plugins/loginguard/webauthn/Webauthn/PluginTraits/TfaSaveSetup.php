@@ -14,6 +14,7 @@ use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
 use FOF30\Container\Container;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Input\Input;
 use RuntimeException;
@@ -78,18 +79,16 @@ trait TfaSaveSetup
 		}
 		finally
 		{
-			$session->set('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
-			$session->set('registration_user_id', null, 'plg_loginguard_webauthn');
+			// Unset the request data from the session.
+			$container->platform->setSessionVar('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
+			$container->platform->setSessionVar('registration_user_id', null, 'plg_loginguard_webauthn');
 		}
 
-		// The code is valid. Unset the request data from the session and update the options
-		$options = [
+		// Return the configuration to be serialized
+		return [
 			'credentialId' => base64_encode($publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId()),
 			'pubkeysource' => json_encode($publicKeyCredentialSource),
 			'counter'      => 0,
 		];
-
-		// Return the configuration to be serialized
-		return $options;
 	}
 }
