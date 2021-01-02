@@ -1,10 +1,4 @@
-/*
- * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU General Public License version 3, or later
- */
-
-/*
+/*!
  * International Telephone Input v11.0.10
  * https://github.com/jackocnr/intl-tel-input.git
  * Licensed under the MIT license

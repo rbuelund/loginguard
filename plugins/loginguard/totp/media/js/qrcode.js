@@ -1,9 +1,3 @@
-/*
- * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU General Public License version 3, or later
- */
-
 /*! jquery-qrcode v0.14.0 - https://larsjung.de/jquery-qrcode/ */
 (function (vendor_qrcode) {
     'use strict';

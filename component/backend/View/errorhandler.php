@@ -1,5 +1,11 @@
 <?php
 /**
+ * @package   AkeebaLoginGuard
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
+/**
  * PHP Exception Handler
  *
  * @copyright Copyright (c) 2018-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
