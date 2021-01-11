@@ -3,6 +3,7 @@ Akeeba LoginGuard 3.3.7
 ================================================================================
 ~ All tables now have a PRIMARY KEY
 # [LOW] The ip and ua columns were not always removed from the #__loginguard_tfa table
+# [HIGH] Cannot use the SMS plugin (throws exception)
 # [HIGH] Cannot register new WebAuthn authenticators
 # [LOW] PHP Notice using JLoader::registerNamespace on Joomla 4
 
