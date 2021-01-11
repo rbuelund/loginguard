@@ -73,7 +73,14 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		if (!class_exists('SMSApi\\Client', true))
 		{
 			# SMS Api
-			JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/../plugins/loginguard/smsapi/classes'), false, false, 'psr4');
+			if (version_compare(JVERSION, '3.99999.99999', 'le'))
+			{
+				JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/classes'), false, false, 'psr4');
+			}
+			else
+			{
+				JLoader::registerNamespace('SMSApi\\', realpath(__DIR__ . '/classes'));
+			}
 		}
 
 		// Get a reference to the component's container
