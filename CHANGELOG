@@ -1,6 +1,10 @@
 <?php die(); ?>
 Akeeba LoginGuard 3.3.7
 ================================================================================
++ Now supports controller as alias for view under Joomla 4
+
+Akeeba LoginGuard 3.3.7
+================================================================================
 ~ All tables now have a PRIMARY KEY
 # [LOW] The ip and ua columns were not always removed from the #__loginguard_tfa table
 # [HIGH] Cannot use the SMS plugin (throws exception)

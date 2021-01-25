@@ -276,6 +276,42 @@ class PlgSystemLoginguard extends CMSPlugin
 	}
 
 	/**
+	 * Checks if we are running under a CLI script or inside an administrator session
+	 *
+	 * @return  array
+	 *
+	 * @throws  Exception
+	 */
+	protected function isCliAdmin()
+	{
+		$isAdmin = false;
+
+		try
+		{
+			if (is_null(Factory::$application))
+			{
+				$isCLI = true;
+			}
+			else
+			{
+				$app   = Factory::getApplication();
+				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
+			}
+		}
+		catch (\Exception $e)
+		{
+			$isCLI = true;
+		}
+
+		if (!$isCLI && Factory::$application)
+		{
+			$isAdmin = Factory::getApplication()->isClient('administrator');
+		}
+
+		return [$isCLI, $isAdmin];
+	}
+
+	/**
 	 * Does the current user need to complete TFA authentication before being allowed to access the site?
 	 *
 	 * @param   User  $user  The user object
@@ -325,42 +361,6 @@ class PlgSystemLoginguard extends CMSPlugin
 
 		// No viable TFA method found. We won't show the captive page.
 		return false;
-	}
-
-	/**
-	 * Checks if we are running under a CLI script or inside an administrator session
-	 *
-	 * @return  array
-	 *
-	 * @throws  Exception
-	 */
-	protected function isCliAdmin()
-	{
-		$isAdmin = false;
-
-		try
-		{
-			if (is_null(Factory::$application))
-			{
-				$isCLI = true;
-			}
-			else
-			{
-				$app   = Factory::getApplication();
-				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
-			}
-		}
-		catch (\Exception $e)
-		{
-			$isCLI = true;
-		}
-
-		if (!$isCLI && Factory::$application)
-		{
-			$isAdmin = Factory::getApplication()->isClient('administrator');
-		}
-
-		return [$isCLI, $isAdmin];
 	}
 
 	/**
@@ -538,9 +538,19 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// We only kick in if the option and task are not the ones of the captive page
-		$option = strtolower($app->input->getCmd('option'));
-		$task   = strtolower($app->input->getCmd('task'));
-		$view   = strtolower($app->input->getCmd('view'));
+		$fallbackView = version_compare(JVERSION, '3.999.999', 'ge')
+			? $app->input->getCmd('controller', '')
+			: '';
+		$option       = strtolower($app->input->getCmd('option'));
+		$task         = strtolower($app->input->getCmd('task'));
+		$view         = strtolower($app->input->getCmd('view', $fallbackView));
+
+		if (strpos($task, '.') !== false)
+		{
+			$parts = explode('.', $task);
+			$view  = ($parts[0] ?? $view) ?: $view;
+			$task  = ($parts[1] ?? $task) ?: $task;
+		}
 
 		if ($option == 'com_loginguard')
 		{
