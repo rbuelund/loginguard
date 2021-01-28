@@ -7,23 +7,24 @@
 
 // Protect from unauthorized access
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\Adapter\ComponentAdapter;
 
 defined('_JEXEC') or die();
 
 // Load FOF if not already loaded
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 {
 	throw new RuntimeException('This component requires FOF 3.0.');
 }
 
-class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
+class Com_LoginguardInstallerScript extends FOF40\InstallScript\Component
 {
 	/**
 	 * The component's name
 	 *
 	 * @var   string
 	 */
-	protected $componentName = 'com_loginguard';
+	public $componentName = 'com_loginguard';
 
 	/**
 	 * The title of the component (printed on installation and uninstallation messages)
@@ -108,7 +109,7 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 	}
 
 	/** @inheritDoc */
-	public function preflight($type, $parent)
+	public function preflight(string $type, ComponentAdapter $parent): bool
 	{
 		$ret = parent::preflight($type, $parent);
 
@@ -149,17 +150,17 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 	 *
 	 * @return  void
 	 */
-	public function postflight($type, $parent)
+	public function postflight(string $type, ComponentAdapter $parent): void
 	{
 		// Let's install common tables
 		$container = null;
 		$model     = null;
 
-		if (class_exists('FOF30\\Container\\Container'))
+		if (class_exists('FOF40\\Container\\Container'))
 		{
 			try
 			{
-				$container = \FOF30\Container\Container::getInstance('com_loginguard');
+				$container = \FOF40\Container\Container::getInstance('com_loginguard');
 			}
 			catch (\Exception $e)
 			{
@@ -167,7 +168,7 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 			}
 		}
 
-		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		if (is_object($container) && class_exists('FOF40\\Container\\Container') && ($container instanceof \FOF40\Container\Container))
 		{
 			/** @var \Akeeba\LoginGuard\Admin\Model\UsageStatistics $model */
 			try
@@ -192,7 +193,7 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 	 *
 	 * @param  \JInstallerAdapterComponent  $parent  Parent class calling us
 	 */
-	protected function renderPostInstallation($parent)
+	protected function renderPostInstallation(ComponentAdapter $parent): void
 	{
 		try
 		{
@@ -222,7 +223,7 @@ class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 	 *
 	 * @param  \JInstallerAdapterComponent  $parent  Parent class calling us
 	 */
-	protected function renderPostUninstallation($parent)
+	protected function renderPostUninstallation(ComponentAdapter $parent): void
 	{
 		?>
 		<h2>Akeeba LoginGuard was uninstalled</h2>

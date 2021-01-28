@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;

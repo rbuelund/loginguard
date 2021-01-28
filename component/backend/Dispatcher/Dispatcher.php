@@ -8,10 +8,10 @@
 namespace Akeeba\LoginGuard\Admin\Dispatcher;
 
 // Protect from unauthorized access
-use FOF30\Container\Container;
-use FOF30\Dispatcher\Dispatcher as BaseDispatcher;
-use FOF30\Dispatcher\Mixin\ViewAliases;
-use FOF30\Utils\ComponentVersion;
+use FOF40\Container\Container;
+use FOF40\Dispatcher\Dispatcher as BaseDispatcher;
+use FOF40\Dispatcher\Mixin\ViewAliases;
+use FOF40\JoomlaAbstraction\ComponentVersion;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
@@ -59,10 +59,10 @@ class Dispatcher extends BaseDispatcher
 
 		// Load the FOF language
 		$lang = $this->container->platform->getLanguage();
-		$lang->load('lib_fof30', JPATH_SITE, 'en-GB', true, true);
-		$lang->load('lib_fof30', JPATH_SITE, null, true, false);
-		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-		$lang->load('lib_fof30', JPATH_ADMINISTRATOR, null, true, false);
+		$lang->load('lib_fof40', JPATH_SITE, 'en-GB', true, true);
+		$lang->load('lib_fof40', JPATH_SITE, null, true, false);
+		$lang->load('lib_fof40', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+		$lang->load('lib_fof40', JPATH_ADMINISTRATOR, null, true, false);
 
 		// Set the link toolbar style to Classic (Bootstrap tabs).
 		$darkMode = $this->container->params->get('dark_mode', -1);

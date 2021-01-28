@@ -6,11 +6,11 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
-use FOF30\Encrypt\Totp;
+use FOF40\Container\Container;
+use FOF40\Encrypt\Totp;
+use FOF40\Input\Input;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
@@ -316,29 +316,6 @@ class PlgLoginguardTotp extends CMSPlugin
 		return $totp->checkCode($key, $code);
 	}
 
-	/**
-	 * Decodes the options from a #__loginguard_tfa record into an options object.
-	 *
-	 * @param   stdClass  $record
-	 *
-	 * @return  array
-	 */
-	private function _decodeRecordOptions($record)
-	{
-		$options = [
-			'key' => '',
-		];
-
-		if (!empty($record->options))
-		{
-			$recordOptions = $record->options;
-
-			$options = array_merge($options, $recordOptions);
-		}
-
-		return $options;
-	}
-
 	protected function loadJavascript($QRContent)
 	{
 		if (defined('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED'))
@@ -381,5 +358,28 @@ JS;
 
 		Factory::getApplication()->getDocument()->addScriptDeclaration($js);
 
+	}
+
+	/**
+	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 *
+	 * @param   stdClass  $record
+	 *
+	 * @return  array
+	 */
+	private function _decodeRecordOptions($record)
+	{
+		$options = [
+			'key' => '',
+		];
+
+		if (!empty($record->options))
+		{
+			$recordOptions = $record->options;
+
+			$options = array_merge($options, $recordOptions);
+		}
+
+		return $options;
 	}
 }

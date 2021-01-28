@@ -7,8 +7,8 @@
 
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF40\Input\Input;
 use Joomla\CMS\Crypt\Crypt;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;

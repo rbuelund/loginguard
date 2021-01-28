@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Webauthn;
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Factory;
 use RuntimeException;
 use Webauthn\AttestationStatement\AttestationStatement;

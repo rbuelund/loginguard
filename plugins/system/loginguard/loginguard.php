@@ -6,7 +6,7 @@
  */
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Application\CliApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -69,7 +69,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		parent::__construct($subject, $config);
 
 		// Load FOF
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			$this->enabled = false;
 

@@ -6,8 +6,8 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
+use FOF40\Input\Input;
 use Joomla\CMS\Http\HttpFactory;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
@@ -257,7 +257,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		try
 		{
-			$container = \FOF30\Container\Container::getInstance('com_loginguard');
+			$container = \FOF40\Container\Container::getInstance('com_loginguard');
 			/** @var Tfa $tfaModel */
 			$tfaModel = $container->factory->model('Tfa')->tmpInstance();
 			$records  = $tfaModel->user_id($record->user_id)->method($record->method)->get(true);
@@ -268,7 +268,7 @@ class PlgLoginguardYubikey extends CMSPlugin
 		}
 
 		// Loop all records, stop if at least one matches
-		$container = \FOF30\Container\Container::getInstance('com_loginguard');
+		$container = \FOF40\Container\Container::getInstance('com_loginguard');
 
 		foreach ($records as $aRecord)
 		{
@@ -280,29 +280,6 @@ class PlgLoginguardYubikey extends CMSPlugin
 
 		// None of the records succeeded? Return false.
 		return false;
-	}
-
-	/**
-	 * Decodes the options from a #__loginguard_tfa record into an options object.
-	 *
-	 * @param   stdClass  $record
-	 *
-	 * @return  array
-	 */
-	private function _decodeRecordOptions($record)
-	{
-		$options = [
-			'id' => '',
-		];
-
-		if (!empty($record->options))
-		{
-			$recordOptions = $record->options;
-
-			$options = array_merge($options, $recordOptions);
-		}
-
-		return $options;
 	}
 
 	/**
@@ -550,6 +527,29 @@ class PlgLoginguardYubikey extends CMSPlugin
 		 * Append the value under key h to the message.
 		 */
 		$uri->setVar('h', $h);
+	}
+
+	/**
+	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 *
+	 * @param   stdClass  $record
+	 *
+	 * @return  array
+	 */
+	private function _decodeRecordOptions($record)
+	{
+		$options = [
+			'id' => '',
+		];
+
+		if (!empty($record->options))
+		{
+			$recordOptions = $record->options;
+
+			$options = array_merge($options, $recordOptions);
+		}
+
+		return $options;
 	}
 
 	/**

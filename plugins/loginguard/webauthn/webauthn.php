@@ -11,14 +11,14 @@ use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaGetMethod;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaGetSetup;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaSaveSetup;
 use Akeeba\LoginGuard\Webauthn\PluginTraits\TfaValidate;
-use FOF30\Autoloader\Autoloader;
+use FOF40\Autoloader\Autoloader;
 use Joomla\CMS\Plugin\CMSPlugin;
 
 // Prevent direct access
 defined('_JEXEC') || die;
 
 // Add ourselves to the autoloader
-if (!class_exists('FOF30\Autoloader\Autoloader'))
+if (!class_exists('FOF40\Autoloader\Autoloader'))
 {
 	return;
 }

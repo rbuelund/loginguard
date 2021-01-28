@@ -6,7 +6,7 @@
  */
 
 // Define ourselves as a parent file
-use FOF30\Autoloader\Autoloader;
+use FOF40\Autoloader\Autoloader;
 
 // Try to get the path to the Joomla! installation
 $joomlaPath = $_SERVER['HOME'] . '/Sites/dev3';
@@ -71,20 +71,20 @@ foreach ([__DIR__, getcwd()] as $curdir)
 
 defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
 
-require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+require_once JPATH_LIBRARIES . '/fof40/Cli/Application.php';
 // Boilerplate -- END
 
 // Undo the temporary change for the FOF CLI boilerplate code
 chdir($originalDirectory);
 
 // Load FOF 3
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 {
 	throw new RuntimeException('FOF 3.0 is not installed', 500);
 }
 
 // Load Akeeba LoginGuard's autoloader through FOF 3
-$container = FOF30\Container\Container::getInstance('com_loginguard');
+$container = FOF40\Container\Container::getInstance('com_loginguard');
 
 
 // Other classes

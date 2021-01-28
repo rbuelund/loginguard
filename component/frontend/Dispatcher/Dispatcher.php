@@ -9,7 +9,7 @@ namespace Akeeba\LoginGuard\Site\Dispatcher;
 
 // Protect from unauthorized access
 use Akeeba\LoginGuard\Admin\Dispatcher\Dispatcher as AdminDispatcher;
-use FOF30\Input\Input;
+use FOF40\Input\Input;
 use Joomla\CMS\Factory;
 
 defined('_JEXEC') || die();

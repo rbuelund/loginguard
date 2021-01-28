@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Site\Model;
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use Exception;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 

@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Admin\Model;
 defined('_JEXEC') || die();
 
 use AkeebaUsagestats;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Crypt\Crypt as JCrypt;
 use Joomla\CMS\Uri\Uri as JUri;
 

@@ -17,7 +17,7 @@ use Cose\Algorithm\Signature\EdDSA;
 use Cose\Algorithm\Signature\RSA;
 use Cose\Algorithms;
 use Exception;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Crypt\Crypt;
 use Joomla\CMS\Factory;

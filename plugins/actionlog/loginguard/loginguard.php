@@ -5,9 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use FOF30\Container\Container;
-use FOF30\Controller\Controller;
-use FOF30\View\View;
+use FOF40\Container\Container;
+use FOF40\Controller\Controller;
+use FOF40\View\View;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
@@ -46,7 +46,7 @@ class plgActionlogLoginguard extends CMSPlugin
 		}
 
 		// Load FOF
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			return;
 		}

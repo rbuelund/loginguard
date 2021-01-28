@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Site\View\Method;
 // Protect from unauthorized access
 use Akeeba\LoginGuard\Site\Model\Method;
 use Exception;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Toolbar\ToolbarHelper as JToolbarHelper;
 use Joomla\CMS\User\User as JUser;
 

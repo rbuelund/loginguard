@@ -6,10 +6,10 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
-use FOF30\Encrypt\Totp;
+use FOF40\Container\Container;
+use FOF40\Encrypt\Totp;
+use FOF40\Input\Input;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -154,8 +154,8 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		$token   = $options['token'] ?? '';
 
 		// If there's a key or toekn in the session use that instead.
-		$key     = $this->container->platform->getSessionVar('pushbullet.key', $key, 'com_loginguard');
-		$token   = $this->container->platform->getSessionVar('pushbullet.token', $token, 'com_loginguard');
+		$key   = $this->container->platform->getSessionVar('pushbullet.key', $key, 'com_loginguard');
+		$token = $this->container->platform->getSessionVar('pushbullet.token', $token, 'com_loginguard');
 
 		// Initialize objects
 		$totp = new Totp();
@@ -417,30 +417,6 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	}
 
 	/**
-	 * Decodes the options from a #__loginguard_tfa record into an options object.
-	 *
-	 * @param   stdClass  $record
-	 *
-	 * @return  array
-	 */
-	private function _decodeRecordOptions($record)
-	{
-		$options = [
-			'key'   => '',
-			'token' => '',
-		];
-
-		if (!empty($record->options))
-		{
-			$recordOptions = $record->options;
-
-			$options = array_merge($options, $recordOptions);
-		}
-
-		return $options;
-	}
-
-	/**
 	 * Creates a new TOTP code based on secret key $key and sends it to the user via PushBullet using the access token
 	 * $token.
 	 *
@@ -559,5 +535,29 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		// Just to make IDEs happy. The application is closed above during the redirection.
 		return false;
+	}
+
+	/**
+	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 *
+	 * @param   stdClass  $record
+	 *
+	 * @return  array
+	 */
+	private function _decodeRecordOptions($record)
+	{
+		$options = [
+			'key'   => '',
+			'token' => '',
+		];
+
+		if (!empty($record->options))
+		{
+			$recordOptions = $record->options;
+
+			$options = array_merge($options, $recordOptions);
+		}
+
+		return $options;
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace Akeeba\LoginGuard\Admin\Model;
 
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use FOFEncryptAes;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;

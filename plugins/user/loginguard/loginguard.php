@@ -7,7 +7,7 @@
 
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\RememberMe;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
@@ -60,7 +60,7 @@ class plgUserLoginguard extends CMSPlugin
 		parent::__construct($subject, $config);
 
 		// Load FOF
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			$this->enabled = false;
 

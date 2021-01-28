@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Site\View\Captive;
 use Akeeba\LoginGuard\Site\Helper\Tfa;
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Captive;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text as JText;
 
 defined('_JEXEC') || die();

@@ -6,11 +6,11 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
+use FOF40\Input\Input;
 use Joomla\CMS\Environment\Browser;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -29,6 +29,13 @@ defined('_JEXEC') || die;
 class PlgLoginguardU2f extends CMSPlugin
 {
 	/**
+	 * U2F Server Library instance
+	 *
+	 * @var   \u2flib_server\U2F
+	 */
+	protected $u2f = null;
+
+	/**
 	 * The TFA method name handled by this plugin
 	 *
 	 * @var   string
@@ -41,13 +48,6 @@ class PlgLoginguardU2f extends CMSPlugin
 	 * @var   bool
 	 */
 	private $enabled = true;
-
-	/**
-	 * U2F Server Library instance
-	 *
-	 * @var   \u2flib_server\U2F
-	 */
-	protected $u2f = null;
 
 	/**
 	 * The component's container object

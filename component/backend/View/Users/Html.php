@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Admin\View\Users;
 
 // Protect from unauthorized access
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 defined('_JEXEC') || die();
 

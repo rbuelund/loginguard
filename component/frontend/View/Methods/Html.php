@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Site\View\Methods;
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use Akeeba\LoginGuard\Site\Model\Methods;
 use Exception;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 

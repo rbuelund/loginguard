@@ -6,10 +6,10 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
-use FOF30\Encrypt\Totp;
+use FOF40\Container\Container;
+use FOF40\Encrypt\Totp;
+use FOF40\Input\Input;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;

@@ -6,17 +6,17 @@
  */
 
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use FOF30\Container\Container;
-use FOF30\Encrypt\Totp;
+use FOF40\Container\Container;
+use FOF40\Encrypt\Totp;
+use FOF40\Input\Input;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Input\Input;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
-use SMSApi\Client;
 use SMSApi\Api\SmsFactory;
+use SMSApi\Client;
 
 // Prevent direct access
 defined('_JEXEC') || die;
@@ -155,8 +155,8 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$phone   = $options['phone'] ?? '';
 
 		// If there's a key or phone number in the session use that instead.
-		$key     = $this->container->platform->getSessionVar('smsapi.key', $key, 'com_loginguard');
-		$phone   = $this->container->platform->getSessionVar('smsapi.phone', $phone, 'com_loginguard');
+		$key   = $this->container->platform->getSessionVar('smsapi.key', $key, 'com_loginguard');
+		$phone = $this->container->platform->getSessionVar('smsapi.phone', $phone, 'com_loginguard');
 
 		// Initialize objects
 		$totp = new Totp(180, 6, 10);
@@ -418,30 +418,6 @@ class PlgLoginguardSmsapi extends CMSPlugin
 	}
 
 	/**
-	 * Decodes the options from a #__loginguard_tfa record into an options object.
-	 *
-	 * @param   stdClass  $record
-	 *
-	 * @return  array
-	 */
-	private function _decodeRecordOptions($record)
-	{
-		$options = [
-			'key'   => '',
-			'phone' => '',
-		];
-
-		if (!empty($record->options))
-		{
-			$recordOptions = $record->options;
-
-			$options = array_merge($options, $recordOptions);
-		}
-
-		return $options;
-	}
-
-	/**
 	 * Creates a new TOTP code based on secret key $key and sends it to the user via SMSAPI to the phone number $token
 	 *
 	 * @param   string  $key    The TOTP secret key
@@ -538,6 +514,30 @@ class PlgLoginguardSmsapi extends CMSPlugin
 
 		// Just to make IDEs happy. The application is closed above during the redirection.
 		return false;
+	}
+
+	/**
+	 * Decodes the options from a #__loginguard_tfa record into an options object.
+	 *
+	 * @param   stdClass  $record
+	 *
+	 * @return  array
+	 */
+	private function _decodeRecordOptions($record)
+	{
+		$options = [
+			'key'   => '',
+			'phone' => '',
+		];
+
+		if (!empty($record->options))
+		{
+			$recordOptions = $record->options;
+
+			$options = array_merge($options, $recordOptions);
+		}
+
+		return $options;
 	}
 
 }

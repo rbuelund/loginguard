@@ -7,7 +7,7 @@
 
 namespace Akeeba\LoginGuard\Admin\Toolbar;
 
-use FOF30\Toolbar\Toolbar as BaseToolbar;
+use FOF40\Toolbar\Toolbar as BaseToolbar;
 use Joomla\CMS\Router\Route as JRoute;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Toolbar\Toolbar as JToolbar;

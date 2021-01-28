@@ -12,7 +12,7 @@ use Akeeba\LoginGuard\Site\Model\Tfa as TfaRecord;
 use DateInterval;
 use DateTimeZone;
 use Exception;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\User\User;
 use RuntimeException;

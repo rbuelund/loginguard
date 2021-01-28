@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Model;
 
 use Exception;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Crypt\Crypt as JCrypt;
 use Joomla\CMS\User\User;
 

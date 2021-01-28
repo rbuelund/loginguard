@@ -7,11 +7,11 @@
 
 defined('_JEXEC') || die();
 
-/** @var  FOF30\View\DataView\Html  $this */
+/** @var  FOF40\View\DataView\Html  $this */
 
 ?>
 
-@extends('any:lib_fof30/Common/Browse')
+@extends('any:lib_fof40/Common/Browse')
 
 @section('browse-filters')
     <div class="akeeba-filter-element akeeba-form-group">
@@ -24,10 +24,10 @@ defined('_JEXEC') || die();
         @searchfilter('email')
     </div>
     <div class="akeeba-filter-element akeeba-form-group">
-        {{ \FOF30\Utils\FEFHelper\BrowseView::genericSelect('group', \Akeeba\LoginGuard\Admin\Helper\Select::getGroupOptions(), $this->getModel()->getState('group', null, 'int'), ['list.none' => '&mdash; ' . JText::_('COM_LOGINGUARD_USER_FILTER_GROUP') . ' &mdash;', 'fof.autosubmit' => true]) }}
+        {{ \FOF40\Html\FEFHelper\BrowseView::genericSelect('group', \Akeeba\LoginGuard\Admin\Helper\Select::getGroupOptions(), $this->getModel()->getState('group', null, 'int'), ['list.none' => '&mdash; ' . JText::_('COM_LOGINGUARD_USER_FILTER_GROUP') . ' &mdash;', 'fof.autosubmit' => true]) }}
     </div>
     <div class="akeeba-filter-element akeeba-form-group">
-        {{ \FOF30\Utils\FEFHelper\BrowseView::publishedFilter('has2SV', 'COM_LOGINGUARD_USER_FIELD_HAS2SV') }}
+        {{ \FOF40\Html\FEFHelper\BrowseView::publishedFilter('has2SV', 'COM_LOGINGUARD_USER_FIELD_HAS2SV') }}
     </div>
 {{-- Filters above the table. --}}
 @stop
@@ -36,7 +36,7 @@ defined('_JEXEC') || die();
 {{-- Table header. Column headers and optional filters displayed above the column headers. --}}
 <tr>
     <th width="20px">
-        @jhtml('FEFHelper.browse.checkall')
+        @jhtml('FEFHelp.browse.checkall')
     </th>
     <th width="20px">
         @sortgrid('id', 'JGLOBAL_NUM')
@@ -74,7 +74,7 @@ defined('_JEXEC') || die();
 <?php $url = 'index.php?option=com_users&task=user.edit&id=' . (int)$row->id ?>
 <tr>
     <td>
-        @jhtml('FEFHelper.browse.id', ++$i, $row->getId())
+        @jhtml('FEFHelp.browse.id', ++$i, $row->getId())
     </td>
     <td>
         {{{ $row->getId() }}}
@@ -95,7 +95,7 @@ defined('_JEXEC') || die();
         </a>
     </td>
     <td>
-        @jhtml('FEFHelper.browse.published', $row->has2SV, $i, '', false)
+        @jhtml('FEFHelp.browse.published', $row->has2SV, $i, '', false)
     </td>
 </tr>
 @endforeach

@@ -36,7 +36,7 @@ class JFormFieldLoginguard extends FormField
 			@ob_start();
 
 			// Render the other component's view
-			FOF30\Container\Container::getInstance('com_loginguard', [
+			FOF40\Container\Container::getInstance('com_loginguard', [
 				'tempInstance' => true,
 				'input'        => [
 					'view'      => 'Methods',

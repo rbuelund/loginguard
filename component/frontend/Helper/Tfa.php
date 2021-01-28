@@ -8,7 +8,7 @@
 namespace Akeeba\LoginGuard\Site\Helper;
 
 // Protect from unauthorized access
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\User\User;
 
 defined('_JEXEC') || die();
