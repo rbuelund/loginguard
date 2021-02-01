@@ -98,8 +98,14 @@ class Tfa extends DataModel
 	{
 		if (is_string($value))
 		{
-			$value = $this->container->crypto->decrypt($value);
-			$value = @json_decode($value, true);
+			$decrypted = @json_decode($this->container->crypto->decrypt($value), true);
+
+			if (!is_array($decrypted))
+			{
+				$decrypted = @json_decode($this->container->crypto->decrypt($value, true), true);
+			}
+
+			$value = $decrypted;
 		}
 
 		return empty($value) ? [] : $value;
