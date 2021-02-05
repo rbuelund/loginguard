@@ -47,7 +47,7 @@ updates:
   -
     title: 'Akeeba LoginGuard updates'
     connection: s3
-    directory: '/updates'
+    directory: 'updates'
     stream: 40
     base_name: 'pkgloginguard'
     formats:
