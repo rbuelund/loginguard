@@ -40,12 +40,12 @@ parameters:
     - 'component/backend/Master/Stats/*'
     # Error view files with die statements and / or files which MUST NOT be upgraded to a new PHP / Joomla version
     # DO NOT REMOVE / CHANGE. READ THE NOTICE ABOVE.
-    - 'component/backend/View/errorhandler.php'
-    - 'component/backend/View/fef.php'
-    - 'component/backend/View/fof.php'
-    - 'component/backend/View/hhvm.php'
-    - 'component/backend/View/wrongphp.php'
-    - 'component/backend/ViewTemplates/CommonTemplates/phpversion_warning.php'
+    - 'component/backend/tmpl/Common/errorhandler.php'
+    - 'component/backend/tmpl/Common/fef.php'
+    - 'component/backend/tmpl/Common/fof.php'
+    - 'component/backend/tmpl/Common/hhvm.php'
+    - 'component/backend/tmpl/Common/wrongphp.php'
+    - 'component/backend/tmpl/CommonTemplates/phpversion_warning.php'
     # Don't escape this repository, dammit!
     - '../*'
 
