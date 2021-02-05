@@ -1,5 +1,5 @@
 <?php die(); ?>
-Akeeba LoginGuard 3.3.7
+Akeeba LoginGuard 3.3.8
 ================================================================================
 + Now supports controller as alias for view under Joomla 4
 
