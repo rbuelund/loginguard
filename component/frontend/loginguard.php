@@ -14,7 +14,7 @@ $recommendedPHPVersion = '7.4';
 $softwareName          = 'Akeeba LoginGuard';
 $silentResults         = true;
 
-if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/View/wrongphp.php'))
+if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/tmpl/Common/wrongphp.php'))
 {
 	echo 'Your PHP version is too old for this component.';
 
@@ -24,29 +24,12 @@ if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/View/wrongphp.php'))
 // HHVM made sense in 2013, now PHP 7 is a way better solution than an hybrid PHP interpreter
 if (defined('HHVM_VERSION'))
 {
-	(include_once JPATH_COMPONENT_ADMINISTRATOR . '/View/hhvm.php') || die('We have detected that you are running HHVM instead of PHP. This software WILL NOT WORK properly on HHVM. Please switch to PHP 7 instead.');
-
-	return;
+	die('We have detected that you are running HHVM instead of PHP. This software WILL NOT WORK properly on HHVM. Please switch to PHP 7 instead.');
 }
 
-// PHP 7.0 or later; we can catch PHP Fatal Errors as well
-try
+if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 {
-	if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
-	{
-		throw new RuntimeException('FOF 3.0 is not installed', 500);
-	}
-
-	FOF40\Container\Container::getInstance('com_loginguard')->dispatcher->dispatch();
+	throw new RuntimeException('FOF 3.0 is not installed', 500);
 }
-catch (Throwable $e)
-{
-	// DO NOT REMOVE -- They are used by errorhandler.php below.
-	$title = 'Akeeba LoginGuard';
-	$isPro = false;
 
-	if (!(include_once __DIR__ . '/View/errorhandler.php'))
-	{
-		throw $e;
-	}
-}
+FOF40\Container\Container::getInstance('com_loginguard')->dispatcher->dispatch();
