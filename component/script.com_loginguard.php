@@ -65,9 +65,7 @@ class Com_LoginguardInstallerScript extends FOF40\InstallScript\Component
 
 		        // Remove all obsolete methods view file, except for the list.xml metadata file
 		        'components/com_loginguard/views/method/view.html.php',
-		        'components/com_loginguard/views/method/tmpl/default.php',
-		        'components/com_loginguard/views/method/tmpl/firsttime.php',
-		        'components/com_loginguard/views/method/tmpl/list.php',
+
             ],
 	        'folders' => [
 		        // Obsolete Joomla! core MVC files from version 1.x
@@ -84,12 +82,22 @@ class Com_LoginguardInstallerScript extends FOF40\InstallScript\Component
                 // Remove all obsolete front-end views, except for the list.xml metadata file
                 'components/com_loginguard/views/captive',
                 'components/com_loginguard/views/method',
-                'components/com_loginguard/views/methods/tmpl',
+                'components/com_loginguard/views/methods',
                 // Obsolete custom renderer
 		        'components/com_loginguard/Render',
-
 		        // Common tables (they're installed by FOF)
 		        'administrator/components/com_loginguard/sql/common',
+				// Obsolete view template directories
+		        'administrator/components/com_loginguard/View/Convert/tmpl',
+		        'administrator/components/com_loginguard/View/Users/tmpl',
+		        'administrator/components/com_loginguard/View/Welcome/tmpl',
+		        'components/com_loginguard/View/Captive/tmpl',
+		        'components/com_loginguard/View/Method/tmpl',
+		        'components/com_loginguard/View/Methods/tmpl',
+
+		        // Rename ViewTemplates to tmpl
+		        'administrator/components/com_loginguard/ViewTemplates',
+		        'components/com_loginguard/ViewTemplates',
 	        ]
     ];
 

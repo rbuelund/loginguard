@@ -26,7 +26,7 @@
 		<folder>Helper</folder>
 		<folder>Model</folder>
 		<folder>View</folder>
-		<folder>views</folder>
+		<folder>tmpl</folder>
 
 		<filename>index.html</filename>
 		<filename>loginguard.php</filename>
@@ -59,6 +59,7 @@
 			<folder>Model</folder>
 			<folder>Toolbar</folder>
 			<folder>View</folder>
+			<folder>tmpl</folder>
 			<folder>vendor</folder>
 
 			<folder>sql</folder>

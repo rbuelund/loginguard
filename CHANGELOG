@@ -2,6 +2,7 @@
 Akeeba LoginGuard 4.0.0
 ================================================================================
 + Rewritten using FOF 4
++ Renamed ViewTemplates to tmpl (Joomla 4 convention, with fallback code for Joomla 3)
 
 Akeeba LoginGuard 3.3.7
 ================================================================================

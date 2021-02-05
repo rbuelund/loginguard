@@ -10,6 +10,7 @@ namespace Akeeba\LoginGuard\Admin\Controller;
 use Akeeba\LoginGuard\Admin\Model\Welcome as WelcomeModel;
 use FOF40\Container\Container;
 use FOF40\Controller\Controller;
+use FOF40\Utils\ViewManifestMigration;
 use Joomla\CMS\Router\Route as JRoute;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
@@ -69,6 +70,9 @@ class Welcome extends Controller
 	public function welcome()
 	{
 		$this->getModel()->checkAndFixDatabase();
+
+		ViewManifestMigration::migrateJoomla4MenuXMLFiles($this->container);
+		ViewManifestMigration::removeJoomla3LegacyViews($this->container);
 
 		$this->display();
 	}

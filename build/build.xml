@@ -23,6 +23,10 @@
 
 		<include name="*" />
 
+		<!-- Exclude legacy Joomla 3 folders -->
+		<exclude name="backend/views/**" />
+		<exclude name="frontend/views/**" />
+
 		<!-- Exclude uncompressed CSS and JS -->
 		<exclude name="media/uncompressed/**" />
 
