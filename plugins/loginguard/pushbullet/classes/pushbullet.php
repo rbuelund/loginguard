@@ -1,12 +1,12 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Based on Pushbullet-for-PHP 2.10.1 – https://github.com/ivkos/Pushbullet-for-PHP/tree/v2
@@ -43,16 +43,16 @@ class LoginGuardPushbulletApi
 	private $_apiKey;
 	private $_curlCallback;
 
-	const URL_TOKEN = 'https://api.pushbullet.com/oauth2/token';
-	const URL_PUSHES = 'https://api.pushbullet.com/v2/pushes';
-	const URL_DEVICES = 'https://api.pushbullet.com/v2/devices';
-	const URL_CONTACTS = 'https://api.pushbullet.com/v2/contacts';
-	const URL_UPLOAD_REQUEST = 'https://api.pushbullet.com/v2/upload-request';
-	const URL_USERS = 'https://api.pushbullet.com/v2/users';
-	const URL_SUBSCRIPTIONS = 'https://api.pushbullet.com/v2/subscriptions';
-	const URL_CHANNEL_INFO = 'https://api.pushbullet.com/v2/channel-info';
-	const URL_EPHEMERALS = 'https://api.pushbullet.com/v2/ephemerals';
-	const URL_PHONEBOOK = 'https://api.pushbullet.com/v2/permanents/phonebook';
+	public const URL_TOKEN = 'https://api.pushbullet.com/oauth2/token';
+	public const URL_PUSHES = 'https://api.pushbullet.com/v2/pushes';
+	public const URL_DEVICES = 'https://api.pushbullet.com/v2/devices';
+	public const URL_CONTACTS = 'https://api.pushbullet.com/v2/contacts';
+	public const URL_UPLOAD_REQUEST = 'https://api.pushbullet.com/v2/upload-request';
+	public const URL_USERS = 'https://api.pushbullet.com/v2/users';
+	public const URL_SUBSCRIPTIONS = 'https://api.pushbullet.com/v2/subscriptions';
+	public const URL_CHANNEL_INFO = 'https://api.pushbullet.com/v2/channel-info';
+	public const URL_EPHEMERALS = 'https://api.pushbullet.com/v2/ephemerals';
+	public const URL_PHONEBOOK = 'https://api.pushbullet.com/v2/permanents/phonebook';
 
 	/**
 	 * Pushbullet constructor.
@@ -197,10 +197,10 @@ class LoginGuardPushbulletApi
 			throw new LoginGuardPushbulletApiException('File: File size exceeds 25 MB.');
 		}
 
-		$data['file_name'] = $altFileName === null ? basename($fullFilePath) : $altFileName;
+		$data['file_name'] = $altFileName ?? basename($fullFilePath);
 
 		// Try to guess the MIME type if the argument is NULL
-		$data['file_type'] = $mimeType === null ? mime_content_type($fullFilePath) : $mimeType;
+		$data['file_type'] = $mimeType ?? mime_content_type($fullFilePath);
 
 		// Request authorization to upload the file
 		$response         = $this->_curlRequest(self::URL_UPLOAD_REQUEST, 'GET', $data);
@@ -424,7 +424,7 @@ class LoginGuardPushbulletApi
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_HEADER, false);
 
-		@curl_setopt($curl, CURLOPT_CAINFO, JPATH_LIBRARIES . '/fof30/Download/Adapter/cacert.pem');
+		@curl_setopt($curl, CURLOPT_CAINFO, JPATH_LIBRARIES . '/src/Http/Transport/cacert.pem');
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
 

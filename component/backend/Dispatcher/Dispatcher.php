@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,7 +16,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Dispatcher extends BaseDispatcher
 {
@@ -107,6 +107,13 @@ class Dispatcher extends BaseDispatcher
 	{
 		$view = $this->input->getCmd('view', '');
 		$task = $this->input->getCmd('task', '');
+
+		// Task has legacy view.task notation? That's not our stuff, let's nuke it
+		if (strpos($task, '.') !== false)
+		{
+			$task = null;
+			$this->input->set('task', '');
+		}
 
 		if (!empty($view))
 		{

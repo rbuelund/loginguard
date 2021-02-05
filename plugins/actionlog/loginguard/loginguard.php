@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,13 +11,7 @@ use FOF30\View\View;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
-defined('_JEXEC') or die();
-
-// PHP version check
-if (!version_compare(PHP_VERSION, '5.6.0', '>='))
-{
-	return;
-}
+defined('_JEXEC') || die();
 
 /**
  * LoginGuard integration with Joomla's User Actions Log
@@ -230,7 +224,7 @@ class plgActionlogLoginguard extends CMSPlugin
 		$this->container->platform->logUserAction([
 			'user_id'  => $userId,
 			'otheruser' => $user->username,
-		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHOD_DISABLE', 'com_loginguard');
+		], 'PLG_ACTIONLOG_LOGINGUARD_ACTION_METHODS_DISABLE', 'com_loginguard');
 	}
 
 	/**

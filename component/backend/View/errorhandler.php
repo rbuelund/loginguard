@@ -1,26 +1,34 @@
 <?php
 /**
- * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * PHP Exception Handler
+ *
+ * @copyright Copyright (c) 2018-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-// Prevent direct access
-use Joomla\CMS\Application\SiteApplication;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\ToolbarHelper;
-
-defined('_JEXEC') or die;
+// Protect from unauthorized access
+defined('_JEXEC') or die();
 
 /** @var Throwable $e */
 /** @var string $title */
 /** @var bool $isPro */
 
-$code         = $e->getCode();
-$code         = !empty($code) ? $code : 500;
-$app          = Factory::getApplication();
-$isFrontend   = $app instanceof SiteApplication;
-$hideTheError = $isFrontend && !(defined('JDEBUG') && (JDEBUG == 1)) && !Factory::getUser()->authorise('core.admin');
+$code = $e->getCode();
+$code = !empty($code) ? $code : 500;
+
+$app  = class_exists('\Joomla\CMS\Factory') ? \Joomla\CMS\Factory::getApplication() : \JFactory::getApplication();
+
+$user30 = (class_exists('JFactory') && method_exists('JFactory', 'getUser')) ? JFactory::getUser() : null;
+$user38 = class_exists('\Joomla\CMS\Factory') && method_exists('\Joomla\CMS\Factory', 'getUser') ? \Joomla\CMS\Factory::getUser() : null;
+$user40 = (is_object($app) && method_exists($app, 'getIdentity')) ? $app->getIdentity() : null;
+$user = is_null($user40) ? $user38 : $user40;
+$user = is_null($user40) ? $user30 : $user;
+$isSuper = !is_null($user) && $user->authorise('core.admin');
+
+$isFrontend   = class_exists('JApplicationSite') && ($app instanceof JApplicationSite);
+$isFrontend   = $isFrontend || (class_exists('\Joomla\CMS\Application\SiteApplication') && ($app instanceof \Joomla\CMS\Application\SiteApplication));
+$user         = $isFrontend ? (method_exists($app, 'getIdentity') ? $app->getIdentity() : JFactory::getUser()) : null;
+$hideTheError = $isFrontend && !(defined('JDEBUG') && (JDEBUG == 1)) && !$isSuper;
 $isPro        = !isset($isPro) ? false : $isPro;
 
 // 403 and 404 are re-thrown
@@ -42,7 +50,15 @@ else
 
 if (!$isFrontend)
 {
-	ToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	if (class_exists('\Joomla\CMS\Toolbar\ToolbarHelper'))
+	{
+		\Joomla\CMS\Toolbar\ToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	}
+	else
+	{
+		JToolbarHelper::title($title . ' <small>Unhandled Exception</small>');
+	}
+
 }
 
 ?>
@@ -56,16 +72,20 @@ if (!$isFrontend)
 	<?php return true; endif; ?>
 
 <h1><?php echo $title ?> - An unhandled Exception has been detected</h1>
-<h4>
-	<span class="label label-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
-</h4>
+<h3>
+	<?php if (version_compare(JVERSION, '3.999.999', 'le')): ?>
+		<span class="label label-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+	<?php else: ?>
+		<span class="badge badge-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+	<?php endif; ?>
+</h3>
 <p>
 	File <code><?php echo htmlentities(str_ireplace(JPATH_ROOT, '&lt;root&gt;', $e->getFile())) ?></code>
 	Line <span class="label label-info"><?php echo (int) $e->getLine() ?></span>
 </p>
 
 <?php if ($isPro): ?>
-	<div class="hero-unit">
+	<div class="<?php if (version_compare(JVERSION, '3.999.999', 'le')):?>hero-unit<?php else: ?>alert alert-primary<?php endif; ?>">
 		<p>
 			<strong>Would you like us to help you faster?</strong>
 		</p>
@@ -75,16 +95,13 @@ if (!$isFrontend)
 	</div>
 	<p>
 		<strong>Why do we need all that information?</strong> This information is an x-ray of your site at the time the
-		error
-		occurred. It lets us reproduce the issue or, if it's not a bug in our software, help you pinpoint the external
-		reason which
-		led to it.
+		error occurred. It lets us reproduce the issue or, if it's not a bug in our software, help you pinpoint the
+		external reason which led to it.
 	</p>
 	<p>
 		<strong>What about privacy?</strong>
 		Attachments are private in our ticket system: only you and us can see them, <em>even if you file a public
-			ticket</em>, and
-		they are automatically deleted after a month.
+		ticket</em>, and they are automatically deleted after a month.
 	</p>
 <?php endif; ?>
 
@@ -97,11 +114,35 @@ if (!$isFrontend)
 </p>
 <hr />
 
+<p class="alert alert-warning">
+	Joomla <?= JVERSION ?> – PHP <?= PHP_VERSION ?> on <?= PHP_OS ?>
+</p>
+
 <h3>Debug information</h3>
 <p>
 	Exception type: <code><?php echo htmlentities(get_class($e)) ?></code>
 </p>
 <pre><?php echo htmlentities($e->getTraceAsString()) ?></pre>
+
+<?php while ($e = $e->getPrevious()): ?>
+	<hr />
+	<h4>Previous exception</h4>
+	<strong>
+		<?php if (version_compare(JVERSION, '3.999.999', 'le')): ?>
+			<span class="label label-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+		<?php else: ?>
+			<span class="badge badge-danger"><?php echo htmlentities($code) ?></span> <?php echo htmlentities($e->getMessage()) ?>
+		<?php endif; ?>
+	</strong>
+	<p>
+		File <code><?php echo htmlentities(str_ireplace(JPATH_ROOT, '&lt;root&gt;', $e->getFile())) ?></code> Line <span
+				class="label label-info"><?php echo (int) $e->getLine() ?></span>
+	</p>
+	<p>
+		Exception type: <code><?php echo htmlentities(get_class($e)) ?></code>
+	</p>
+	<pre><?php echo htmlentities($e->getTraceAsString()) ?></pre>
+<?php endwhile; ?>
 
 <h3>System information</h3>
 <table class="table table-striped">
@@ -133,26 +174,31 @@ if (!$isFrontend)
 		<td>Joomla! version</td>
 		<td><?php echo JVERSION ?></td>
 	</tr>
-	<tr>
-		<td>Database driver name</td>
-		<td><?php echo Factory::getDbo()->getName() ?></td>
-	</tr>
-	<tr>
-		<td>Database driver type</td>
-		<td><?php echo Factory::getDbo()->getServerType() ?></td>
-	</tr>
-	<tr>
-		<td>Database server version</td>
-		<td><?php echo Factory::getDbo()->getVersion() ?></td>
-	</tr>
-	<tr>
-		<td>Database collation</td>
-		<td><?php echo Factory::getDbo()->getCollation() ?></td>
-	</tr>
-	<tr>
-		<td>Database connection collation</td>
-		<td><?php echo Factory::getDbo()->getConnectionCollation() ?></td>
-	</tr>
+	<?php
+	$db = JFactory::getDbo();
+	if (!is_null($db)):
+		?>
+		<tr>
+			<td>Database driver name</td>
+			<td><?php echo $db->getName() ?></td>
+		</tr>
+		<tr>
+			<td>Database driver type</td>
+			<td><?php echo $db->getServerType() ?></td>
+		</tr>
+		<tr>
+			<td>Database server version</td>
+			<td><?php echo $db->getVersion() ?></td>
+		</tr>
+		<tr>
+			<td>Database collation</td>
+			<td><?php echo $db->getCollation() ?></td>
+		</tr>
+		<tr>
+			<td>Database connection collation</td>
+			<td><?php echo $db->getConnectionCollation() ?></td>
+		</tr>
+	<?php endif; ?>
 	<tr>
 		<td>PHP Memory limit</td>
 		<td><?php echo function_exists('ini_get') ? htmlentities(ini_get('memory_limit')) : 'N/A' ?></td>
@@ -190,12 +236,32 @@ if (!$isFrontend)
 	?></pre>
 
 <?php
-if (!include_once(JPATH_ADMINISTRATOR . '/components/com_admin/models/sysinfo.php'))
+if (version_compare(JVERSION, '3.999.999', 'le'))
 {
-	return;
+	if (!include_once(JPATH_ADMINISTRATOR . '/components/com_admin/models/sysinfo.php'))
+	{
+		return;
+	}
+
+	$model       = new AdminModelSysInfo();
 }
-$model       = new AdminModelSysInfo();
+else
+{
+	try
+	{
+		/** @var MVCFactoryInterface $factory */
+		$factory = $app->bootComponent('com_admin')->getMVCFactory();
+		/** @var \Joomla\Component\Admin\Administrator\Model\SysinfoModel $model */
+		$model = $factory->createModel('Sysinfo', 'Administrator');
+	}
+	catch (Exception $e)
+	{
+		return;
+	}
+}
+
 $directories = $model->getDirectory();
+
 try
 {
 	$extensions = $model->getExtensions();
@@ -204,6 +270,7 @@ catch (Exception $e)
 {
 	$extension = [];
 }
+
 $phpSettings = $model->getPhpSettings();
 $hasPHPInfo  = $model->phpinfoEnabled();
 ?>

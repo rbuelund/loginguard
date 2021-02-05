@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -21,7 +21,7 @@ use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the captive login view
@@ -50,6 +50,8 @@ class Captive extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['captive', 'validate']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**
@@ -70,7 +72,7 @@ class Captive extends Controller
 		// If we're already logged in go to the site's home page
 		if ($this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard') == 1)
 		{
-			$url = JRoute::_('index.php?option=com_loginguard&task=methods.display', false);
+			$url = JRoute::_('index.php?option=com_loginguard&view=Methods', false);
 			$this->setRedirect($url);
 
 			return;
@@ -209,7 +211,7 @@ class Captive extends Controller
 			]);
 
 			// The code is wrong. Display an error and go back.
-			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=captive&record_id=' . $record_id, false);
+			$captiveURL = JRoute::_('index.php?option=com_loginguard&view=Captive&record_id=' . $record_id, false);
 			$message    = JText::_('COM_LOGINGUARD_ERR_INVALID_CODE');
 			$this->setRedirect($captiveURL, $message, 'error');
 

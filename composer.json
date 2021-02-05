@@ -6,7 +6,7 @@
   "authors": [
     {
       "name": "Nicholas K. Dionysopoulos",
-      "homepage": "https://www.AkeebaBackup.com",
+      "homepage": "https://www.akeeba.com",
       "role": "Lead Developer"
     }
   ],
@@ -14,9 +14,9 @@
     "vendor-dir": "component/backend/vendor"
   },
   "require": {
-    "php": "^7.1",
+    "php": "^7.2",
     "ext-json": "*",
-    "web-auth/webauthn-lib": "^1.0.0",
-    "zendframework/zend-diactoros": "2.1.1"
+    "web-auth/webauthn-lib": "^2.0.0",
+    "laminas/laminas-diactoros": "^2.3"
   }
 }

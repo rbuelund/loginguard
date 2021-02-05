@@ -32,4 +32,3 @@ class RawResponse implements Response
 	}
 
 }
-

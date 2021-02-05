@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -21,7 +21,7 @@ use Joomla\CMS\User\User as JUser;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the method edit page
@@ -50,6 +50,8 @@ class Method extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList(['add', 'edit', 'regenbackupcodes', 'delete', 'save']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**
@@ -147,7 +149,7 @@ class Method extends Controller
 		$backupCodesRecord = $model->getBackupCodesRecord($user);
 
 		// Redirect
-		$redirectUrl = 'index.php?option=com_loginguard&task=method.edit&user_id=' . $user_id . '&id=' . $backupCodesRecord->id;
+		$redirectUrl = 'index.php?option=com_loginguard&view=Method&task=edit&user_id=' . $user_id . '&id=' . $backupCodesRecord->id;
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -200,7 +202,7 @@ class Method extends Controller
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -232,7 +234,7 @@ class Method extends Controller
 		$this->_assertCanEdit($user);
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))
@@ -271,7 +273,7 @@ class Method extends Controller
 		catch (RuntimeException $e)
 		{
 			// Go back to the edit page
-			$nonSefUrl = 'index.php?option=com_loginguard&task=method.';
+			$nonSefUrl = 'index.php?option=com_loginguard&view=Method&task=';
 
 			if ($id)
 			{
@@ -319,7 +321,7 @@ class Method extends Controller
 		catch (Exception $e)
 		{
 			// Go back to the edit page
-			$nonSefUrl = 'index.php?option=com_loginguard&task=method.';
+			$nonSefUrl = 'index.php?option=com_loginguard&view=Method&task=';
 
 			if ($id)
 			{
@@ -354,7 +356,6 @@ class Method extends Controller
 	 *
 	 * @return  \Akeeba\LoginGuard\Site\Model\Tfa  The loaded record
 	 * @since   2.0.0
-	 *
 	 */
 	private function _assertValidRecordId($id, JUser $user = null)
 	{
@@ -384,9 +385,8 @@ class Method extends Controller
 	 * @param   JUser|User  $user  User record. Null to use current user.
 	 *
 	 * @return  void
-	 * @since   2.0.0
-	 *
 	 * @throws  RuntimeException  When the user is a guest (not logged in)
+	 * @since   2.0.0
 	 */
 	private function _assertCanEdit($user = null)
 	{

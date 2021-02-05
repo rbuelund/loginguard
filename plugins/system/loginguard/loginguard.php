@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,7 +16,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard System Plugin
@@ -60,11 +60,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -96,7 +96,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// PHP version check
-		$this->enabled = version_compare(PHP_VERSION, '7.1.0', 'ge');
+		$this->enabled = version_compare(PHP_VERSION, '7.2.0', 'ge');
 
 		// Parse settings
 		$this->neverTSVUserGroups = $this->container->params->get('neverTSVUserGroups', []);
@@ -129,8 +129,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * PHP Reflection to detect the offending Joomla! Privacy Consent system plugin and snuff it out before it can issue
 	 * its redirections. I invented captive login, I know how to work around it.
 	 *
-	 * @since   3.0.3
 	 * @throws  Exception
+	 * @since   3.0.3
 	 */
 	public function onAfterInitialise()
 	{
@@ -144,9 +144,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		 * in the real world which, as we know, is not the case. No problem. I've made a career working around the
 		 * Joomla! core, haven't I?
 		 */
-		if (
-			($this->willNeedRedirect() || ($option == 'com_loginguard'))
-			&& version_compare(JVERSION, '3.8.999', 'gt'))
+		if ($this->willNeedRedirect() || ($option == 'com_loginguard'))
 		{
 			$this->snuffJoomlaPrivacyConsent();
 		}
@@ -164,17 +162,6 @@ class PlgSystemLoginguard extends CMSPlugin
 	{
 		if (!$this->willNeedRedirect())
 		{
-			return;
-		}
-
-		// Get the session objects
-		try
-		{
-			$session = Factory::getSession();
-		}
-		catch (Exception $e)
-		{
-			// Can't get access to the session? Must be under CLI which is not supported.
 			return;
 		}
 
@@ -205,34 +192,36 @@ class PlgSystemLoginguard extends CMSPlugin
 		if ($needsTFA && !$disabledTSV)
 		{
 			// Save the current URL, but only if we haven't saved a URL or if the saved URL is NOT internal to the site.
-			$return_url = $session->get('return_url', '', 'com_loginguard');
+			$return_url = $this->container->platform->getSessionVar('return_url', '', 'com_loginguard');
 
 			if (empty($return_url) || !Uri::isInternal($return_url))
 			{
-				$session->set('return_url', Uri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment')), 'com_loginguard');
+				$this->container->platform->setSessionVar('return_url', Uri::getInstance()->toString([
+					'scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment',
+				]), 'com_loginguard');
 			}
 
 			// Redirect
-			$url = Route::_('index.php?option=com_loginguard&view=captive', false);
+			$url = Route::_('index.php?option=com_loginguard&view=Captive', false);
 			$app->redirect($url, 307);
 
 			return;
 		}
 
 		// If we're here someone just logged in but does not have TFA set up. Just flag him as logged in and continue.
-		$session->set('tfa_checked', 1, 'com_loginguard');
+		$this->container->platform->setSessionVar('tfa_checked', 1, 'com_loginguard');
 
 		// If we don't have TFA set up yet AND the user plugin had set up a redirection we will honour it
-		$redirectionUrl = $session->get('postloginredirect', null, 'com_loginguard');
+		$redirectionUrl = $this->container->platform->getSessionVar('postloginredirect', null, 'com_loginguard');
 
 		// If the user is in a group that requires TFA we will redirect them to the setup page
 		if (!$needsTFA && $mandatoryTSV)
 		{
 			// First unset the flag to make sure the redirection will apply until they conform to the mandatory TFA
-			$session->set('tfa_checked', 0, 'com_loginguard');
+			$this->container->platform->setSessionVar('tfa_checked', 0, 'com_loginguard');
 
 			// Now set a flag which forces rechecking TSV for this user
-			$session->set('recheck_mandatory_tsv', 1, 'com_loginguard');
+			$this->container->platform->setSessionVar('recheck_mandatory_tsv', 1, 'com_loginguard');
 
 			// Then redirect them to the setup page
 			$this->redirectToTSVSetup();
@@ -240,7 +229,7 @@ class PlgSystemLoginguard extends CMSPlugin
 
 		if (!$needsTFA && $redirectionUrl && !$disabledTSV)
 		{
-			$session->set('postloginredirect', null, 'com_loginguard');
+			$this->container->platform->setSessionVar('postloginredirect', null, 'com_loginguard');
 
 			Factory::getApplication()->redirect($redirectionUrl);
 		}
@@ -256,9 +245,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	public function onUserAfterLogin($options)
 	{
 		// Always reset the browser ID to avoid session poisoning attacks
-		$session = Factory::getSession();
-		$session->set('browserId', null, 'com_loginguard');
-		$session->set('browserIdCodeLoaded', false, 'com_loginguard');
+		$this->container->platform->setSessionVar('browserId', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('browserIdCodeLoaded', false, 'com_loginguard');
 
 		// Should I show 2SV even on silent logins? Default: 1 (yes, show)
 		$switch = $this->params->get('2svonsilent', 1);
@@ -284,7 +272,43 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// Set the flag indicating that 2SV is already checked.
-		$session->set('tfa_checked', 1, 'com_loginguard');
+		$this->container->platform->setSessionVar('tfa_checked', 1, 'com_loginguard');
+	}
+
+	/**
+	 * Checks if we are running under a CLI script or inside an administrator session
+	 *
+	 * @return  array
+	 *
+	 * @throws  Exception
+	 */
+	protected function isCliAdmin()
+	{
+		$isAdmin = false;
+
+		try
+		{
+			if (is_null(Factory::$application))
+			{
+				$isCLI = true;
+			}
+			else
+			{
+				$app   = Factory::getApplication();
+				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
+			}
+		}
+		catch (\Exception $e)
+		{
+			$isCLI = true;
+		}
+
+		if (!$isCLI && Factory::$application)
+		{
+			$isAdmin = Factory::getApplication()->isClient('administrator');
+		}
+
+		return [$isCLI, $isAdmin];
 	}
 
 	/**
@@ -340,49 +364,13 @@ class PlgSystemLoginguard extends CMSPlugin
 	}
 
 	/**
-	 * Checks if we are running under a CLI script or inside an administrator session
-	 *
-	 * @return  array
-	 *
-	 * @throws  Exception
-	 */
-	protected function isCliAdmin()
-	{
-		$isAdmin = false;
-
-		try
-		{
-			if (is_null(Factory::$application))
-			{
-				$isCLI = true;
-			}
-			else
-			{
-				$app   = Factory::getApplication();
-				$isCLI = $app instanceof \Exception || $app instanceof CliApplication;
-			}
-		}
-		catch (\Exception $e)
-		{
-			$isCLI = true;
-		}
-
-		if (!$isCLI && Factory::$application)
-		{
-			$isAdmin = Factory::getApplication()->isClient('administrator');
-		}
-
-		return [$isCLI, $isAdmin];
-	}
-
-	/**
 	 * Does the user belong in a group indicating TSV should be disabled for them?
 	 *
-	 * @param   JUser|User $user
+	 * @param   User  $user
 	 *
 	 * @return  bool
 	 */
-	private function disabledTSV($user)
+	private function disabledTSV(User $user)
 	{
 		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
 		$userGroups             = $user->getAuthorisedGroups();
@@ -394,11 +382,11 @@ class PlgSystemLoginguard extends CMSPlugin
 	/**
 	 * Does the user belong in a group indicating TSV is required for them?
 	 *
-	 * @param   JUser|User $user
+	 * @param   User  $user
 	 *
 	 * @return  bool
 	 */
-	private function mandatoryTSV($user)
+	private function mandatoryTSV(User $user)
 	{
 		// If the user belongs to a "never check for TSV" user group they are exempt from TSV
 		$userGroups             = $user->getAuthorisedGroups();
@@ -444,26 +432,15 @@ class PlgSystemLoginguard extends CMSPlugin
 	 *
 	 * @return  bool
 	 *
+	 * @throws  Exception
 	 * @since   3.0.4
 	 *
-	 * @throws  Exception
 	 */
 	private function willNeedRedirect()
 	{
 		// If the requirements are not met do not proceed
 		if (!$this->enabled)
 		{
-			return false;
-		}
-
-		// Get the session objects
-		try
-		{
-			$session = Factory::getSession();
-		}
-		catch (Exception $e)
-		{
-			// Can't get access to the session? Must be under CLI which is not supported.
 			return false;
 		}
 
@@ -474,8 +451,8 @@ class PlgSystemLoginguard extends CMSPlugin
 		 * TSV enabled we have the recheck flag. This prevents the user from enabling and immediately disabling TSV,
 		 * circumventing the requirement for TSV.
 		 */
-		$tfaChecked = $session->get('tfa_checked', 0, 'com_loginguard');
-		$tfaRecheck = $session->get('recheck_mandatory_tsv', 0, 'com_loginguard');
+		$tfaChecked = $this->container->platform->getSessionVar('tfa_checked', 0, 'com_loginguard');
+		$tfaRecheck = $this->container->platform->getSessionVar('recheck_mandatory_tsv', 0, 'com_loginguard');
 
 		if ($tfaChecked && !$tfaRecheck)
 		{
@@ -561,9 +538,19 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// We only kick in if the option and task are not the ones of the captive page
-		$option = strtolower($app->input->getCmd('option'));
-		$task = strtolower($app->input->getCmd('task'));
-		$view = strtolower($app->input->getCmd('view'));
+		$fallbackView = version_compare(JVERSION, '3.999.999', 'ge')
+			? $app->input->getCmd('controller', '')
+			: '';
+		$option       = strtolower($app->input->getCmd('option'));
+		$task         = strtolower($app->input->getCmd('task'));
+		$view         = strtolower($app->input->getCmd('view', $fallbackView));
+
+		if (strpos($task, '.') !== false)
+		{
+			$parts = explode('.', $task);
+			$view  = ($parts[0] ?? $view) ?: $view;
+			$task  = ($parts[1] ?? $task) ?: $task;
+		}
 
 		if ($option == 'com_loginguard')
 		{
@@ -584,7 +571,7 @@ class PlgSystemLoginguard extends CMSPlugin
 			}
 
 			// These views are only allowed if you do not have 2SV enabled *or* if you have already logged in.
-			if (!$needsTFA && in_array($view, array('ajax', 'method', 'methods')))
+			if (!$needsTFA && in_array($view, ['ajax', 'method', 'methods']))
 			{
 				return false;
 			}
@@ -629,8 +616,8 @@ class PlgSystemLoginguard extends CMSPlugin
 	 * most importantly, how it can possibly break. don't go about merrily copying this code if you do not understand
 	 * how Joomla event dispatching works. You'll break shit and I'm not to blame. Thank you!
 	 *
-	 * @since  3.0.4
 	 * @throws ReflectionException
+	 * @since  3.0.4
 	 */
 	private function snuffJoomlaPrivacyConsent()
 	{
@@ -649,9 +636,9 @@ class PlgSystemLoginguard extends CMSPlugin
 		}
 
 		// Get the events dispatcher and find which observer is the offending plugin
-		$dispatcher     = JEventDispatcher::getInstance();
-		$refDispatcher  = new ReflectionObject($dispatcher);
-		$refObservers   = $refDispatcher->getProperty('_observers');
+		$dispatcher    = JEventDispatcher::getInstance();
+		$refDispatcher = new ReflectionObject($dispatcher);
+		$refObservers  = $refDispatcher->getProperty('_observers');
 		$refObservers->setAccessible(true);
 		$observers = $refObservers->getValue($dispatcher);
 
@@ -683,7 +670,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		$refMethods->setAccessible(true);
 		$methods = $refMethods->getValue($dispatcher);
 
-		$methods['onafterroute'] = array_filter($methods['onafterroute'], function($id) use ($jConsentObserverId) {
+		$methods['onafterroute'] = array_filter($methods['onafterroute'], function ($id) use ($jConsentObserverId) {
 			return $id != $jConsentObserverId;
 		});
 		$refMethods->setValue($dispatcher, $methods);
@@ -728,7 +715,7 @@ class PlgSystemLoginguard extends CMSPlugin
 		// If all else fails, use our default list (Joomla's Remember Me cookie and Akeeba SocialLogin)
 		if (empty($silentResponses))
 		{
-			$silentResponses = array('cookie', 'sociallogin');
+			$silentResponses = ['cookie', 'sociallogin', 'passwordless'];
 		}
 
 		// Is it a silent login after all?

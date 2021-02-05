@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,7 @@ namespace Akeeba\LoginGuard\Site\Helper;
 use FOF30\Container\Container;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Two Factor Authentication helper class for Akeeba LoginGuard

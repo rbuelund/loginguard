@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,15 +11,15 @@ namespace Akeeba\LoginGuard\Webauthn\PluginTraits;
 
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
-use Akeeba\LoginGuard\Webauthn\CredentialRepository;
 use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Exception;
+use FOF30\Container\Container;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Input\Input;
 use RuntimeException;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaSaveSetup
 {
@@ -29,8 +29,8 @@ trait TfaSaveSetup
 	 * message of the exception will be displayed to the user. If the record does not correspond to your plugin return
 	 * an empty array.
 	 *
-	 * @param   Tfa     $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   Input   $input   The user input you are going to take into account.
+	 * @param   Tfa    $record  The #__loginguard_tfa record currently selected by the user.
+	 * @param   Input  $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
@@ -53,8 +53,8 @@ trait TfaSaveSetup
 		$this->loadComposerDependencies();
 
 		$code                = $input->get('code', null, 'base64');
-		$session             = Factory::getSession();
-		$registrationRequest = $session->get('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
+		$container           = Container::getInstance('com_loginguard');
+		$registrationRequest = $container->platform->getSessionVar('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
 
 		// If there was no registration request BUT there is a registration response throw an error
 		if (empty($registrationRequest) && !empty($code))
@@ -71,7 +71,7 @@ trait TfaSaveSetup
 		// In any other case try to authorize the registration
 		try
 		{
-			$attestedCredentialData = Credentials::validateAuthenticationData($code);
+			$publicKeyCredentialSource = Credentials::validateAuthenticationData($code);
 		}
 		catch (Exception $err)
 		{
@@ -79,18 +79,16 @@ trait TfaSaveSetup
 		}
 		finally
 		{
-			$session->set('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
-			$session->set('registration_user_id', null, 'plg_loginguard_webauthn');
+			// Unset the request data from the session.
+			$container->platform->setSessionVar('publicKeyCredentialCreationOptions', null, 'plg_loginguard_webauthn');
+			$container->platform->setSessionVar('registration_user_id', null, 'plg_loginguard_webauthn');
 		}
 
-		// The code is valid. Unset the request data from the session and update the options
-		$options = [
-			'credentialId' => base64_encode($attestedCredentialData->getCredentialId()),
-			'attested'     => json_encode($attestedCredentialData),
+		// Return the configuration to be serialized
+		return [
+			'credentialId' => base64_encode($publicKeyCredentialSource->getAttestedCredentialData()->getCredentialId()),
+			'pubkeysource' => json_encode($publicKeyCredentialSource),
 			'counter'      => 0,
 		];
-
-		// Return the configuration to be serialized
-		return $options;
 	}
 }

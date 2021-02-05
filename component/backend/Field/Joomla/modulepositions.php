@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@ use Joomla\CMS\Form\FormHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 if (class_exists('JFormFieldModulePositions'))
 {
@@ -74,7 +74,7 @@ class JFormFieldModulePositions extends JFormFieldGroupedList
 				foreach ($position['items'] as $item)
 				{
 					$item             = (array) $item;
-					$disable          = isset($item['disable']) ? $item['disable'] : false;
+					$disable          = $item['disable'] ?? false;
 					$groups[$label][] = HTMLHelper::_('select.option', $item['value'], $item['text'], 'value', 'text', $disable);
 				}
 			}

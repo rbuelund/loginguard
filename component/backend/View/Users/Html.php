@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,7 +10,7 @@ namespace Akeeba\LoginGuard\Admin\View\Users;
 // Protect from unauthorized access
 use FOF30\View\DataView\Html as BaseView;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Users view

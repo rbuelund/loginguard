@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -18,7 +18,7 @@ use Joomla\CMS\User\User;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Two Step Verification methods list page's model
@@ -119,6 +119,11 @@ class Methods extends Model
 	 */
 	public function formatRelative($dateTimeText)
 	{
+		if (empty($dateTimeText))
+		{
+			return '&ndash;';
+		}
+
 		// The timestamp is given in UTC. Make sure Joomla! parses it as such.
 		$utcTimeZone = new DateTimeZone('UTC');
 		$jDate       = $this->container->platform->getDate($dateTimeText, $utcTimeZone);

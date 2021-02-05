@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,18 +9,21 @@ use Akeeba\LoginGuard\Admin\Model\Tfa;
 use FOF30\Container\Container;
 use FOF30\Encrypt\Totp;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Authentication Code by PushBullet"
  *
- * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30 seconds.
+ * Requires entering a 6-digit code sent to the user through PushBullet. These codes change automatically every 30
+ * seconds.
  */
 class PlgLoginguardPushbullet extends CMSPlugin
 {
@@ -65,11 +68,11 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 * Constructor. Loads the language files as well.
 	 *
 	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An optional associative array of configuration settings.
+	 * @param   array    $config   An optional associative array of configuration settings.
 	 *                             Recognized key values include 'name', 'group', 'params', 'language'
 	 *                             (this list is not meant to be comprehensive).
 	 */
-	public function __construct($subject, array $config = array())
+	public function __construct($subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 
@@ -108,13 +111,13 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
 
-		return array(
+		return [
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
+			'display'       => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SHORTINFO'),
+			'shortinfo'     => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'         => 'media/plg_loginguard_pushbullet/images/pushbullet.png',
 			// Are we allowed to disable it?
@@ -122,8 +125,8 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			// Are we allowed to have multiple instances of it per user?
 			'allowMultiple' => false,
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'      => $helpURL,
+		];
 	}
 
 	/**
@@ -137,23 +140,22 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 */
 	public function onLoginGuardTfaGetSetup($record)
 	{
-		$helpURL  = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
+		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
 
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
-		$token   = isset($options['token']) ? $options['token'] : '';
+		$key     = $options['key'] ?? '';
+		$token   = $options['token'] ?? '';
 
 		// If there's a key or toekn in the session use that instead.
-		$session = Factory::getSession();
-		$key     = $session->get('pushbullet.key', $key, 'com_loginguard');
-		$token   = $session->get('pushbullet.token', $token, 'com_loginguard');
+		$key     = $this->container->platform->getSessionVar('pushbullet.key', $key, 'com_loginguard');
+		$token   = $this->container->platform->getSessionVar('pushbullet.token', $token, 'com_loginguard');
 
 		// Initialize objects
 		$totp = new Totp();
@@ -162,10 +164,10 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		if (empty($key))
 		{
 			$key = $totp->generateSecret();
-			$session->set('pushbullet.key', $key, 'com_loginguard');
+			$this->container->platform->setSessionVar('pushbullet.key', $key, 'com_loginguard');
 		}
 
-		$session->set('pushbullet.user_id', $record->user_id, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.user_id', $record->user_id, 'com_loginguard');
 
 		// If there is no token we need to show the OAuth2 button
 		if (empty($token))
@@ -175,17 +177,17 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			include $layoutPath;
 			$html = ob_get_clean();
 
-			return array(
+			return [
 				// Default title if you are setting up this TFA method for the first time
-				'default_title'  => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
+				'default_title'  => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
 				// Custom HTML to display above the TFA setup form
-				'pre_message'    => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_INSTRUCTIONS'),
+				'pre_message'    => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_INSTRUCTIONS'),
 				// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 				'table_heading'  => '',
 				// Any tabular data to display (label => custom HTML). See above
-				'tabular_data'   => array(),
+				'tabular_data'   => [],
 				// Hidden fields to include in the form (name => value)
-				'hidden_data'    => array(),
+				'hidden_data'    => [],
 				// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 				'field_type'     => 'custom',
 				// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
@@ -205,37 +207,37 @@ class PlgLoginguardPushbullet extends CMSPlugin
 				// Custom HTML to display below the TFA setup form
 				'post_message'   => '',
 				// URL for help content
-				'help_url' => $helpURL,
-			);
+				'help_url'       => $helpURL,
+			];
 
 		}
 
 		// We have a token and a key. Send a push message with a new code and ask the user to enter it.
 		$this->sendCode($key, $token);
 
-		return array(
+		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
 			'pre_message'    => '',
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => array(),
+			'tabular_data'   => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => array(
+			'hidden_data'    => [
 				'key' => $key,
-			),
+			],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'     => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'     => 'text',
+			'input_type'     => 'number',
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'    => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_LABEL'),
+			'label'          => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -245,8 +247,8 @@ class PlgLoginguardPushbullet extends CMSPlugin
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
 			// URL for help content
-			'help_url' => $helpURL,
-		);
+			'help_url'       => $helpURL,
+		];
 	}
 
 	/**
@@ -256,49 +258,47 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input     $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
-
-		$session = Factory::getSession();
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
-		$token   = isset($options['token']) ? $options['token'] : '';
+		$key     = $options['key'] ?? '';
+		$token   = $options['token'] ?? '';
 
 		// If there is no key in the options fetch one from the session
 		if (empty($key))
 		{
-			$key = $session->get('pushbullet.key', null, 'com_loginguard');
+			$key = $this->container->platform->getSessionVar('pushbullet.key', null, 'com_loginguard');
 		}
 
 		// If there is no key in the options fetch one from the session
 		if (empty($token))
 		{
-			$token = $session->get('pushbullet.token', null, 'com_loginguard');
+			$token = $this->container->platform->getSessionVar('pushbullet.token', null, 'com_loginguard');
 		}
 
 		// If there is still no key in the options throw an error
 		if (empty($key))
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		// If there is still no token in the options throw an error
 		if (empty($token))
 		{
-			throw new RuntimeException(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
 		/**
@@ -313,22 +313,22 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// In any other case validate the submitted code
-		$totp = new Totp();
+		$totp    = new Totp();
 		$isValid = $totp->checkCode($key, $code);
 
 		if (!$isValid)
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_PUSHBULLET_ERR_INVALID_CODE'), 500);
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_PUSHBULLET_ERR_INVALID_CODE'), 500);
 		}
 
 		// The code is valid. Unset the key from the session.
-		$session->set('totp.key', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('totp.key', null, 'com_loginguard');
 
 		// Return the configuration to be serialized
-		return array(
+		return [
 			'key'   => $key,
-			'token' => $token
-		);
+			'token' => $token,
+		];
 	}
 
 	/**
@@ -344,45 +344,45 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
 		{
-			return array();
+			return [];
 		}
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key     = isset($options['key']) ? $options['key'] : '';
-		$token   = isset($options['token']) ? $options['token'] : '';
+		$key     = $options['key'] ?? '';
+		$token   = $options['token'] ?? '';
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
 
 		// Send a push message with a new code and ask the user to enter it.
 		$this->sendCode($key, $token);
 
-		return array(
+		return [
 			// Custom HTML to display above the TFA form
 			'pre_message'  => '',
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'   => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'   => 'text',
+			'input_type'   => 'number',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_PLACEHOLDER'),
+			'placeholder'  => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_LABEL'),
+			'label'        => Text::_('PLG_LOGINGUARD_PUSHBULLET_LBL_SETUP_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
 			'post_message' => '',
 			// URL for help content
 			'help_url'     => $helpURL,
-		);
+		];
 	}
 
 	/**
 	 * Validates the Two Factor Authentication code submitted by the user in the captive Two Step Verification page. If
 	 * the record does not correspond to your plugin return FALSE.
 	 *
-	 * @param   Tfa       $record  The TFA method's record you're validatng against
-	 * @param   User      $user    The user record
-	 * @param   string    $code    The submitted code
+	 * @param   Tfa     $record  The TFA method's record you're validatng against
+	 * @param   User    $user    The user record
+	 * @param   string  $code    The submitted code
 	 *
 	 * @return  bool
 	 */
@@ -402,7 +402,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		// Load the options from the record (if any)
 		$options = $this->_decodeRecordOptions($record);
-		$key = isset($options['key']) ? $options['key'] : '';
+		$key     = $options['key'] ?? '';
 
 		// If there is no key in the options throw an error
 		if (empty($key))
@@ -412,6 +412,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 
 		// Check the TFA code for validity
 		$totp = new Totp();
+
 		return $totp->checkCode($key, $code);
 	}
 
@@ -424,10 +425,10 @@ class PlgLoginguardPushbullet extends CMSPlugin
 	 */
 	private function _decodeRecordOptions($record)
 	{
-		$options = array(
+		$options = [
 			'key'   => '',
-			'token' => ''
-		);
+			'token' => '',
+		];
 
 		if (!empty($record->options))
 		{
@@ -460,25 +461,25 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// Get the API objects
-		$totp = new Totp();
+		$totp       = new Totp();
 		$pushBullet = new LoginGuardPushbulletApi($token);
 
 		// Create the list of variable replacements
 		$code = $totp->getCode($key);
 
-		$replacements = array(
+		$replacements = [
 			'[CODE]'     => $code,
 			'[SITENAME]' => Factory::getConfig()->get('sitename'),
 			'[SITEURL]'  => Uri::base(),
 			'[USERNAME]' => $user->username,
 			'[EMAIL]'    => $user->email,
 			'[FULLNAME]' => $user->name,
-		);
+		];
 
 		// Get the title and body of the push message
-		$subject = JText::_('PLG_LOGINGUARD_PUSHBULLET_PUSH_TITLE');
+		$subject = Text::_('PLG_LOGINGUARD_PUSHBULLET_PUSH_TITLE');
 		$subject = str_ireplace(array_keys($replacements), array_values($replacements), $subject);
-		$message = JText::_('PLG_LOGINGUARD_PUSHBULLET_PUSH_MESSAGE');
+		$message = Text::_('PLG_LOGINGUARD_PUSHBULLET_PUSH_MESSAGE');
 		$message = str_ireplace(array_keys($replacements), array_values($replacements), $message);
 
 		// Push the message to all of the user's devices
@@ -536,7 +537,7 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		// Do I have to redirect to the backend?
 		if ($backend == 1)
 		{
-			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&task=callback.callback&method=pushbullet&token=' . $token;
+			$redirectURL = Uri::base() . 'administrator/index.php?option=com_loginguard&view=Callback&task=callback&method=pushbullet&token=' . $token;
 			$app->redirect($redirectURL);
 
 			// Just to make IDEs happy. The application is closed above during the redirection.
@@ -544,16 +545,15 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		}
 
 		// Set the token to the session
-		$session = Factory::getSession();
-		$session->set('pushbullet.token', $token, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.token', $token, 'com_loginguard');
 
 		// Get the User ID for the editor page
-		$user_id = $session->get('pushbullet.user_id', null, 'com_loginguard');
-		$session->set('pushbullet.user_id', null, 'com_loginguard');
+		$user_id = $this->container->platform->getSessionVar('pushbullet.user_id', null, 'com_loginguard');
+		$this->container->platform->setSessionVar('pushbullet.user_id', null, 'com_loginguard');
 
 		// Redirect to the editor page
-		$userPart = empty($user_id) ? '' : ('&user_id='. $user_id);
-		$redirectURL = 'index.php?option=com_loginguard&task=method.add&method=pushbullet' . $userPart;
+		$userPart    = empty($user_id) ? '' : ('&user_id=' . $user_id);
+		$redirectURL = 'index.php?option=com_loginguard&view=Method&task=add&method=pushbullet' . $userPart;
 
 		$app->redirect($redirectURL);
 

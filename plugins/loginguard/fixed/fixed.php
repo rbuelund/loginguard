@@ -1,17 +1,19 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Prevent direct access
 use Akeeba\LoginGuard\Admin\Model\Tfa;
 use Joomla\CMS\Crypt\Crypt;
+use Joomla\CMS\Input\Input;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Akeeba LoginGuard Plugin for Two Step Verification method "Fixed"
@@ -57,9 +59,9 @@ class PlgLoginguardFixed extends CMSPlugin
 			// Internal code of this TFA method
 			'name'          => $this->tfaMethodName,
 			// User-facing name for this TFA method
-			'display'       => JText::_('PLG_LOGINGUARD_FIXED_LBL_DISPLAYEDAS'),
+			'display'       => Text::_('PLG_LOGINGUARD_FIXED_LBL_DISPLAYEDAS'),
 			// Short description of this TFA method displayed to the user
-			'shortinfo'     => JText::_('PLG_LOGINGUARD_FIXED_LBL_SHORTINFO'),
+			'shortinfo'     => Text::_('PLG_LOGINGUARD_FIXED_LBL_SHORTINFO'),
 			// URL to the logo image for this method
 			'image'         => 'media/plg_loginguard_fixed/images/fixed.svg',
 			// Are we allowed to disable it?
@@ -91,19 +93,19 @@ class PlgLoginguardFixed extends CMSPlugin
 
 		return array(
 			// Custom HTML to display above the TFA form
-			'pre_message'  => JText::_('PLG_LOGINGUARD_FIXED_LBL_PREMESSAGE'),
+			'pre_message'  => Text::_('PLG_LOGINGUARD_FIXED_LBL_PREMESSAGE'),
 			// How to render the TFA code field. "input" (HTML input element) or "custom" (custom HTML)
 			'field_type'   => 'input',
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
 			'input_type'   => 'password',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'  => JText::_('PLG_LOGINGUARD_FIXED_LBL_PLACEHOLDER'),
+			'placeholder'  => Text::_('PLG_LOGINGUARD_FIXED_LBL_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'        => JText::_('PLG_LOGINGUARD_FIXED_LBL_LABEL'),
+			'label'        => Text::_('PLG_LOGINGUARD_FIXED_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'         => '',
 			// Custom HTML to display below the TFA form
-			'post_message' => JText::_('PLG_LOGINGUARD_FIXED_LBL_POSTMESSAGE'),
+			'post_message' => Text::_('PLG_LOGINGUARD_FIXED_LBL_POSTMESSAGE'),
 			// URL for help content
 			'help_url'     => $helpURL,
 		);
@@ -143,9 +145,9 @@ class PlgLoginguardFixed extends CMSPlugin
 		 */
 		return array(
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => JText::_('PLG_LOGINGUARD_FIXED_LBL_DEFAULTTITLE'),
+			'default_title'  => Text::_('PLG_LOGINGUARD_FIXED_LBL_DEFAULTTITLE'),
 			// Custom HTML to display above the TFA setup form
-			'pre_message'    => JText::_('PLG_LOGINGUARD_FIXED_LBL_SETUP_PREMESSAGE'),
+			'pre_message'    => Text::_('PLG_LOGINGUARD_FIXED_LBL_SETUP_PREMESSAGE'),
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
 			'table_heading'  => '',
 			// Any tabular data to display (label => custom HTML). See above
@@ -159,9 +161,9 @@ class PlgLoginguardFixed extends CMSPlugin
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
 			'input_value'    => $options->fixed_code,
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => JText::_('PLG_LOGINGUARD_FIXED_LBL_PLACEHOLDER'),
+			'placeholder'    => Text::_('PLG_LOGINGUARD_FIXED_LBL_PLACEHOLDER'),
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => JText::_('PLG_LOGINGUARD_FIXED_LBL_LABEL'),
+			'label'          => Text::_('PLG_LOGINGUARD_FIXED_LBL_LABEL'),
 			// Custom HTML. Only used when field_type = custom.
 			'html'           => '',
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
@@ -169,7 +171,7 @@ class PlgLoginguardFixed extends CMSPlugin
 			// onclick handler for the submit button (apply the TFA setup)?
 			'submit_onclick' => '',
 			// Custom HTML to display below the TFA setup form
-			'post_message'   => JText::_('PLG_LOGINGUARD_FIXED_LBL_SETUP_POSTMESSAGE'),
+			'post_message'   => Text::_('PLG_LOGINGUARD_FIXED_LBL_SETUP_POSTMESSAGE'),
 			// URL for help content
 			'help_url' => $helpURL,
 		);
@@ -182,13 +184,13 @@ class PlgLoginguardFixed extends CMSPlugin
 	 * an empty array.
 	 *
 	 * @param   stdClass  $record  The #__loginguard_tfa record currently selected by the user.
-	 * @param   JInput    $input   The user input you are going to take into account.
+	 * @param   Input    $input   The user input you are going to take into account.
 	 *
 	 * @return  array  The configuration data to save to the database
 	 *
 	 * @throws  RuntimeException  In case the validation fails
 	 */
-	public function onLoginGuardTfaSaveSetup($record, JInput $input)
+	public function onLoginGuardTfaSaveSetup($record, Input $input)
 	{
 		// Make sure we are actually meant to handle this method
 		if ($record->method != $this->tfaMethodName)
@@ -205,7 +207,7 @@ class PlgLoginguardFixed extends CMSPlugin
 		// Make sure the code is not empty
 		if (empty($code))
 		{
-			throw new RuntimeException(JText::_('PLG_LOGINGUARD_FIXED_ERR_EMPTYCODE'));
+			throw new RuntimeException(Text::_('PLG_LOGINGUARD_FIXED_ERR_EMPTYCODE'));
 		}
 
 		// Return the configuration to be serialized

@@ -18,11 +18,11 @@ use SMSApi\Proxy\Proxy;
  */
 abstract class AbstractAction
 {
-	const METHOD_GET    = 'GET';
-	const METHOD_POST   = 'POST';
-	const METHOD_DELETE = 'DELETE';
-	const METHOD_PUT    = 'PUT';
-	const METHOD_HEAD   = 'HEAD';
+	public const METHOD_GET    = 'GET';
+	public const METHOD_POST   = 'POST';
+	public const METHOD_DELETE = 'DELETE';
+	public const METHOD_PUT    = 'PUT';
+	public const METHOD_HEAD   = 'HEAD';
 
 	/**
 	 * @var Client
@@ -59,9 +59,6 @@ abstract class AbstractAction
 
 	protected $isContacts = false;
 
-	/**
-	 *
-	 */
 	function __construct()
 	{
 		$this->to  = new \ArrayObject();
@@ -279,7 +276,7 @@ abstract class AbstractAction
 
 			$this->handleError($data, $this->isContacts);
 
-			if ($this->getMethod() === self::METHOD_HEAD and $data['size'])
+			if ($this->getMethod() === self::METHOD_HEAD && $data['size'])
 			{
 				return $this->response(json_encode(array('size' => $data['size'])));
 			}
@@ -312,7 +309,7 @@ abstract class AbstractAction
 	{
 		if ($isContacts)
 		{
-			if ($data['code'] < 200 or $data['code'] > 299)
+			if ($data['code'] < 200 || $data['code'] > 299)
 			{
 				throw new ContactsException($data);
 			}

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,7 +16,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaGetSetup
 {
@@ -68,7 +68,7 @@ trait TfaGetSetup
 				'pathOnly'      => false,
 				'detectBrowser' => true,
 			], [
-				'defer' => false,
+				'defer' => true,
 				'async' => false,
 			]);
 
@@ -80,6 +80,8 @@ trait TfaGetSetup
 
 			// Load JS translations
 			Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
+
+			Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'setup', false);
 
 			// Save the U2F request to the session
 			$user                    = Factory::getUser();

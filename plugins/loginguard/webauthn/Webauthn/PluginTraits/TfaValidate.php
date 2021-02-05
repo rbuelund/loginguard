@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,7 +15,7 @@ use Akeeba\LoginGuard\Webauthn\Helper\Credentials;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaValidate
 {

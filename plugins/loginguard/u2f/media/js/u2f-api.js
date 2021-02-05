@@ -1,17 +1,12 @@
-/*
- * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU General Public License version 3, or later
+/*!
+ * Copyright 2014-2015 Google Inc. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file or at
+ * https://developers.google.com/open-source/licenses/bsd
+ *
+ * This file comes from the U2F API Poyfill retrieved from https://github.com/mastahyeti/u2f-api
  */
-
-//Copyright 2014-2015 Google Inc. All rights reserved.
-
-//Use of this source code is governed by a BSD-style
-//license that can be found in the LICENSE file or at
-//https://developers.google.com/open-source/licenses/bsd
-
-// This file comes from the U2F API Poyfill retrieved from https://github.com/mastahyeti/u2f-api
-
 /**
  * @fileoverview The U2F api.
  */

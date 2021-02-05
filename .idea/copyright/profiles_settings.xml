@@ -3,5 +3,13 @@
     <module2copyright>
       <element module="Copyright" copyright="LoginGuard" />
     </module2copyright>
+    <LanguageOptions name="JavaScript">
+      <option name="lenBefore" value="1" />
+    </LanguageOptions>
+    <LanguageOptions name="PHP">
+      <option name="fileTypeOverride" value="3" />
+      <option name="separateBefore" value="true" />
+      <option name="lenBefore" value="1" />
+    </LanguageOptions>
   </settings>
 </component>

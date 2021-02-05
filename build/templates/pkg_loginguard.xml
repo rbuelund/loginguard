@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ @package   AkeebaLoginGuard
-  ~ @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
-<extension version="3.8.0" type="package" method="upgrade">
+<extension version="3.9.0" type="package" method="upgrade">
     <name>Akeeba LoginGuard package</name>
     <version>##VERSION##</version>
     <creationDate>##DATE##</creationDate>
 
     <author>Akeeba Ltd</author>
-    <authorEmail>no-reply@akeebabackup.com</authorEmail>
-    <authorUrl>https://www.akeebabackup.com</authorUrl>
+    <authorEmail>no-reply@akeeba.com</authorEmail>
+    <authorUrl>https://www.akeeba.com</authorUrl>
 
     <packagename>loginguard</packagename>
-    <url>https://www.akeebabackup.com</url>
+    <url>https://www.akeeba.com</url>
     <packager>Akeeba Ltd</packager>
-    <packagerurl>https://www.akeebabackup.com</packagerurl>
+    <packagerurl>https://www.akeeba.com</packagerurl>
 
-    <copyright>Copyright (c)2016-2019 Akeeba Ltd</copyright>
+    <copyright>Copyright (c)2016-2021 Akeeba Ltd</copyright>
     <license>GNU GPL v3 or later</license>
 
     <description>Akeeba LoginGuard installation package v.##VERSION##</description>
@@ -54,6 +54,6 @@
 
     <!-- Update servers -->
     <updateservers>
-        <server type="extension" priority="1" name="Akeeba LoginGuard Updates">https://raw.githubusercontent.com/akeeba/loginguard/master/update/pkg_loginguard_updates.xml</server>
+        <server type="extension" priority="1" name="Akeeba LoginGuard Updates">https://cdn.akeeba.com/updates/pkgloginguard.xml</server>
     </updateservers>
 </extension>

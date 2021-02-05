@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,7 +15,7 @@ use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the Welcome page in the backend of the site
@@ -44,6 +44,9 @@ class Welcome extends Controller
 		}
 
 		parent::__construct($container, $config);
+
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**
@@ -65,6 +68,8 @@ class Welcome extends Controller
 	 */
 	public function welcome()
 	{
+		$this->getModel()->checkAndFixDatabase();
+
 		$this->display();
 	}
 

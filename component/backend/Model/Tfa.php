@@ -1,14 +1,14 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\LoginGuard\Admin\Model;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 use Akeeba\LoginGuard\Site\Model\BackupCodes;
 use FOF30\Container\Container;
@@ -26,7 +26,7 @@ use RuntimeException;
  * @property string $method
  * @property int    $default
  * @property string $created_on
- * @property string $last_user
+ * @property string $last_used
  * @property array  $options
  *
  * @method   $this  user_id($v)

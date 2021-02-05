@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,7 +16,7 @@ if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/inclu
 	throw new RuntimeException('This component requires FOF 3.0.');
 }
 
-class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
+class Com_LoginguardInstallerScript extends FOF30\Utils\InstallScript\Component
 {
 	/**
 	 * The component's name
@@ -37,14 +37,14 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumPHPVersion = '7.1.0';
+	protected $minimumPHPVersion = '7.2.0';
 
 	/**
 	 * The minimum Joomla! version required to install this extension
 	 *
 	 * @var   string
 	 */
-	protected $minimumJoomlaVersion = '3.8.0';
+	protected $minimumJoomlaVersion = '3.9.0';
 
 	/**
 	 * The maximum Joomla! version this extension can be installed on
@@ -105,6 +105,36 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 		{
 			define('AKEEBA_THIS_IS_INSTALLATION_FROM_SCRATCH', 1);
 		}
+	}
+
+	/** @inheritDoc */
+	public function preflight($type, $parent)
+	{
+		$ret = parent::preflight($type, $parent);
+
+		if (!$ret)
+		{
+			return $ret;
+		}
+
+		/**
+		 * Remove the vendor folder on update.
+		 *
+		 * The folder will be reinstalled right away. The reason I am removing it is that updated dependencies assume
+		 * they are installed on a clean slate (that's how Composer does it). If I kee the old files I cause all sorts
+		 * of problems.
+		 */
+		if ($type == 'update')
+		{
+			$this->removeFilesAndFolders([
+				'files'   => [],
+				'folders' => [
+					'administrator/components/com_loginguard/vendor',
+				],
+			]);
+		}
+
+		return true;
 	}
 
 	/**
@@ -179,8 +209,8 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 		<fieldset>
 			<p>
 				By installing this component you are implicitly accepting
-				<a href="https://www.akeebabackup.com/license.html">its license (GNU GPLv3)</a> and our
-				<a href="https://www.akeebabackup.com/privacy-policy.html">Terms of Service</a>,
+				<a href="https://www.akeeba.com/license.html">its license (GNU GPLv3)</a> and our
+				<a href="https://www.akeeba.com/privacy-policy.html">Terms of Service</a>,
 				including our Support Policy.
 			</p>
 		</fieldset>
@@ -197,7 +227,7 @@ class Com_LoginguardInstallerScript extends \FOF30\Utils\InstallScript
 		?>
 		<h2>Akeeba LoginGuard was uninstalled</h2>
 		<p>We are sorry that you decided to uninstall Akeeba LoginGuard. Please let us know why by using the <a
-			href="https://www.akeebabackup.com/contact-us.html" target="_blank">Contact Us form on our site</a>. We
+			href="https://www.akeeba.com/contact-us.html" target="_blank">Contact Us form on our site</a>. We
 			appreciate your feedback; it helps us develop better software!</p>
 		<?php
 	}

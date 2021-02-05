@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,7 +13,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Model for the Convert view
@@ -68,7 +68,7 @@ class Convert extends Model
 		// Loop all users with TFA
 		foreach ($users as $user)
 		{
-			list($otpMethod, $otpKey) = explode(':', $user->otpKey, 2);
+			[$otpMethod, $otpKey] = explode(':', $user->otpKey, 2);
 
 			$otpKey     = $this->decryptTFAString($secret, $otpKey);
 			$otep       = $this->decryptTFAString($secret, $user->otep);
@@ -176,7 +176,7 @@ class Convert extends Model
 			'title'     => JText::_('COM_LOGINGUARD_LBL_BACKUPCODES'),
 			'method'    => 'backupcodes',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => $json,
 		];
 
@@ -222,7 +222,7 @@ class Convert extends Model
 			'title'     => 'YubiKey ' . $config['yubikey'],
 			'method'    => 'yubikey',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => ['id' => $config['yubikey']],
 		];
 
@@ -262,7 +262,7 @@ class Convert extends Model
 			'title'     => 'Authenticator',
 			'method'    => 'totp',
 			'default'   => 0,
-			'last_used' => $db->getNullDate(),
+			'last_used' => null,
 			'options'   => ['key' => $config['code']],
 		];
 

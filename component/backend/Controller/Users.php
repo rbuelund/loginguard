@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14,7 +14,7 @@ use Joomla\CMS\Language\Text as JText;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the Users page in the backend of the site
@@ -33,6 +33,8 @@ class Users extends DataController
 
 		// Only allow a Browse view.
 		$this->predefinedTaskList = ['browse'];
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 

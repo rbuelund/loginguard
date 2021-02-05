@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14,7 +14,7 @@ use Akeeba\LoginGuard\Site\Model\Captive;
 use FOF30\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text as JText;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Html extends BaseView
 {
@@ -90,6 +90,8 @@ class Html extends BaseView
 	 */
 	function onBeforeCaptive()
 	{
+		$this->container->platform->runPlugins('onLoginGuardBeforeDisplayMethods', [$this->container->platform->getUser()]);
+
 		/** @var Captive $model */
 		$model = $this->getModel();
 
@@ -120,7 +122,7 @@ class Html extends BaseView
 			$this->record = reset($this->records);
 
 			// If we have multiple records try to make this record the default
-			if (count($this->records) > 1)
+			if ((is_array($this->records) || $this->records instanceof \Countable ? count($this->records) : 0) > 1)
 			{
 				foreach ($this->records as $record)
 				{
@@ -137,13 +139,16 @@ class Html extends BaseView
 		// Set the correct layout based on the availability of a TFA record
 		$this->setLayout('default');
 
+		// Should I implement the Remember Me feature?
+		$rememberMe = $this->container->params->get('allow_rememberme', 1);
+
 		// If we have no record selected or explicitly asked to run the 'select' task use the correct layout
 		if (is_null($this->record) || ($model->getState('task') == 'select'))
 		{
 			$this->setLayout('select');
 		}
 		// If there's no browser ID try to fingerprint the browser instead of showing the 2SV page
-		elseif (is_null($this->browserId))
+		elseif (is_null($this->browserId) && ($rememberMe == 1))
 		{
 			$this->setLayout('fingerprint');
 
@@ -165,7 +170,7 @@ class Html extends BaseView
 			case 'default':
 			default:
 				$this->renderOptions      = $model->loadCaptiveRenderOptions($this->record);
-				$this->allowEntryBatching = isset($this->renderOptions['allowEntryBatching']) ? $this->renderOptions['allowEntryBatching'] : 0;
+				$this->allowEntryBatching = $this->renderOptions['allowEntryBatching'] ?? 0;
 
 				$this->container->platform->runPlugins('onComLoginguardCaptiveShowCaptive', [
 					$this->escape($this->record->title),

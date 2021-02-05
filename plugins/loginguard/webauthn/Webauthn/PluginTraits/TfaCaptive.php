@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -19,7 +19,7 @@ use RuntimeException;
 use Webauthn\PublicKeyCredentialRequestOptions;
 
 // Prevent direct access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 trait TfaCaptive
 {
@@ -59,13 +59,15 @@ trait TfaCaptive
 			'pathOnly'      => false,
 			'detectBrowser' => true,
 		], [
-			'defer' => false,
+			'defer' => true,
 			'async' => false,
 		]);
 
 		// Load JS translations
 		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
 		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL');
+
+		Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'validate', false);
 
 		/**
 		 * The following code looks stupid. An explanation is in order.
@@ -97,10 +99,10 @@ trait TfaCaptive
 		 * That was fun to debug - for "poke your eyes with a rusty fork" values of fun.
 		 */
 
-		$session = Factory::getSession();
-		$pkOptionsEncoded = $session->get('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
+		$container = Container::getInstance('com_loginguard');
+		$pkOptionsEncoded = $container->platform->getSessionVar('publicKeyCredentialRequestOptions', null, 'plg_loginguard_webauthn');
 
-		$force = Container::getInstance('com_loginguard')->input->getInt('force', 0);
+		$force = $container->input->getInt('force', 0);
 
 		try
 		{
@@ -114,8 +116,8 @@ trait TfaCaptive
 				throw new RuntimeException('Expected exception (good): we do not have a pending key request');
 			}
 
-			$serializedOptions = \Safe\base64_decode($pkOptionsEncoded);
-			$pkOptions = unserialize($serializedOptions);
+			$serializedOptions = base64_decode($pkOptionsEncoded);
+			$pkOptions         = unserialize($serializedOptions);
 
 			if (!is_object($pkOptions) || empty($pkOptions) || !($pkOptions instanceof PublicKeyCredentialRequestOptions))
 			{
@@ -129,31 +131,7 @@ trait TfaCaptive
 			$pkRequest = Credentials::createChallenge($record->user_id);
 		}
 
-		$js = <<< JS
-;; // Defense against broken scripts
-
-function akeebaLoginGuardWebauthnOnClick()
-{
-	    window.jQuery('#loginguard-webauthn-button').hide();
-		akeeba.LoginGuard.webauthn.validate();
-
-		return false;
-}
-		
-window.jQuery(document).ready(function($) {
-	akeeba.LoginGuard.webauthn.authData = $pkRequest;
-	
-	$('#loginguard-captive-button-submit').click(function() {
-	    akeebaLoginGuardWebauthnOnClick();
-	});
-	
-	setTimeout(function() {
-	    akeebaLoginGuardWebauthnOnClick();
-	}, 250);
-});
-
-JS;
-		Factory::getDocument()->addScriptDeclaration($js);
+		Factory::getDocument()->addScriptOptions('com_loginguard.authData', base64_encode($pkRequest), false);
 
 		$layoutPath = PluginHelper::getLayoutPath('loginguard', 'webauthn', 'validate');
 		ob_start();
@@ -182,7 +160,7 @@ JS;
 			// URL for help content
 			'help_url'           => $helpURL,
 			// Allow authentication against all entries of this TFA method. Otherwise authentication takes place against a SPECIFIC entry at a time.
-			'allowEntryBatching' => true
+			'allowEntryBatching' => true,
 		];
 	}
 

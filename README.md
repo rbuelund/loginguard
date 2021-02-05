@@ -10,7 +10,7 @@ For more information and documentation for administrators, users and developers 
 
 ## Download
 
-Pre-built packages of Akeeba LoginGuard are available through [our GitHub repository's Releases page](https://github.com/akeeba/loginguard/releases).
+Pre-built packages of Akeeba LoginGuard are available through [our Downloads page](https://www.akeeba.com/download/official/loginguard.html).
 
 Akeeba LoginGuard comes with English (Great Britain) language built-in. We do not offer official translations in any other language nor do we accept pull requests for language files. You are free to provide free of charge translations for your own language, licensed under the GNU GPL v3 license, the same license the original files are licensed under.
 

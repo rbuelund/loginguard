@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaLoginGuard
- * @copyright Copyright (c)2016-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2016-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -19,7 +19,7 @@ use Joomla\CMS\Uri\Uri as JUri;
 use RuntimeException;
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Controller for the methods management page
@@ -34,7 +34,9 @@ class Methods extends Controller
 	{
 		parent::__construct($container, $config);
 
-		$this->setPredefinedTaskList(['main', 'display', 'dontshowthisagain', 'disable']);
+		$this->setPredefinedTaskList(['main', 'dontshowthisagain', 'disable']);
+		$this->cacheableTasks = [];
+		$this->userCaching = 2;
 	}
 
 	/**
@@ -105,7 +107,7 @@ class Methods extends Controller
 		}
 
 		// Redirect
-		$url       = JRoute::_('index.php?option=com_loginguard&task=methods.display&user_id=' . $user_id, false);
+		$url       = JRoute::_('index.php?option=com_loginguard&view=Methods&user_id=' . $user_id, false);
 		$returnURL = $this->input->getBase64('returnurl');
 
 		if (!empty($returnURL))

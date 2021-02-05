@@ -9,12 +9,12 @@ class Native extends AbstractHttp
 	/**
 	 * @deprecated
 	 */
-	const CONNECT_FOPEN = 1;
+	public const CONNECT_FOPEN = 1;
 
 	/**
 	 * @deprecated
 	 */
-	const CONNECT_SOCKET = 2;
+	public const CONNECT_SOCKET = 2;
 
 	protected function makeRequest($method, $url, $query, $file, $isContacts)
 	{
@@ -25,7 +25,7 @@ class Native extends AbstractHttp
 			array(AbstractAction::METHOD_GET, AbstractAction::METHOD_HEAD, AbstractAction::METHOD_DELETE)
 		);
 
-		if (!empty($body) or ($query and $getHeadOrDelete))
+		if (!empty($body) || $query && $getHeadOrDelete)
 		{
 			$url .= '?' . $query;
 		}
@@ -61,9 +61,9 @@ class Native extends AbstractHttp
 
 	private function getHeaders(array $metaData)
 	{
-		if (isset($metaData['wrapper_data']) and is_array($metaData['wrapper_data']))
+		if (isset($metaData['wrapper_data']) && is_array($metaData['wrapper_data']))
 		{
-			if (isset($metaData['wrapper_data']['headers']) and is_array($metaData['wrapper_data']['headers']))
+			if (isset($metaData['wrapper_data']['headers']) && is_array($metaData['wrapper_data']['headers']))
 			{
 				return $metaData['wrapper_data']['headers'];
 			}
