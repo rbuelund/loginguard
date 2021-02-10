@@ -20,9 +20,11 @@ class Html extends BaseView
 		{
 			$js = <<< JS
 ;; // Defense against broken scripts
-window.jQuery(document).ready(function (){
-	document.forms.adminForm.submit();
-});
+akeeba.Loader.add(['akeeba.System'], function() {
+    akeeba.System.documentReady(function() {
+       document.forms.adminForm.submit(); 
+    });
+})
 
 JS;
 
