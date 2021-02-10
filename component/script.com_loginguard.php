@@ -77,6 +77,11 @@ class Com_LoginguardInstallerScript extends FOF40\InstallScript\Component
 				'media/plg_loginguard_smsapi/js/utils.min.js',
 				'media/plg_loginguard_smsapi/js/utils.min.map',
 
+				'media/plg_loginguard_totp/js/data.min.js',
+				'media/plg_loginguard_totp/js/qrcode.map',
+				'media/plg_loginguard_totp/js/qrcode.min.js',
+				'media/plg_loginguard_totp/js/qrcode.min.map',
+
             ],
 	        'folders' => [
 		        // Obsolete Joomla! core MVC files from version 1.x

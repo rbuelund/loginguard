@@ -325,33 +325,31 @@ class PlgLoginguardTotp extends CMSPlugin
 
 		define('AKEEBA_LOGINGUARD_TOTP_JAVASCRIPT_INCLUDED', 1);
 
-		HTMLHelper::_('jquery.framework');
-
 		// Load Javascript
-		HTMLHelper::_('script', 'plg_loginguard_totp/qrcode.min.js', [
+		HTMLHelper::_('script', 'plg_loginguard_totp/qrcode.js', [
 			'version'       => 'auto',
 			'relative'      => true,
-			'detectDebug'   => true,
-			'framework'     => true,
+			'detectDebug'   => false,
+			'framework'     => false,
 			'pathOnly'      => false,
-			'detectBrowser' => true,
+			'detectBrowser' => false,
 		], [
-			'defer' => false,
+			'defer' => true,
 			'async' => false,
 		]);
 
 		$js = /** @lang JavaScript */
 			<<< JS
 ;; // Defense against broken scripts
-window.jQuery(document).ready(function ($){
-    $("#loginGuardQRImage").qrcode({
-    	render: 'image',
-    	ecLevel: 'Q',
-    	size: 300,
-    	quiet: 2,
-    	text: '$QRContent',
-    	background: 'white'
-    });
+akeeba.Loader.add(['QRCode'], function() {
+	new QRCode('loginGuardQRImage', {
+	        text: '$QRContent',
+	        width: 300,
+	        height: 300,
+	        colorDark : "#000000",
+	        colorLight : "#ffffff",
+	        correctLevel : QRCode.CorrectLevel.Q
+	});
 });
 
 JS;
