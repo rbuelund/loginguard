@@ -165,7 +165,7 @@ akeeba.LoginGuard.webauthn.onValidateClick = function (event) {
 
     akeeba.LoginGuard.webauthn.authData = JSON.parse(window.atob(Joomla.getOptions('com_loginguard.authData')));
 
-    window.jQuery('#loginguard-webauthn-button').hide();
+    document.getElementById('loginguard-webauthn-button').style.display = 'none';
     akeeba.LoginGuard.webauthn.validate();
 
     return false;
@@ -179,12 +179,14 @@ if (typeof(navigator.credentials) == 'undefined')
     document.getElementById('loginguard-webauthn-controls').style.display = 'none';
 }
 
-if (Joomla.getOptions('com_loginguard.pagetype') === 'validate')
-{
-    window.jQuery('#plg_loginguard_webauthn_validate_button').click(akeeba.LoginGuard.webauthn.onValidateClick);
-    window.jQuery('#loginguard-captive-button-submit').click(akeeba.LoginGuard.webauthn.onValidateClick);
-}
-else
-{
-    window.jQuery('#plg_loginguard_webauthn_register_button').click(akeeba.LoginGuard.webauthn.setUp);
-}
+akeeba.Loader.add(['akeeba.System'], function() {
+    if (Joomla.getOptions('com_loginguard.pagetype') === 'validate')
+    {
+        akeeba.System.addEventListener('plg_loginguard_webauthn_validate_button', 'click', akeeba.LoginGuard.webauthn.onValidateClick);
+        akeeba.System.addEventListener('loginguard-captive-button-submit', 'click', akeeba.LoginGuard.webauthn.onValidateClick);
+    }
+    else
+    {
+        akeeba.System.addEventListener('plg_loginguard_webauthn_register_button', 'click', akeeba.LoginGuard.webauthn.setUp);
+    }
+});
