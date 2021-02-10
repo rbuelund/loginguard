@@ -189,7 +189,8 @@ class PlgLoginguardU2f extends CMSPlugin
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
 		$submitOnClick = '';
 		$preMessage    = Text::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
-		$u2fRegData    = json_encode($this->u2f->getRegisterData($registrations));
+		$registerData  = $this->u2f->getRegisterData($registrations);
+		$u2fRegData    = json_encode($registerData);
 		$type          = 'input';
 		$html          = '';
 		$helpURL       = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
@@ -209,7 +210,7 @@ class PlgLoginguardU2f extends CMSPlugin
 				'pathOnly'      => false,
 				'detectBrowser' => true,
 			], [
-				'defer' => false,
+				'defer' => true,
 				'async' => false,
 			]);
 
@@ -221,18 +222,11 @@ class PlgLoginguardU2f extends CMSPlugin
 				'pathOnly'      => false,
 				'detectBrowser' => true,
 			], [
-				'defer' => false,
+				'defer' => true,
 				'async' => false,
 			]);
 
-			$js = <<< JS
-;; // Defense against broken scripts
-window.jQuery(document).ready(function() {
-	akeeba.LoginGuard.u2f.regData = $u2fRegData;
-});
-
-JS;
-			Factory::getDocument()->addScriptDeclaration($js);
+			$this->container->platform->addScriptOptions('akeeba.LoginGuard.u2f.regData', $registerData);
 
 			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'register');
 			ob_start();
@@ -461,27 +455,27 @@ JS;
 		$u2fAuthDataJSON = json_encode($u2fAuthData);
 		$this->container->platform->setSessionVar('u2f.authentication', base64_encode(serialize($u2fAuthData)), 'com_loginguard');
 
+		$this->container->platform->addScriptOptions('akeeba.LoginGuard.u2f.authData', $u2fAuthData);
+
 		$js = <<< JS
 ;; // Defense against broken scripts
 
-function akeebaLoginGuardU2FOnClick()
+function akeebaLoginGuardU2FOnClick(e)
 {
-	    window.jQuery('#loginguard-u2f-button').hide();
-		akeeba.LoginGuard.u2f.validate();
-
-		return false;
+    e.preventDefault();
+    
+    document.getElementById('loginguard-u2f-button').style.display = 'none';
+    akeeba.LoginGuard.u2f.validate();
+	    
+	return false;
 }
-		
-window.jQuery(document).ready(function($) {
-	akeeba.LoginGuard.u2f.authData = $u2fAuthDataJSON;
-	
-	$('#loginguard-captive-button-submit').click(function() {
-	    akeebaLoginGuardU2FOnClick();
-	});
-	
-	setTimeout(function() {
-	    akeebaLoginGuardU2FOnClick();
-	}, 250);
+
+akeeba.Loader.add(['akeeba.LoginGuard', 'akeeba.System'], function() {
+    akeeba.System.addEventListener('loginguard-captive-button-submit', 'click', akeebaLoginGuardU2FOnClick);
+    
+    akeeba.System.documentReady(function() {
+        akeeba.System.triggerEvent('loginguard-captive-button-submit', 'click');
+    });
 });
 
 JS;
@@ -852,8 +846,8 @@ JS;
 		$browserMake    = $jBrowser->getBrowser();
 		$browserVersion = $jBrowser->getVersion();
 
-		// Are you on Chrome 38+? Awesome, you can use U2F on Windows, Linux, macOS and Android!
-		if (($browserMake == 'chrome') && version_compare($browserVersion, '38.0', 'ge'))
+		// Are you on Chrome/Edge 38+? Awesome, you can use U2F on Windows, Linux, macOS and Android!
+		if (in_array($browserMake, ['chrome', 'edg', 'edge']) && version_compare($browserVersion, '38.0', 'ge'))
 		{
 			return true;
 		}

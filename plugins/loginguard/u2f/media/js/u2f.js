@@ -20,6 +20,8 @@ akeeba.LoginGuard.u2f = akeeba.LoginGuard.u2f || {
  */
 akeeba.LoginGuard.u2f.setUp = function ()
 {
+    akeeba.LoginGuard.u2f.regData = akeeba.System.getOptions('akeeba.LoginGuard.u2f.regData', ['', '']);
+
 	var u2fRequest       = akeeba.LoginGuard.u2f.regData[0];
 	var u2fAuthorization = akeeba.LoginGuard.u2f.regData[1];
 
@@ -117,7 +119,9 @@ akeeba.LoginGuard.u2f.validate = function ()
     // This line was valid for U2F Javascript API 1.0 which is no longer supported ;(
 	// u2f.sign(akeeba.LoginGuard.u2f.authData, akeeba.LoginGuard.u2f.validateCallback);
 
-	u2f.sign(akeeba.LoginGuard.u2f.authData[0].appId, akeeba.LoginGuard.u2f.authData[0].challenge, akeeba.LoginGuard.u2f.authData, akeeba.LoginGuard.u2f.validateCallback);
+    akeeba.LoginGuard.u2f.authData = akeeba.System.getOptions('akeeba.LoginGuard.u2f.authData', ['', '']);
+
+    u2f.sign(akeeba.LoginGuard.u2f.authData[0].appId, akeeba.LoginGuard.u2f.authData[0].challenge, akeeba.LoginGuard.u2f.authData, akeeba.LoginGuard.u2f.validateCallback);
 };
 
 /**
