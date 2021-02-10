@@ -170,6 +170,20 @@ class PlgLoginguardSmsapi extends CMSPlugin
 
 		$this->container->platform->setSessionVar('smsapi.user_id', $record->user_id, 'com_loginguard');
 
+		// We have a phone and a key. Send an SMS message with a new code and ask the user to enter it.
+		try
+		{
+			$this->sendCode($key, $phone);
+		}
+		catch (Exception $e)
+		{
+			Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+			$phone = null;
+
+			$this->container->platform->setSessionVar('smsapi.phone', null, 'com_loginguard');
+		}
+
 		// If there is no phone we need to show the phone entry page
 		if (empty($phone))
 		{
@@ -212,9 +226,6 @@ class PlgLoginguardSmsapi extends CMSPlugin
 			];
 
 		}
-
-		// We have a phone and a key. Send a push message with a new code and ask the user to enter it.
-		$this->sendCode($key, $phone);
 
 		return [
 			// Default title if you are setting up this TFA method for the first time

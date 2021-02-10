@@ -66,6 +66,17 @@ class Com_LoginguardInstallerScript extends FOF40\InstallScript\Component
 		        // Remove all obsolete methods view file, except for the list.xml metadata file
 		        'components/com_loginguard/views/method/view.html.php',
 
+				// Moving to FOF 4 / FEF 2
+				'media/plg_loginguard_smsapi/css/telinput.css',
+				'media/plg_loginguard_smsapi/css/telinput.min.css',
+				'media/plg_loginguard_smsapi/js/telinput.js',
+				'media/plg_loginguard_smsapi/js/telinput.map',
+				'media/plg_loginguard_smsapi/js/telinput.min.js',
+				'media/plg_loginguard_smsapi/js/telinput.min.map',
+				'media/plg_loginguard_smsapi/js/utils.map',
+				'media/plg_loginguard_smsapi/js/utils.min.js',
+				'media/plg_loginguard_smsapi/js/utils.min.map',
+
             ],
 	        'folders' => [
 		        // Obsolete Joomla! core MVC files from version 1.x
