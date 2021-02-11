@@ -158,6 +158,8 @@ class Method extends Model
 			'show_submit'    => true,
 			// onclick handler for the submit button (apply the TFA setup)
 			'submit_onclick' => '',
+			// Additional CSS classes for the submit button (apply the TFA setup)
+			'submit_class' => '',
 			// Custom HTML to display below the TFA setup form
 			'post_message'   => '',
 			// A URL with help content for this method to display to the user

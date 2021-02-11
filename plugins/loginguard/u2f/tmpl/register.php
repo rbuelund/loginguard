@@ -11,8 +11,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 // Prevent direct access
 defined('_JEXEC') || die;
 
-$layoutPath = PluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
-include $layoutPath;
+include PluginHelper::getLayoutPath('loginguard', 'u2f', 'error');
 
 ?>
 <div id="loginguard-u2f-controls">
@@ -20,8 +19,7 @@ include $layoutPath;
 
     <div class="akeeba-form-group--pull-right">
         <div class="akeeba-form-group--actions">
-            <a class="akeeba-btn--primary--large"
-               onclick="akeeba.LoginGuard.u2f.setUp();">
+            <a class="akeeba-btn--primary--large loginguard_u2f_setup">
                 <span class="icon icon-lock glyphicon glyphicon-lock"></span>
 				<?= Text::_('PLG_LOGINGUARD_U2F_LBL_REGISTERKEY'); ?>
             </a>

@@ -187,13 +187,13 @@ class PlgLoginguardU2f extends CMSPlugin
 		$registrations = $this->getRegistrationsFor($record->user_id);
 
 		// Get some values assuming that we are NOT setting up U2F (the key is already registered)
-		$submitOnClick = '';
-		$preMessage    = Text::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
-		$registerData  = $this->u2f->getRegisterData($registrations);
-		$u2fRegData    = json_encode($registerData);
-		$type          = 'input';
-		$html          = '';
-		$helpURL       = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
+		$submitClass  = '';
+		$preMessage   = Text::_('PLG_LOGINGUARD_U2F_LBL_CONFIGURED');
+		$registerData = $this->u2f->getRegisterData($registrations);
+		$u2fRegData   = json_encode($registerData);
+		$type         = 'input';
+		$html         = '';
+		$helpURL      = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/U2F');
 
 		/**
 		 * If there are no security keys set up yet I need to show a different message and take a different action when
@@ -245,7 +245,7 @@ class PlgLoginguardU2f extends CMSPlugin
 			$this->container->platform->setSessionVar('u2f.request', $u2fRegData, 'com_loginguard');
 
 			// Special button handling
-			$submitOnClick = "akeeba.LoginGuard.u2f.setUp(); return false;";
+			$submitClass = "loginguard_u2f_setup";
 
 			// Message to display
 			$preMessage = Text::_('PLG_LOGINGUARD_U2F_LBL_INSTRUCTIONS');
@@ -253,37 +253,37 @@ class PlgLoginguardU2f extends CMSPlugin
 
 		return [
 			// Default title if you are setting up this TFA method for the first time
-			'default_title'  => Text::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
+			'default_title' => Text::_('PLG_LOGINGUARD_U2F_LBL_DISPLAYEDAS'),
 			// Custom HTML to display above the TFA setup form
-			'pre_message'    => $preMessage,
+			'pre_message'   => $preMessage,
 			// Heading for displayed tabular data. Typically used to display a list of fixed TFA codes, TOTP setup parameters etc
-			'table_heading'  => '',
+			'table_heading' => '',
 			// Any tabular data to display (label => custom HTML). See above
-			'tabular_data'   => [],
+			'tabular_data'  => [],
 			// Hidden fields to include in the form (name => value)
-			'hidden_data'    => [
+			'hidden_data'   => [
 				'u2fregdata' => $u2fRegData,
 			],
 			// How to render the TFA setup code field. "input" (HTML input element) or "custom" (custom HTML)
-			'field_type'     => $type,
+			'field_type'    => $type,
 			// The type attribute for the HTML input box. Typically "text" or "password". Use any HTML5 input type.
-			'input_type'     => 'hidden',
+			'input_type'    => 'hidden',
 			// Pre-filled value for the HTML input box. Typically used for fixed codes, the fixed YubiKey ID etc.
-			'input_value'    => '',
+			'input_value'   => '',
 			// Placeholder text for the HTML input box. Leave empty if you don't need it.
-			'placeholder'    => '',
+			'placeholder'   => '',
 			// Label to show above the HTML input box. Leave empty if you don't need it.
-			'label'          => '',
+			'label'         => '',
 			// Custom HTML. Only used when field_type = custom.
-			'html'           => $html,
+			'html'          => $html,
 			// Should I show the submit button (apply the TFA setup)? Only applies in the Add page.
-			'show_submit'    => false,
-			// onclick handler for the submit button (apply the TFA setup)?
-			'submit_onclick' => $submitOnClick,
+			'show_submit'   => false,
+			// Additional CSS classes for the submit button (apply the TFA setup)
+			'submit_class'  => $submitClass,
 			// Custom HTML to display below the TFA setup form
-			'post_message'   => '',
+			'post_message'  => '',
 			// URL for help content
-			'help_url'       => $helpURL,
+			'help_url'      => $helpURL,
 		];
 	}
 

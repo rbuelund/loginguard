@@ -114,7 +114,8 @@ $token = $this->getContainer()->platform->getToken();
 	<div class="akeeba-form-group--pull-right">
 		<div class="akeeba-form-group--actions">
 			<?php if ($this->renderOptions['show_submit'] || $this->isEditExisting): ?>
-			<button type="submit" class="akeeba-btn--primary"
+			<button type="submit" id="loginguard-method-submit"
+					class="akeeba-btn--primary <?= $this->renderOptions['submit_class'] ?? '' ?>"
 				<?= $this->renderOptions['submit_onclick'] ? "onclick=\"{$this->renderOptions['submit_onclick']}\"" : '' ?>>
 				<span class="akion-checkmark-circled"></span>
 				<?= Text::_('COM_LOGINGUARD_LBL_EDIT_SUBMIT'); ?>
