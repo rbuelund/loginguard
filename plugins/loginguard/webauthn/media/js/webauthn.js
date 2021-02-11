@@ -38,8 +38,10 @@ akeeba.LoginGuard.webauthn.base64url2base64 = function(input) {
 /**
  * Ask the user to link an authenticator using the provided public key (created server-side).
  */
-akeeba.LoginGuard.webauthn.setUp = () =>
+akeeba.LoginGuard.webauthn.setUp = (e) =>
 {
+    e.preventDefault();
+
     // Make sure the browser supports Webauthn
     if (!('credentials' in navigator))
     {
@@ -47,7 +49,7 @@ akeeba.LoginGuard.webauthn.setUp = () =>
 
         console.log('This browser does not support Webauthn');
 
-        return;
+        return false;
     }
 
     const rawPKData = document.forms['loginguard-method-edit'].querySelectorAll('input[name="pkRequest"]')[0].value;
@@ -95,7 +97,7 @@ akeeba.LoginGuard.webauthn.handle_error = (message) =>
 {
     try
     {
-        $('#loginguard-webauthn-button').show();
+        document.getElementById('loginguard-webauthn-button').style.display = '';
     }
     catch (e) {};
 
@@ -189,4 +191,8 @@ akeeba.Loader.add(['akeeba.System'], function() {
     {
         akeeba.System.addEventListener('plg_loginguard_webauthn_register_button', 'click', akeeba.LoginGuard.webauthn.setUp);
     }
+
+    akeeba.System.forEach(document.querySelectorAll('.loginguard_webauthn_setup'), function(i, btn) {
+        akeeba.System.addEventListener(btn, 'click', akeeba.LoginGuard.webauthn.setUp)
+    });
 });
