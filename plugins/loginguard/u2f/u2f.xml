@@ -7,8 +7,8 @@
 
 <extension version="3.9.0" type="plugin" group="loginguard" method="upgrade">
 	<name>PLG_LOGINGUARD_U2F</name>
-	<version>3.3.8</version>
-	<creationDate>2021-02-05</creationDate>
+	<version>3.3.10</version>
+	<creationDate>2021-02-14</creationDate>
 
 	<author>Akeeba Ltd</author>
 	<authorEmail>no-reply@akeeba.com</authorEmail>
