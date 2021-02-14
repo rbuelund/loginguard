@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 3.3.10
+================================================================================
+# [HIGH] New installation could fail with a database error since version 3.3.7
+
 Akeeba LoginGuard 3.3.9
 ================================================================================
 ~ Releasing the previous version without changes, due to server and CDN issues which resulted in inconsistent updates

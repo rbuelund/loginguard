@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS `#__loginguard_tfa` (
   `method` VARCHAR(100) NOT NULL,
   `default` TINYINT(1) NOT NULL DEFAULT 0,
   `options` MEDIUMTEXT null,
-  `created_on` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `last_used` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_on` DATETIME NULL DEFAULT NULL,
+  `last_used` DATETIME NULL DEFAULT NULL,
   INDEX idx_user_id (`user_id`),
-  PRIMARY KEY `id`,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT COLLATE=utf8_general_ci;
             ]]></query>
 		</action>
