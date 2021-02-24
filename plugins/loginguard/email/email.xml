@@ -34,12 +34,12 @@
         <language tag="en-GB">en-GB/en-GB.plg_loginguard_email.sys.ini</language>
     </languages>
 
-    <config>
+    <config addfieldpath="/administrator/components/com_loginguard/Field/Joomla">
         <fields name="params">
             <fieldset name="basic">
                 <field
                         name="force_enable"
-                        type="radio"
+                        type="fancyradio"
                         label="PLG_LOGINGUARD_EMAIL_CONFIG_FORCE_ENABLE_LABEL"
                         description="PLG_LOGINGUARD_EMAIL_CONFIG_FORCE_ENABLE_DESC"
                         default="0"

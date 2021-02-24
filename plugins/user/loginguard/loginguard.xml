@@ -32,12 +32,12 @@
 		<language tag="en-GB">en-GB/en-GB.plg_user_loginguard.sys.ini</language>
 	</languages>
 
-	<config>
+	<config addfieldpath="/administrator/components/com_loginguard/Field/Joomla">
 		<fields name="params">
 			<fieldset name="basic">
 				<field
 						name="redirectonlogin"
-						type="radio"
+						type="fancyradio"
 						label="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_LABEL"
 						description="PLG_USER_LOGINGUARD_CONFIG_REDIRECTONLOGIN_DESC"
 						default="1"

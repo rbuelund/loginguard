@@ -30,12 +30,12 @@
 		<language tag="en-GB">en-GB/en-GB.plg_system_loginguard.sys.ini</language>
 	</languages>
 
-	<config>
+	<config addfieldpath="/administrator/components/com_loginguard/Field/Joomla">
 		<fields name="params">
 			<fieldset name="basic">
 				<field
 						name="2svonsilent"
-						type="radio"
+						type="fancyradio"
 						label="PLG_SYSTEM_LOGINGUARD_CONFIG_2SVONSILENT_LABEL"
 						description="PLG_SYSTEM_LOGINGUARD_CONFIG_2SVONSILENT_DESC"
 						default="1"

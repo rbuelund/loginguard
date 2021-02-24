@@ -3,6 +3,7 @@ Akeeba LoginGuard 4.0.0
 ================================================================================
 + Rewritten using FOF 4
 + Renamed ViewTemplates to tmpl (Joomla 4 convention, with fallback code for Joomla 3)
++ Yes/No options in the component and plugin options now work correctly under Joomla 4.0 beta 7 and later
 
 Akeeba LoginGuard 3.3.7
 ================================================================================
