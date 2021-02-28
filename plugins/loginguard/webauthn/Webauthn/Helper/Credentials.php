@@ -131,7 +131,7 @@ abstract class Credentials
 		}
 		catch (Exception $e)
 		{
-			$challenge = Crypt::genRandomBytes(32);
+			$challenge = random_bytes(32);
 		}
 
 		// Public Key Credential Parameters
@@ -373,14 +373,7 @@ abstract class Credentials
 			}
 		}
 
-		try
-		{
-			$challenge = random_bytes(32);
-		}
-		catch (Exception $e)
-		{
-			$challenge = Crypt::genRandomBytes(32);
-		}
+		$challenge = random_bytes(32);
 
 		// Extensions
 		$extensions = new AuthenticationExtensionsClientInputs;

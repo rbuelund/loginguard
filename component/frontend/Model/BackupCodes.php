@@ -211,7 +211,7 @@ class BackupCodes extends Model
 
 		do
 		{
-			$test   = JCrypt::genRandomBytes($bytes);
+			$test   = random_bytes($bytes);
 			$result = hexdec(bin2hex($test)) & $mask;
 		} while ($result > $range);
 

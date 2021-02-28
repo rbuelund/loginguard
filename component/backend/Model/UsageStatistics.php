@@ -41,7 +41,7 @@ class UsageStatistics extends Model
 			$siteUrl = md5(JUri::base());
 			$this->setCommonVariable('stats_siteurl', $siteUrl);
 
-			$randomData = JCrypt::genRandomBytes(120);
+			$randomData = random_bytes(120);
 			$siteId     = sha1($randomData);
 
 			$this->setCommonVariable('stats_siteid', $siteId);
