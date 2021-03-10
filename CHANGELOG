@@ -1,4 +1,8 @@
 <?php die(); ?>
+Akeeba LoginGuard 4.0.1
+================================================================================
+~ Converted all tables to InnoDB for better performance
+
 Akeeba LoginGuard 4.0.0
 ================================================================================
 + Rewritten using FOF 4

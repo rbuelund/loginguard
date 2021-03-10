@@ -81,5 +81,15 @@ ALTER TABLE `#__loginguard_tfa` ADD PRIMARY KEY (`id`);
             ]]></query>
 		</action>
 
+		<!-- Convert tables to InnoDB -->
+		<action table="#__loginguard_tfa" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__loginguard_tfa') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__loginguard_tfa` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
 	</sql>
 </schema>
