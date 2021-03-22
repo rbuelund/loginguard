@@ -366,7 +366,14 @@ class PlgLoginguardSmsapi extends CMSPlugin
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/SMSAPI');
 
 		// Send a push message with a new code and ask the user to enter it.
-		$this->sendCode($key, $phone);
+		try
+		{
+			$this->sendCode($key, $phone);
+		}
+		catch (Exception $e)
+		{
+			return [];
+		}
 
 		return [
 			// Custom HTML to display above the TFA form

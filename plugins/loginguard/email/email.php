@@ -265,7 +265,15 @@ class PlgLoginguardEmail extends CMSPlugin
 
 		// Send an email message with a new code and ask the user to enter it.
 		$user = Factory::getUser($record->user_id);
-		$this->sendCode($key, $user);
+
+		try
+		{
+			$this->sendCode($key, $user);
+		}
+		catch (Exception $e)
+		{
+			return [];
+		}
 
 		return [
 			// Custom HTML to display above the TFA form

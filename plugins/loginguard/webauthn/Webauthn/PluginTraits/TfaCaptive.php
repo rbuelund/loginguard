@@ -50,25 +50,6 @@ trait TfaCaptive
 		// Get the media version
 		$mediaVersion = Container::getInstance('com_loginguard')->mediaVersion;
 
-		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
-		HTMLHelper::_('script', 'plg_loginguard_webauthn/dist/webauthn.js', [
-			'version'       => $mediaVersion,
-			'relative'      => true,
-			'detectDebug'   => true,
-			'framework'     => true,
-			'pathOnly'      => false,
-			'detectBrowser' => true,
-		], [
-			'defer' => true,
-			'async' => false,
-		]);
-
-		// Load JS translations
-		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
-		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL');
-
-		Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'validate', false);
-
 		/**
 		 * The following code looks stupid. An explanation is in order.
 		 *
@@ -131,12 +112,37 @@ trait TfaCaptive
 			$pkRequest = Credentials::createChallenge($record->user_id);
 		}
 
-		Factory::getDocument()->addScriptOptions('com_loginguard.authData', base64_encode($pkRequest), false);
+		try
+		{
+			Factory::getDocument()->addScriptOptions('com_loginguard.authData', base64_encode($pkRequest), false);
+			$layoutPath = PluginHelper::getLayoutPath('loginguard', 'webauthn', 'validate');
+			ob_start();
+			include $layoutPath;
+			$html = ob_get_clean();
+		}
+		catch (Exception $e)
+		{
+			return [];
+		}
 
-		$layoutPath = PluginHelper::getLayoutPath('loginguard', 'webauthn', 'validate');
-		ob_start();
-		include $layoutPath;
-		$html = ob_get_clean();
+		// We are going to load a JS file and use custom on-load JS to intercept the loginguard-captive-button-submit button
+		HTMLHelper::_('script', 'plg_loginguard_webauthn/dist/webauthn.js', [
+			'version'       => $mediaVersion,
+			'relative'      => true,
+			'detectDebug'   => true,
+			'framework'     => true,
+			'pathOnly'      => false,
+			'detectBrowser' => true,
+		], [
+			'defer' => true,
+			'async' => false,
+		]);
+
+		// Load JS translations
+		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NOTAVAILABLE_HEAD');
+		Text::script('PLG_LOGINGUARD_WEBAUTHN_ERR_NO_STORED_CREDENTIAL');
+
+		Factory::getDocument()->addScriptOptions('com_loginguard.pagetype', 'validate', false);
 
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Webauthn');
 

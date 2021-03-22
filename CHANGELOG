@@ -2,6 +2,7 @@
 Akeeba LoginGuard 4.0.1
 ================================================================================
 ~ Converted all tables to InnoDB for better performance
+# [MEDIUM] Prevent exceptions thrown by plugins during validation initialisation to prevent access to alternative Two Step Verification options
 
 Akeeba LoginGuard 4.0.0
 ================================================================================

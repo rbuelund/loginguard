@@ -354,7 +354,14 @@ class PlgLoginguardPushbullet extends CMSPlugin
 		$helpURL = $this->params->get('helpurl', 'https://github.com/akeeba/loginguard/wiki/Pushbullet');
 
 		// Send a push message with a new code and ask the user to enter it.
-		$this->sendCode($key, $token);
+		try
+		{
+			$this->sendCode($key, $token);
+		}
+		catch (Exception $e)
+		{
+			return [];
+		}
 
 		return [
 			// Custom HTML to display above the TFA form
