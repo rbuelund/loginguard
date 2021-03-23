@@ -271,20 +271,40 @@ abstract class Credentials
 		// The token binding handler
 		$tokenBindingHandler = new TokenBindingNotSupportedHandler();
 
-		// Attestation Statement Support Manager
-		$attestationStatementSupportManager = new AttestationStatementSupportManager();
-		$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
-		$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
-		//$attestationStatementSupportManager->add(new AndroidSafetyNetAttestationStatementSupport(HttpFactory::getHttp(), 'GOOGLE_SAFETYNET_API_KEY', new RequestFactory()));
-		$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
-		$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
-		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
+		if (self::isWebAuthnLib3())
+		{
+			// Attestation Statement Support Manager
+			$attestationStatementSupportManager = new AttestationStatementSupportManager();
+			$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
+			$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($coseAlgorithmManager));
 
-		// Attestation Object Loader
-		$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
+			// Attestation Object Loader
+			$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager);
 
-		// Public Key Credential Loader
-		$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
+			// Public Key Credential Loader
+			$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader);
+		}
+		else
+		{
+			// Attestation Statement Support Manager
+			$attestationStatementSupportManager = new AttestationStatementSupportManager();
+			$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
+			//$attestationStatementSupportManager->add(new AndroidSafetyNetAttestationStatementSupport(HttpFactory::getHttp(), 'GOOGLE_SAFETYNET_API_KEY', new RequestFactory()));
+			$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
+			$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
+			$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
+
+			// Attestation Object Loader
+			$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
+
+			// Public Key Credential Loader
+			$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
+		}
+
 
 		// Credential Repository
 		$credentialRepository = new CredentialRepository($storedUserId);
@@ -468,35 +488,70 @@ abstract class Credentials
 		$tagObjectManager   = new TagObjectManager();
 		$decoder            = new Decoder($tagObjectManager, $otherObjectManager);
 
-		// Attestation Statement Support Manager
-		$algorithmManager                   = new Manager();
-		$attestationStatementSupportManager = new AttestationStatementSupportManager();
-		$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
-		$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
-		$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
-		$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
-		$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
+		if (self::isWebAuthnLib3())
+		{
+			// Attestation Statement Support Manager
+			$algorithmManager                   = new Manager();
+			$attestationStatementSupportManager = new AttestationStatementSupportManager();
+			$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
+			$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($coseAlgorithmManager));
 
-		// Attestation Object Loader
-		$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
+			// Attestation Object Loader
+			$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager);
 
-		// Public Key Credential Loader
-		$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
+			// Public Key Credential Loader
+			$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader);
 
-		// The token binding handler
-		$tokenBindingHandler = new TokenBindingNotSupportedHandler();
+			// The token binding handler
+			$tokenBindingHandler = new TokenBindingNotSupportedHandler();
 
-		// Extension Output Checker Handler
-		$extensionOutputCheckerHandler = new ExtensionOutputCheckerHandler;
+			// Extension Output Checker Handler
+			$extensionOutputCheckerHandler = new ExtensionOutputCheckerHandler;
 
-		// Authenticator Assertion Response Validator
-		$authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
-			$credentialRepository,
-			$decoder,
-			$tokenBindingHandler,
-			$extensionOutputCheckerHandler,
-			$coseAlgorithmManager
-		);
+			// Authenticator Assertion Response Validator
+			$authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
+				$credentialRepository,
+				$tokenBindingHandler,
+				$extensionOutputCheckerHandler,
+				$coseAlgorithmManager
+			);
+		}
+		else
+		{
+			// Attestation Statement Support Manager
+			$algorithmManager                   = new Manager();
+			$attestationStatementSupportManager = new AttestationStatementSupportManager();
+			$attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
+			$attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport($decoder));
+			$attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport($decoder));
+			$attestationStatementSupportManager->add(new TPMAttestationStatementSupport);
+			$attestationStatementSupportManager->add(new PackedAttestationStatementSupport($decoder, $coseAlgorithmManager));
+
+			// Attestation Object Loader
+			$attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $decoder);
+
+			// Public Key Credential Loader
+			$publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $decoder);
+
+			// The token binding handler
+			$tokenBindingHandler = new TokenBindingNotSupportedHandler();
+
+			// Extension Output Checker Handler
+			$extensionOutputCheckerHandler = new ExtensionOutputCheckerHandler;
+
+			// Authenticator Assertion Response Validator
+			$authenticatorAssertionResponseValidator = new AuthenticatorAssertionResponseValidator(
+				$credentialRepository,
+				$decoder,
+				$tokenBindingHandler,
+				$extensionOutputCheckerHandler,
+				$coseAlgorithmManager
+			);
+
+		}
 
 		// We init the Symfony Request object
 		$request = ServerRequestFactory::fromGlobals();
@@ -597,5 +652,22 @@ abstract class Credentials
 		}
 
 		return rtrim(Uri::base(), '/') . '/' . ltrim($relFile, '/');
+	}
+
+	/**
+	 * Is this WebAuthn library version 3?
+	 *
+	 * We ship version 3. Joomla 4 only ships version 2 and we cannot override it if the WebAuthn system plugin is
+	 * enabled. Therefore we have a dual version support system.
+	 *
+	 * @return bool
+	 */
+	protected static function isWebAuthnLib3(): bool
+	{
+		$refClass = new \ReflectionClass(FidoU2FAttestationStatementSupport::class);
+		$refMethod = $refClass->getConstructor();
+		$params = $refMethod->getParameters();
+
+		return count($params) === 0;
 	}
 }
