@@ -111,9 +111,9 @@ abstract class Credentials
 
 		// Relaying Party -- Our site
 		$rpEntity = new PublicKeyCredentialRpEntity(
-			$siteName,
+			$siteName ?? 'Joomla! Site',
 			Uri::getInstance()->toString(['host']),
-			self::getSiteIcon()
+			self::getSiteIcon() ?? ''
 		);
 
 		// User Entity
